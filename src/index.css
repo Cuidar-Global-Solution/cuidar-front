@@ -1,0 +1,66 @@
+
+@import "tailwindcss";
+
+@theme {
+  --color-brand-dark: #3B075E;
+  --color-brand-primary: #650C8A;
+  --color-brand-light: #C66BF0;
+  --color-brand-lavender: #E8B5FF;
+  --color-brand-pink: #E83E91;
+  --color-brand-pink-light: #FCE7F3;
+  --color-brand-background: #FCF8FC;
+  --color-brand-surface: #FFFFFF;
+  --color-brand-ink: #28152F;
+  --color-brand-muted: #786B80;
+  --color-brand-border: #F0E4F2;
+  --color-brand-success: #16A36A;
+  --color-brand-warning: #F59E0B;
+  --color-brand-danger: #DC2626;
+  --font-sans: "Nunito Sans", sans-serif;
+  --font-heading: "Poppins", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--color-brand-background);
+  color: var(--color-brand-ink);
+  font-family: "Nunito Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--color-brand-dark);
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--color-brand-lavender);
+  color: var(--color-brand-dark);
+}
