@@ -1,11 +1,14 @@
 
 import {
   Accessibility,
+  ArrowRight,
+  ArrowUpRight,
   CalendarCheck,
   ClipboardList,
   Clock3,
   Compass,
   Eye,
+  HandHeart,
   Heart,
   HeartHandshake,
   LockKeyhole,
@@ -13,6 +16,7 @@ import {
   Target,
   Users,
 } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 export default function Sobre() {
   return (
@@ -303,6 +307,106 @@ export default function Sobre() {
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="border-y border-brand-border bg-white">
+        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10">
+          <div className="max-w-2xl">
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-pink">
+              Impacto social
+            </span>
+
+            <h2 className="mt-4 text-3xl font-semibold sm:text-4xl">
+              Um cuidado melhor também contribui para uma sociedade melhor.
+            </h2>
+
+            <p className="mt-5 leading-8 text-brand-muted">
+              O Cuidar+ está alinhado a iniciativas globais que buscam
+              promover qualidade de vida, inclusão e dignidade. Acreditamos
+              que a tecnologia pode ajudar a enfrentar desafios sociais
+              quando é desenvolvida a partir das necessidades das pessoas.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
+            <article className="flex flex-col rounded-3xl bg-brand-dark p-8 text-white sm:p-10">
+              <span className="text-sm font-bold uppercase tracking-widest text-brand-lavender">
+                ODS 3
+              </span>
+
+              <h3 className="mt-5 text-2xl font-semibold text-white">
+                Saúde e bem-estar
+              </h3>
+
+              <p className="mt-4 flex-1 text-sm leading-7 text-white/75">
+                Ao facilitar a organização de rotinas, medicamentos e
+                compromissos, o projeto busca contribuir para um
+                acompanhamento mais atento e organizado das necessidades
+                da pessoa idosa.
+              </p>
+
+              <a
+                href="https://brasil.un.org/pt-br/sdgs/3"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-brand-lavender transition hover:text-white"
+              >
+                Conhecer o ODS 3
+                <ArrowUpRight size={16} />
+              </a>
+            </article>
+
+            <article className="flex flex-col rounded-3xl border border-brand-border bg-brand-background p-8 sm:p-10">
+              <span className="text-sm font-bold uppercase tracking-widest text-brand-pink">
+                ODS 10
+              </span>
+
+              <h3 className="mt-5 text-2xl font-semibold">
+                Redução das desigualdades
+              </h3>
+
+              <p className="mt-4 flex-1 text-sm leading-7 text-brand-muted">
+                A proposta busca aproximar pessoas e facilitar o acesso
+                à organização do cuidado, considerando diferentes realidades
+                familiares e necessidades de apoio.
+              </p>
+
+              <a
+                href="https://brasil.un.org/pt-br/sdgs/10"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-brand-primary transition hover:text-brand-pink"
+              >
+                Conhecer o ODS 10
+                <ArrowUpRight size={16} />
+              </a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10">
+        <div className="overflow-hidden rounded-3xl bg-brand-dark px-8 py-12 text-center sm:px-14 sm:py-16">
+          <HandHeart size={38} className="mx-auto text-brand-lavender" />
+
+          <h2 className="mx-auto mt-6 max-w-2xl text-3xl font-semibold text-white sm:text-4xl">
+            Cuidar é uma responsabilidade compartilhada.
+          </h2>
+
+          <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-white/75 sm:text-base">
+            Conheça a proposta do Cuidar+ e descubra como a tecnologia
+            pode ajudar a tornar a rotina de cuidados mais organizada,
+            próxima e humana.
+          </p>
+
+          <Link
+            to="/solucao"
+            className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-brand-pink px-7 py-3.5 text-sm font-bold text-white transition hover:bg-brand-light"
+          >
+            Conheça nossa solução
+            <ArrowRight size={17} />
+          </Link>
         </div>
       </section>
     </div>
