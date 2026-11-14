@@ -1,5 +1,5 @@
 
-import { HeartHandshake } from 'lucide-react'
+import { ClipboardList, Clock3, HeartHandshake, Users } from 'lucide-react'
 
 export default function Sobre() {
   return (
@@ -51,6 +51,69 @@ export default function Sobre() {
               atividades diárias, acompanhar compromissos e facilitar
               a conexão entre as pessoas envolvidas no cuidado.
             </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-brand-border bg-white">
+        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10">
+          <div className="max-w-2xl">
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-pink">
+              Por que existimos
+            </span>
+
+            <h2 className="mt-4 text-3xl font-semibold sm:text-4xl">
+              O cuidado ainda enfrenta desafios que não podem ser ignorados.
+            </h2>
+
+            <p className="mt-5 leading-8 text-brand-muted">
+              O envelhecimento da população traz novas necessidades para
+              famílias, profissionais e para toda a sociedade. Na rotina,
+              muitas dessas necessidades acabam sendo resolvidas de forma
+              improvisada, com informações espalhadas e pouca integração.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            <article className="rounded-2xl border border-brand-border p-7">
+              <ClipboardList size={28} className="text-brand-primary" />
+
+              <h3 className="mt-5 text-xl font-semibold">
+                Informações dispersas
+              </h3>
+
+              <p className="mt-3 text-sm leading-7 text-brand-muted">
+                Medicamentos, consultas, orientações e compromissos podem
+                ficar distribuídos entre mensagens, anotações e diferentes
+                pessoas.
+              </p>
+            </article>
+
+            <article className="rounded-2xl border border-brand-border p-7">
+              <Clock3 size={28} className="text-brand-primary" />
+
+              <h3 className="mt-5 text-xl font-semibold">
+                Rotina exigente
+              </h3>
+
+              <p className="mt-3 text-sm leading-7 text-brand-muted">
+                Conciliar trabalho, responsabilidades familiares e cuidados
+                diários exige tempo, atenção e organização constante.
+              </p>
+            </article>
+
+            <article className="rounded-2xl border border-brand-border p-7">
+              <Users size={28} className="text-brand-primary" />
+
+              <h3 className="mt-5 text-xl font-semibold">
+                Falta de integração
+              </h3>
+
+              <p className="mt-3 text-sm leading-7 text-brand-muted">
+                Familiares e cuidadores podem ter dificuldades para manter
+                uma comunicação clara e acompanhar as mesmas informações.
+              </p>
+            </article>
           </div>
         </div>
       </section>
