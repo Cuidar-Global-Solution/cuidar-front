@@ -1,10 +1,15 @@
 
 import {
+  Accessibility,
+  CalendarCheck,
   ClipboardList,
   Clock3,
   Compass,
   Eye,
+  Heart,
   HeartHandshake,
+  LockKeyhole,
+  ShieldCheck,
   Target,
   Users,
 } from 'lucide-react'
@@ -185,6 +190,119 @@ export default function Sobre() {
               a autonomia, a dignidade e a participação de todos.
             </p>
           </article>
+        </div>
+      </section>
+
+      <section className="border-y border-brand-border bg-white">
+        <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10">
+          <div className="max-w-2xl">
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-pink">
+              Como pensamos o cuidado
+            </span>
+
+            <h2 className="mt-4 text-3xl font-semibold sm:text-4xl">
+              Três pilares orientam a proposta do Cuidar+.
+            </h2>
+
+            <p className="mt-5 leading-8 text-brand-muted">
+              Cada recurso pensado para a plataforma parte de uma necessidade
+              da rotina de cuidados. Nosso objetivo é reunir essas necessidades
+              em uma experiência simples, útil e integrada.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            <article className="rounded-2xl border border-brand-border p-7">
+              <CalendarCheck size={30} className="text-brand-primary" />
+
+              <h3 className="mt-5 text-xl font-semibold">
+                Gestão do cuidado
+              </h3>
+
+              <p className="mt-3 text-sm leading-7 text-brand-muted">
+                Organização da rotina, medicamentos, consultas e informações
+                importantes para facilitar o acompanhamento das atividades
+                diárias.
+              </p>
+            </article>
+
+            <article className="rounded-2xl border border-brand-border p-7">
+              <Users size={30} className="text-brand-primary" />
+
+              <h3 className="mt-5 text-xl font-semibold">
+                Rede de apoio
+              </h3>
+
+              <p className="mt-3 text-sm leading-7 text-brand-muted">
+                Aproximação entre familiares e cuidadores profissionais,
+                incentivando a comunicação e o compartilhamento responsável
+                das informações.
+              </p>
+            </article>
+
+            <article className="rounded-2xl border border-brand-border p-7">
+              <ShieldCheck size={30} className="text-brand-primary" />
+
+              <h3 className="mt-5 text-xl font-semibold">
+                Segurança e autonomia
+              </h3>
+
+              <p className="mt-3 text-sm leading-7 text-brand-muted">
+                Valorização da dignidade, da privacidade e da participação
+                da pessoa idosa nas decisões relacionadas ao próprio cuidado.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10">
+        <div className="max-w-2xl">
+          <span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-pink">
+            Nossos princípios
+          </span>
+
+          <h2 className="mt-4 text-3xl font-semibold sm:text-4xl">
+            Tecnologia que respeita as pessoas.
+          </h2>
+        </div>
+
+        <div className="mt-10 grid gap-6 sm:grid-cols-3">
+          <div className="flex gap-4">
+            <Accessibility size={27} className="shrink-0 text-brand-primary" />
+
+            <div>
+              <h3 className="font-semibold">Acessibilidade</h3>
+              <p className="mt-2 text-sm leading-7 text-brand-muted">
+                Uma experiência simples e compreensível para diferentes
+                pessoas e níveis de familiaridade com a tecnologia.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <LockKeyhole size={27} className="shrink-0 text-brand-primary" />
+
+            <div>
+              <h3 className="font-semibold">Privacidade</h3>
+              <p className="mt-2 text-sm leading-7 text-brand-muted">
+                Respeito às informações pessoais e cuidado com o acesso
+                aos dados compartilhados na plataforma.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <Heart size={27} className="shrink-0 text-brand-primary" />
+
+            <div>
+              <h3 className="font-semibold">Autonomia</h3>
+              <p className="mt-2 text-sm leading-7 text-brand-muted">
+                Reconhecimento da pessoa idosa como participante das decisões
+                sobre sua rotina e suas necessidades.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
     </div>
