@@ -1,5 +1,13 @@
 
-import { ClipboardList, Clock3, HeartHandshake, Users } from 'lucide-react'
+import {
+  ClipboardList,
+  Clock3,
+  Compass,
+  Eye,
+  HeartHandshake,
+  Target,
+  Users,
+} from 'lucide-react'
 
 export default function Sobre() {
   return (
@@ -115,6 +123,68 @@ export default function Sobre() {
               </p>
             </article>
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10">
+        <div className="max-w-2xl">
+          <span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-pink">
+            Nossa identidade
+          </span>
+
+          <h2 className="mt-4 text-3xl font-semibold sm:text-4xl">
+            Uma ideia construída a partir de uma necessidade real.
+          </h2>
+
+          <p className="mt-5 leading-8 text-brand-muted">
+            O Cuidar+ nasceu da percepção de que cuidar de uma pessoa idosa
+            envolve muito mais do que acompanhar tarefas. É preciso organizar
+            informações, dividir responsabilidades e garantir que as pessoas
+            envolvidas tenham condições de participar desse processo.
+          </p>
+
+          <p className="mt-4 leading-8 text-brand-muted">
+            A proposta é utilizar a tecnologia como uma ferramenta de apoio,
+            aproximando pessoas e tornando a rotina de cuidados mais clara,
+            acessível e organizada.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
+          <article className="rounded-2xl bg-white p-7 shadow-sm">
+            <Target size={30} className="text-brand-primary" />
+
+            <h3 className="mt-5 text-xl font-semibold">Missão</h3>
+
+            <p className="mt-3 text-sm leading-7 text-brand-muted">
+              Facilitar a organização dos cuidados com pessoas idosas,
+              conectando familiares e cuidadores por meio de recursos
+              digitais acessíveis e funcionais.
+            </p>
+          </article>
+
+          <article className="rounded-2xl bg-white p-7 shadow-sm">
+            <Eye size={30} className="text-brand-primary" />
+
+            <h3 className="mt-5 text-xl font-semibold">Visão</h3>
+
+            <p className="mt-3 text-sm leading-7 text-brand-muted">
+              Contribuir para uma realidade em que o cuidado seja mais
+              integrado, organizado e respeitoso com as necessidades
+              de cada pessoa idosa.
+            </p>
+          </article>
+
+          <article className="rounded-2xl bg-white p-7 shadow-sm">
+            <Compass size={30} className="text-brand-primary" />
+
+            <h3 className="mt-5 text-xl font-semibold">Propósito</h3>
+
+            <p className="mt-3 text-sm leading-7 text-brand-muted">
+              Aproximar quem cuida e quem recebe cuidado, valorizando
+              a autonomia, a dignidade e a participação de todos.
+            </p>
+          </article>
         </div>
       </section>
     </div>
