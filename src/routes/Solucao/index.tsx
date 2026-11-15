@@ -121,7 +121,7 @@ export default function Solucao() {
         <div className="relative">
           <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-brand-pink-light blur-3xl" />
 
-          <div className="relative rounded-[2rem] border border-brand-border bg-white p-7 shadow-xl shadow-brand-dark/5 sm:p-10">
+          <div className="relative rounded-4xl border border-brand-border bg-white p-7 shadow-xl shadow-brand-dark/5 sm:p-10">
             <div className="flex items-center justify-between border-b border-brand-border pb-5">
               <div>
                 <p className="text-sm font-semibold text-brand-muted">
@@ -287,6 +287,40 @@ export default function Solucao() {
                 </article>
               )
             })}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-5 py-20 sm:px-8 lg:px-10 lg:py-24">
+        <div className="mx-auto max-w-7xl overflow-hidden rounded-4xl bg-brand-dark px-7 py-14 text-center sm:px-12 sm:py-16">
+          <span className="text-sm font-bold uppercase tracking-wider text-brand-lavender">
+            Cuidar+
+          </span>
+
+          <h2 className="mx-auto mt-4 max-w-2xl text-3xl font-bold leading-tight text-white sm:text-4xl">
+            Uma rede de apoio mais próxima começa com organização.
+          </h2>
+
+          <p className="mx-auto mt-5 max-w-xl text-base leading-8 text-white/70">
+            Conheça a proposta do Cuidar+ e descubra como a tecnologia pode
+            contribuir para uma rotina de cuidado mais conectada e organizada.
+          </p>
+
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link
+              to="/cadastro"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-pink px-7 py-3.5 text-sm font-bold text-white transition hover:bg-pink-600"
+            >
+              Começar agora
+              <ArrowRight size={17} />
+            </Link>
+
+            <Link
+              to="/contato"
+              className="inline-flex items-center justify-center rounded-full border border-white/30 px-7 py-3.5 text-sm font-bold text-white transition hover:bg-white/10"
+            >
+              Fale conosco
+            </Link>
           </div>
         </div>
       </section>
