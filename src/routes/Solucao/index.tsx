@@ -9,6 +9,9 @@ import {
   UserRound,
   UsersRound,
   Bell,
+  ShieldCheck,
+  LockKeyhole,
+  Heart,
 } from 'lucide-react'
 
 const features = [
@@ -53,6 +56,27 @@ const steps = [
     title: 'Acompanhe a rotina',
     description:
       'Consulte os registros e acompanhe as atividades para manter a rede de apoio informada e alinhada.',
+  },
+]
+
+const principles = [
+  {
+    icon: ShieldCheck,
+    title: 'Acesso controlado',
+    description:
+      'As informações devem ser compartilhadas somente com pessoas autorizadas, de acordo com as permissões estabelecidas.',
+  },
+  {
+    icon: LockKeyhole,
+    title: 'Privacidade das informações',
+    description:
+      'Os dados pessoais e as informações relacionadas ao cuidado precisam ser tratados com responsabilidade e proteção.',
+  },
+  {
+    icon: Heart,
+    title: 'Autonomia da pessoa idosa',
+    description:
+      'A pessoa idosa deve ser ouvida e participar das decisões sobre quais informações compartilhar e quem pode acessá-las.',
   },
 ]
 
@@ -218,6 +242,48 @@ export default function Solucao() {
                   <p className="mt-3 text-sm leading-7 text-brand-muted">
                     {step.description}
                   </p>
+                </article>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-brand-background px-5 py-20 sm:px-8 lg:px-10 lg:py-24">
+        <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[0.9fr_1.1fr]">
+          <div>
+            <span className="text-sm font-bold uppercase tracking-wider text-brand-pink">
+              Segurança e respeito
+            </span>
+            <h2 className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">
+              Cuidar também é respeitar escolhas.
+            </h2>
+            <p className="mt-5 text-base leading-8 text-brand-muted">
+              A tecnologia deve apoiar o cuidado sem substituir a participação
+              da pessoa idosa nas decisões sobre sua própria vida. Por isso,
+              privacidade, consentimento e autonomia precisam fazer parte da
+              experiência.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {principles.map((principle) => {
+              const Icon = principle.icon
+
+              return (
+                <article
+                  key={principle.title}
+                  className="flex gap-5 rounded-3xl border border-brand-border bg-white p-6"
+                >
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-pink-light text-brand-primary">
+                    <Icon size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold">{principle.title}</h3>
+                    <p className="mt-2 text-sm leading-7 text-brand-muted">
+                      {principle.description}
+                    </p>
+                  </div>
                 </article>
               )
             })}
