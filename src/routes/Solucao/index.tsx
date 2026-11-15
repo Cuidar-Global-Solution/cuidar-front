@@ -6,6 +6,9 @@ import {
   ClipboardList,
   Pill,
   CalendarDays,
+  UserRound,
+  UsersRound,
+  Bell,
 } from 'lucide-react'
 
 const features = [
@@ -26,6 +29,30 @@ const features = [
     title: 'Consultas e compromissos',
     description:
       'Registro de consultas, atividades e compromissos para ajudar a rede de apoio a manter tudo organizado.',
+  },
+]
+
+const steps = [
+  {
+    icon: UserRound,
+    number: '01',
+    title: 'Cadastre as informações',
+    description:
+      'Registre os dados necessários e organize as informações da rotina de cuidado da pessoa idosa.',
+  },
+  {
+    icon: UsersRound,
+    number: '02',
+    title: 'Conecte a rede de apoio',
+    description:
+      'Compartilhe as informações necessárias com familiares e pessoas autorizadas a participar do acompanhamento.',
+  },
+  {
+    icon: Bell,
+    number: '03',
+    title: 'Acompanhe a rotina',
+    description:
+      'Consulte os registros e acompanhe as atividades para manter a rede de apoio informada e alinhada.',
   },
 ]
 
@@ -149,6 +176,47 @@ export default function Solucao() {
                   <h3 className="mt-6 text-xl font-bold">{feature.title}</h3>
                   <p className="mt-3 text-sm leading-7 text-brand-muted">
                     {feature.description}
+                  </p>
+                </article>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-5 py-20 sm:px-8 lg:px-10 lg:py-24">
+        <div className="mx-auto max-w-7xl">
+          <div className="mx-auto max-w-2xl text-center">
+            <span className="text-sm font-bold uppercase tracking-wider text-brand-pink">
+              Como funciona
+            </span>
+            <h2 className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">
+              O cuidado acontece em conjunto.
+            </h2>
+            <p className="mt-5 text-base leading-8 text-brand-muted">
+              A plataforma foi pensada para aproximar as pessoas envolvidas no
+              cuidado e facilitar a organização das responsabilidades.
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-8 md:grid-cols-3">
+            {steps.map((step) => {
+              const Icon = step.icon
+
+              return (
+                <article
+                  key={step.number}
+                  className="rounded-3xl border border-brand-border p-7"
+                >
+                  <span className="text-sm font-extrabold text-brand-pink">
+                    {step.number}
+                  </span>
+                  <div className="mt-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pink-light text-brand-primary">
+                    <Icon size={24} />
+                  </div>
+                  <h3 className="mt-6 text-xl font-bold">{step.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-brand-muted">
+                    {step.description}
                   </p>
                 </article>
               )
