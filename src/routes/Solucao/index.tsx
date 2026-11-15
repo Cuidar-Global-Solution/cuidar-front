@@ -1,6 +1,33 @@
 
 import { Link } from 'react-router-dom'
-import { ArrowRight, HeartHandshake } from 'lucide-react'
+import {
+  ArrowRight,
+  HeartHandshake,
+  ClipboardList,
+  Pill,
+  CalendarDays,
+} from 'lucide-react'
+
+const features = [
+  {
+    icon: ClipboardList,
+    title: 'Rotina de cuidados',
+    description:
+      'Registro de atividades diárias, alimentação, hidratação e outras informações relevantes para o acompanhamento.',
+  },
+  {
+    icon: Pill,
+    title: 'Medicamentos',
+    description:
+      'Organização dos medicamentos, horários e orientações registradas pelos responsáveis pelo cuidado.',
+  },
+  {
+    icon: CalendarDays,
+    title: 'Consultas e compromissos',
+    description:
+      'Registro de consultas, atividades e compromissos para ajudar a rede de apoio a manter tudo organizado.',
+  },
+]
 
 export default function Solucao() {
   return (
@@ -88,6 +115,44 @@ export default function Solucao() {
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-brand-background px-5 py-20 sm:px-8 lg:px-10 lg:py-24">
+        <div className="mx-auto max-w-7xl">
+          <div className="max-w-2xl">
+            <span className="text-sm font-bold uppercase tracking-wider text-brand-pink">
+              Organização na prática
+            </span>
+            <h2 className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">
+              Informações importantes, reunidas em um só lugar.
+            </h2>
+            <p className="mt-5 text-base leading-8 text-brand-muted">
+              A proposta é diminuir a dispersão de informações e tornar o
+              acompanhamento da rotina mais simples para quem participa do cuidado.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-5 md:grid-cols-3">
+            {features.map((feature) => {
+              const Icon = feature.icon
+
+              return (
+                <article
+                  key={feature.title}
+                  className="rounded-3xl border border-brand-border bg-white p-7"
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pink-light text-brand-primary">
+                    <Icon size={24} />
+                  </div>
+                  <h3 className="mt-6 text-xl font-bold">{feature.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-brand-muted">
+                    {feature.description}
+                  </p>
+                </article>
+              )
+            })}
           </div>
         </div>
       </section>
