@@ -6,18 +6,29 @@ import {
   Send,
 } from 'lucide-react'
 
+const contactOptions = [
+  'Dúvidas sobre a plataforma',
+  'Informações para familiares',
+  'Interesse em atuar como cuidador',
+  'Sugestões e melhorias',
+  'Outros assuntos',
+]
+
 export default function Contato() {
   const [form, setForm] = useState({
     name: '',
     email: '',
     subject: '',
+    category: '',
     message: '',
   })
 
   const [feedback, setFeedback] = useState('')
 
   function handleChange(
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) {
     const { name, value } = event.target
 
@@ -81,8 +92,9 @@ export default function Contato() {
                 </h3>
 
                 <p className="mt-2 text-sm leading-7 text-brand-muted">
-                  Utilize o formulário ao lado para compartilhar sua
-                  mensagem, dúvida ou sugestão.
+                  Escolha o assunto e compartilhe sua mensagem pelo
+                  formulário. Assim, sua solicitação fica melhor
+                  identificada.
                 </p>
               </div>
 
@@ -153,6 +165,34 @@ export default function Contato() {
 
                 <div>
                   <label
+                    htmlFor="category"
+                    className="mb-2 block text-sm font-bold text-brand-ink"
+                  >
+                    Motivo do contato
+                  </label>
+
+                  <select
+                    id="category"
+                    name="category"
+                    value={form.category}
+                    onChange={handleChange}
+                    required
+                    className="w-full rounded-xl border border-brand-border bg-brand-background px-4 py-3.5 text-sm text-brand-ink outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+                  >
+                    <option value="" disabled>
+                      Selecione uma opção
+                    </option>
+
+                    {contactOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label
                     htmlFor="subject"
                     className="mb-2 block text-sm font-bold text-brand-ink"
                   >
@@ -167,7 +207,7 @@ export default function Contato() {
                     onChange={handleChange}
                     required
                     minLength={3}
-                    placeholder="Sobre o que deseja conversar?"
+                    placeholder="Resuma o motivo do contato"
                     className="w-full rounded-xl border border-brand-border bg-brand-background px-4 py-3.5 text-sm outline-none transition placeholder:text-brand-muted/70 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
                   />
                 </div>
