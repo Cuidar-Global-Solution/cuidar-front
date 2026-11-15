@@ -1,6 +1,9 @@
 
 import { useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import {
+  ArrowRight,
+  CircleHelp,
   LockKeyhole,
   Mail,
   MessageCircle,
@@ -286,6 +289,43 @@ export default function Contato() {
                 </p>
               </form>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-5 pb-20 sm:px-8 lg:px-10 lg:pb-28">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 rounded-3xl border border-brand-border bg-white p-7 sm:p-10 md:flex-row md:items-center md:justify-between">
+          <div className="max-w-2xl">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-pink-light text-brand-primary">
+              <CircleHelp size={22} />
+            </div>
+
+            <h2 className="mt-5 text-2xl font-bold sm:text-3xl">
+              Ainda tem alguma dúvida?
+            </h2>
+
+            <p className="mt-3 text-sm leading-7 text-brand-muted sm:text-base">
+              Confira as perguntas frequentes para encontrar mais
+              informações sobre a plataforma, seus recursos e a proposta
+              do Cuidar+.
+            </p>
+          </div>
+
+          <div className="flex shrink-0 flex-col gap-3 sm:flex-row md:flex-col">
+            <Link
+              to="/faq"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-6 py-3.5 text-sm font-bold text-white transition hover:bg-brand-dark"
+            >
+              Acessar perguntas frequentes
+              <ArrowRight size={17} />
+            </Link>
+
+            <Link
+              to="/solucao"
+              className="inline-flex items-center justify-center rounded-xl border border-brand-border px-6 py-3.5 text-sm font-bold text-brand-primary transition hover:bg-brand-pink-light"
+            >
+              Conhecer a solução
+            </Link>
           </div>
         </div>
       </section>
