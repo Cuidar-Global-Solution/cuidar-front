@@ -1,9 +1,11 @@
 
 import { useState, type FormEvent } from 'react'
 import {
+  LockKeyhole,
   Mail,
   MessageCircle,
   Send,
+  ShieldCheck,
 } from 'lucide-react'
 
 const contactOptions = [
@@ -95,6 +97,22 @@ export default function Contato() {
                   Escolha o assunto e compartilhe sua mensagem pelo
                   formulário. Assim, sua solicitação fica melhor
                   identificada.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-brand-border bg-white p-6">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-pink-light text-brand-primary">
+                  <ShieldCheck size={22} />
+                </div>
+
+                <h3 className="mt-5 text-lg font-bold">
+                  Respeito à sua privacidade
+                </h3>
+
+                <p className="mt-2 text-sm leading-7 text-brand-muted">
+                  Compartilhe apenas as informações necessárias para
+                  explicar sua solicitação. Evite incluir dados pessoais
+                  ou informações de saúde de terceiros.
                 </p>
               </div>
 
@@ -231,6 +249,18 @@ export default function Contato() {
                     placeholder="Escreva sua mensagem..."
                     className="w-full resize-y rounded-xl border border-brand-border bg-brand-background px-4 py-3.5 text-sm outline-none transition placeholder:text-brand-muted/70 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
                   />
+                </div>
+
+                <div className="flex items-start gap-3 rounded-xl bg-brand-background p-4">
+                  <LockKeyhole
+                    size={18}
+                    className="mt-0.5 shrink-0 text-brand-primary"
+                  />
+
+                  <p className="text-xs leading-5 text-brand-muted">
+                    Não informe senhas, documentos ou dados de saúde
+                    desnecessários neste formulário.
+                  </p>
                 </div>
 
                 <button
