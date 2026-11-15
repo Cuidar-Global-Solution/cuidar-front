@@ -49,6 +49,29 @@ const sections = [
       },
     ],
   },
+  {
+    title: 'Famílias e profissionais',
+    questions: [
+      {
+        id: 'sharing',
+        question: 'Os familiares podem acompanhar as informações cadastradas?',
+        answer:
+          'A proposta do Cuidar+ é permitir o compartilhamento de informações com pessoas autorizadas, facilitando a comunicação entre familiares e responsáveis pela rotina de cuidado.',
+      },
+      {
+        id: 'caregiver-search',
+        question: 'Como encontrar um cuidador pela plataforma?',
+        answer:
+          'A proposta inclui uma área de busca regional para encontrar profissionais independentes, com informações sobre experiência, formação e disponibilidade. A contratação e a avaliação do profissional devem ser feitas diretamente pelos envolvidos.',
+      },
+      {
+        id: 'caregiver-employment',
+        question: 'Os cuidadores são funcionários do Cuidar+?',
+        answer:
+          'Não. A proposta é aproximar famílias e profissionais independentes. A plataforma não deve ser confundida com uma empresa empregadora ou prestadora direta de serviços de cuidado.',
+      },
+    ],
+  },
 ]
 
 export default function FAQ() {
