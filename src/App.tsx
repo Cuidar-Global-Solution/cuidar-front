@@ -6,6 +6,7 @@ import Home from './routes/Home'
 import Sobre from './routes/Sobre'
 import Solucao from './routes/Solucao'
 import FAQ from './routes/Faq'
+import Contato from './routes/Contato'
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/sobre" element={<Sobre />} />
           <Route path="/solucao" element={<Solucao />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/contato" element={<Contato />} />
         </Routes>
       </main>
 
