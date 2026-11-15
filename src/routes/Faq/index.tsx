@@ -72,6 +72,41 @@ const sections = [
       },
     ],
   },
+  {
+    title: 'Privacidade e segurança',
+    questions: [
+      {
+        id: 'data-privacy',
+        question: 'Como o Cuidar+ trata os dados pessoais?',
+        answer:
+          'A proposta considera a proteção das informações pessoais e o tratamento responsável dos dados, seguindo os princípios da Lei Geral de Proteção de Dados (LGPD). A implementação deve definir medidas adequadas de segurança e privacidade.',
+      },
+      {
+        id: 'access',
+        question: 'Quem pode acessar as informações de uma pessoa idosa?',
+        answer:
+          'O acesso deve ser restrito às pessoas autorizadas, de acordo com as permissões definidas para cada perfil. Informações pessoais não devem ser compartilhadas indiscriminadamente.',
+      },
+      {
+        id: 'autonomy',
+        question: 'A pessoa idosa pode decidir quem acompanha sua rotina?',
+        answer:
+          'Sim. Sempre que possível, a pessoa idosa deve participar das decisões sobre seu cuidado e sobre quais informações deseja compartilhar. Sua autonomia e suas preferências precisam ser respeitadas.',
+      },
+      {
+        id: 'medical-advice',
+        question: 'O Cuidar+ oferece orientações médicas?',
+        answer:
+          'Não. A plataforma não realiza diagnósticos, prescreve medicamentos ou substitui orientações médicas. Seu papel é apoiar a organização das informações e da rotina de cuidado.',
+      },
+      {
+        id: 'emergency',
+        question: 'O que fazer em uma situação de emergência?',
+        answer:
+          'O Cuidar+ não é um serviço de emergência. Em situações urgentes, procure imediatamente os serviços de emergência ou atendimento de saúde adequados.',
+      },
+    ],
+  },
 ]
 
 export default function FAQ() {
