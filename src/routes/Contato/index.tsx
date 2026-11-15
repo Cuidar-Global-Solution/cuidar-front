@@ -1,4 +1,5 @@
 
+import { useState, type FormEvent } from 'react'
 import {
   Mail,
   MessageCircle,
@@ -6,6 +7,36 @@ import {
 } from 'lucide-react'
 
 export default function Contato() {
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+  })
+
+  const [feedback, setFeedback] = useState('')
+
+  function handleChange(
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) {
+    const { name, value } = event.target
+
+    setForm((current) => ({
+      ...current,
+      [name]: value,
+    }))
+
+    setFeedback('')
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    setFeedback(
+      'Os campos foram preenchidos. O envio de mensagens ainda precisa ser conectado ao serviço responsável.',
+    )
+  }
+
   return (
     <div className="min-h-screen bg-brand-background">
       <section className="px-5 pb-16 pt-20 sm:px-8 lg:px-10 lg:pb-24 lg:pt-28">
@@ -78,7 +109,7 @@ export default function Contato() {
                 </p>
               </div>
 
-              <form className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <label
                     htmlFor="name"
@@ -91,6 +122,10 @@ export default function Contato() {
                     id="name"
                     name="name"
                     type="text"
+                    value={form.name}
+                    onChange={handleChange}
+                    required
+                    minLength={3}
                     placeholder="Como podemos chamar você?"
                     className="w-full rounded-xl border border-brand-border bg-brand-background px-4 py-3.5 text-sm outline-none transition placeholder:text-brand-muted/70 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
                   />
@@ -108,6 +143,9 @@ export default function Contato() {
                     id="email"
                     name="email"
                     type="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    required
                     placeholder="seuemail@exemplo.com"
                     className="w-full rounded-xl border border-brand-border bg-brand-background px-4 py-3.5 text-sm outline-none transition placeholder:text-brand-muted/70 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
                   />
@@ -125,6 +163,10 @@ export default function Contato() {
                     id="subject"
                     name="subject"
                     type="text"
+                    value={form.subject}
+                    onChange={handleChange}
+                    required
+                    minLength={3}
                     placeholder="Sobre o que deseja conversar?"
                     className="w-full rounded-xl border border-brand-border bg-brand-background px-4 py-3.5 text-sm outline-none transition placeholder:text-brand-muted/70 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
                   />
@@ -141,6 +183,10 @@ export default function Contato() {
                   <textarea
                     id="message"
                     name="message"
+                    value={form.message}
+                    onChange={handleChange}
+                    required
+                    minLength={10}
                     rows={5}
                     placeholder="Escreva sua mensagem..."
                     className="w-full resize-y rounded-xl border border-brand-border bg-brand-background px-4 py-3.5 text-sm outline-none transition placeholder:text-brand-muted/70 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
@@ -148,17 +194,25 @@ export default function Contato() {
                 </div>
 
                 <button
-                  type="button"
-                  disabled
-                  className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-brand-primary px-6 py-4 text-sm font-bold text-white opacity-70"
+                  type="submit"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-6 py-4 text-sm font-bold text-white transition hover:bg-brand-dark"
                 >
-                  Enviar mensagem
+                  Validar mensagem
                   <Send size={17} />
                 </button>
 
+                {feedback && (
+                  <p
+                    role="status"
+                    className="rounded-xl bg-brand-pink-light px-4 py-3 text-sm leading-6 text-brand-primary"
+                  >
+                    {feedback}
+                  </p>
+                )}
+
                 <p className="text-center text-xs leading-5 text-brand-muted">
-                  O envio será habilitado após a integração do formulário
-                  com o serviço responsável pelas mensagens.
+                  O formulário ainda não está conectado a um serviço de
+                  envio de mensagens.
                 </p>
               </form>
             </div>
