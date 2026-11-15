@@ -2,24 +2,52 @@
 import { useState } from 'react'
 import { ChevronDown, MessageCircle } from 'lucide-react'
 
-const questions = [
+const sections = [
   {
-    id: 'what-is',
-    question: 'O que é o Cuidar+?',
-    answer:
-      'O Cuidar+ é uma plataforma pensada para facilitar a organização dos cuidados com pessoas idosas. A proposta é reunir informações importantes da rotina e aproximar familiares, responsáveis e profissionais de cuidado.',
+    title: 'Sobre o Cuidar+',
+    questions: [
+      {
+        id: 'what-is',
+        question: 'O que é o Cuidar+?',
+        answer:
+          'O Cuidar+ é uma plataforma pensada para facilitar a organização dos cuidados com pessoas idosas. A proposta é reunir informações importantes da rotina e aproximar familiares, responsáveis e profissionais de cuidado.',
+      },
+      {
+        id: 'who-is-for',
+        question: 'Para quem é a plataforma?',
+        answer:
+          'A plataforma é voltada principalmente para familiares, responsáveis e pessoas que participam da rotina de cuidado de idosos. Também considera profissionais que atuam de forma independente nessa área.',
+      },
+      {
+        id: 'replace-care',
+        question: 'O Cuidar+ substitui um cuidador ou profissional de saúde?',
+        answer:
+          'Não. O Cuidar+ tem como objetivo apoiar a organização e a comunicação entre as pessoas envolvidas no cuidado. A plataforma não substitui o acompanhamento de profissionais de saúde nem o trabalho de um cuidador.',
+      },
+    ],
   },
   {
-    id: 'who-is-for',
-    question: 'Para quem é a plataforma?',
-    answer:
-      'A plataforma é voltada principalmente para familiares, responsáveis e pessoas que participam da rotina de cuidado de idosos. Também considera profissionais que atuam de forma independente nessa área.',
-  },
-  {
-    id: 'replace-care',
-    question: 'O Cuidar+ substitui um cuidador ou profissional de saúde?',
-    answer:
-      'Não. O Cuidar+ tem como objetivo apoiar a organização e a comunicação entre as pessoas envolvidas no cuidado. A plataforma não substitui o acompanhamento de profissionais de saúde nem o trabalho de um cuidador.',
+    title: 'Funcionalidades e organização',
+    questions: [
+      {
+        id: 'routine',
+        question: 'Como posso organizar a rotina de cuidados?',
+        answer:
+          'A proposta é permitir o registro de atividades importantes, como horários, alimentação, hidratação, compromissos e outras informações relevantes para o acompanhamento diário.',
+      },
+      {
+        id: 'medication',
+        question: 'É possível acompanhar os horários dos medicamentos?',
+        answer:
+          'A plataforma prevê recursos para registrar medicamentos e seus horários, ajudando os responsáveis a acompanhar a rotina. Essas informações devem seguir sempre as orientações dos profissionais de saúde.',
+      },
+      {
+        id: 'appointments',
+        question: 'Posso registrar consultas e compromissos?',
+        answer:
+          'Sim. A proposta inclui uma área para organizar consultas, exames e outros compromissos, facilitando o acompanhamento das atividades programadas.',
+      },
+    ],
   },
 ]
 
@@ -46,55 +74,59 @@ export default function FAQ() {
             </p>
           </div>
 
-          <div className="mx-auto mt-14 max-w-3xl">
-            <h2 className="mb-5 text-xl font-bold sm:text-2xl">
-              Sobre o Cuidar+
-            </h2>
+          <div className="mx-auto mt-14 max-w-3xl space-y-12">
+            {sections.map((section) => (
+              <section key={section.title}>
+                <h2 className="mb-5 text-xl font-bold sm:text-2xl">
+                  {section.title}
+                </h2>
 
-            <div className="space-y-3">
-              {questions.map((item) => {
-                const isOpen = openQuestion === item.id
+                <div className="space-y-3">
+                  {section.questions.map((item) => {
+                    const isOpen = openQuestion === item.id
 
-                return (
-                  <div
-                    key={item.id}
-                    className="overflow-hidden rounded-2xl border border-brand-border bg-white transition"
-                  >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setOpenQuestion(isOpen ? null : item.id)
-                      }
-                      aria-expanded={isOpen}
-                      aria-controls={`${item.id}-answer`}
-                      className="flex w-full items-center justify-between gap-5 px-5 py-5 text-left sm:px-6"
-                    >
-                      <span className="font-bold text-brand-dark">
-                        {item.question}
-                      </span>
-
-                      <ChevronDown
-                        size={20}
-                        className={`shrink-0 text-brand-primary transition-transform ${
-                          isOpen ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </button>
-
-                    {isOpen && (
+                    return (
                       <div
-                        id={`${item.id}-answer`}
-                        className="border-t border-brand-border px-5 py-5 sm:px-6"
+                        key={item.id}
+                        className="overflow-hidden rounded-2xl border border-brand-border bg-white transition"
                       >
-                        <p className="text-sm leading-7 text-brand-muted sm:text-base">
-                          {item.answer}
-                        </p>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setOpenQuestion(isOpen ? null : item.id)
+                          }
+                          aria-expanded={isOpen}
+                          aria-controls={`${item.id}-answer`}
+                          className="flex w-full items-center justify-between gap-5 px-5 py-5 text-left sm:px-6"
+                        >
+                          <span className="font-bold text-brand-dark">
+                            {item.question}
+                          </span>
+
+                          <ChevronDown
+                            size={20}
+                            className={`shrink-0 text-brand-primary transition-transform ${
+                              isOpen ? 'rotate-180' : ''
+                            }`}
+                          />
+                        </button>
+
+                        {isOpen && (
+                          <div
+                            id={`${item.id}-answer`}
+                            className="border-t border-brand-border px-5 py-5 sm:px-6"
+                          >
+                            <p className="text-sm leading-7 text-brand-muted sm:text-base">
+                              {item.answer}
+                            </p>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
+                    )
+                  })}
+                </div>
+              </section>
+            ))}
           </div>
         </div>
       </section>
