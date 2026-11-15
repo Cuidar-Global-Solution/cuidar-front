@@ -16,6 +16,8 @@ const services = [
   { label: 'Fale conosco', to: '/contato' },
 ]
 
+const currentYear = new Date().getFullYear()
+
 export default function Footer() {
   return (
     <footer className="bg-brand-dark text-white">
@@ -85,7 +87,7 @@ export default function Footer() {
 
         <div className="flex flex-col gap-4 pt-7 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-white/50">
-            © {new Date().getFullYear()} Cuidar+. Todos os direitos reservados.
+            © {currentYear} Cuidar+. Todos os direitos reservados.
           </p>
 
           <p className="text-xs text-white/50">
