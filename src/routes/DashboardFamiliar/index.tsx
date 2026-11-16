@@ -28,6 +28,8 @@ import {
   Bath,
   Pencil,
   Trash2,
+  Mail,
+  UserPlus,
 } from 'lucide-react'
 
 type TaskCategory =
@@ -60,6 +62,18 @@ type Appointment = {
   responsible: string
   completed: boolean
 }
+
+type SupportMember = {
+  id: number
+  name: string
+  email: string
+  role: 'Familiar' | 'Cuidador'
+  status: 'Ativo' | 'Convite enviado'
+  owner?: boolean
+}
+
+type TaskFilter = 'Todas' | 'Pendentes' | 'Concluídas'
+type AppointmentFilter = 'Todos' | 'Pendentes' | 'Concluídos'
 
 const categoryIcons = {
   Medicamentos: Pill,
@@ -142,6 +156,31 @@ const initialAppointments: Appointment[] = [
   },
 ]
 
+const initialMembers: SupportMember[] = [
+  {
+    id: 1,
+    name: 'Ana Martins',
+    email: 'ana@email.com',
+    role: 'Familiar',
+    status: 'Ativo',
+    owner: true,
+  },
+  {
+    id: 2,
+    name: 'João Martins',
+    email: 'joao@email.com',
+    role: 'Familiar',
+    status: 'Ativo',
+  },
+  {
+    id: 3,
+    name: 'Renata Costa',
+    email: 'renata@email.com',
+    role: 'Cuidador',
+    status: 'Ativo',
+  },
+]
+
 const navigation = [
   { label: 'Visão geral', href: '#visao-geral', icon: LayoutDashboard },
   { label: 'Rotina de cuidados', href: '#rotina', icon: ClipboardList },
@@ -167,11 +206,11 @@ const emptyAppointmentForm = {
   responsible: '',
 }
 
-const responsibleOptions = [
-  'Ana Martins',
-  'João Martins',
-  'Renata Costa',
-]
+const emptyMemberForm = {
+  name: '',
+  email: '',
+  role: 'Familiar' as SupportMember['role'],
+}
 
 function getDateParts(date: string) {
   const [year, month, day] = date.split('-').map(Number)
@@ -185,13 +224,29 @@ function getDateParts(date: string) {
   }
 }
 
+function getFormattedDate(date: string) {
+  return new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
 export default function DashboardFamiliar() {
   const [tasks, setTasks] = useState<Task[]>(initialTasks)
   const [appointments, setAppointments] =
     useState<Appointment[]>(initialAppointments)
+  const [members, setMembers] = useState<SupportMember[]>(initialMembers)
   const [menuOpen, setMenuOpen] = useState(false)
   const [taskModalOpen, setTaskModalOpen] = useState(false)
   const [appointmentModalOpen, setAppointmentModalOpen] = useState(false)
+  const [supportModalOpen, setSupportModalOpen] = useState(false)
+  const [memberFormOpen, setMemberFormOpen] = useState(false)
+  const [taskManagerOpen, setTaskManagerOpen] = useState(false)
+  const [appointmentManagerOpen, setAppointmentManagerOpen] = useState(false)
+  const [taskFilter, setTaskFilter] = useState<TaskFilter>('Todas')
+  const [appointmentFilter, setAppointmentFilter] =
+    useState<AppointmentFilter>('Todos')
   const [editingTask, setEditingTask] = useState<number | null>(null)
   const [editingAppointment, setEditingAppointment] = useState<number | null>(
     null,
@@ -200,8 +255,11 @@ export default function DashboardFamiliar() {
   const [appointmentForm, setAppointmentForm] = useState(
     emptyAppointmentForm,
   )
+  const [memberForm, setMemberForm] = useState(emptyMemberForm)
+  const [memberError, setMemberError] = useState('')
 
   const completedTasks = tasks.filter((task) => task.completed).length
+  const pendingTasks = tasks.length - completedTasks
   const progress =
     tasks.length === 0
       ? 0
@@ -213,6 +271,12 @@ export default function DashboardFamiliar() {
       `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`),
     )
 
+  const completedAppointments = appointments.filter(
+    (appointment) => appointment.completed,
+  ).length
+
+  const pendingAppointments = appointments.length - completedAppointments
+
   const nextAppointment = sortedAppointments.find(
     (appointment) =>
       !appointment.completed &&
@@ -220,6 +284,23 @@ export default function DashboardFamiliar() {
         `${appointment.date}T${appointment.time}:00`,
       ).getTime() >= Date.now(),
   )
+
+  const responsibleOptions = members.map((member) => member.name)
+
+  const filteredTasks = tasks
+    .filter((task) => {
+      if (taskFilter === 'Pendentes') return !task.completed
+      if (taskFilter === 'Concluídas') return task.completed
+      return true
+    })
+    .slice()
+    .sort((a, b) => a.time.localeCompare(b.time))
+
+  const filteredAppointments = sortedAppointments.filter((appointment) => {
+    if (appointmentFilter === 'Pendentes') return !appointment.completed
+    if (appointmentFilter === 'Concluídos') return appointment.completed
+    return true
+  })
 
   function toggleTask(id: number) {
     setTasks((currentTasks) =>
@@ -243,8 +324,124 @@ export default function DashboardFamiliar() {
     setMenuOpen(false)
   }
 
+  function openTaskManager() {
+    setTaskManagerOpen(true)
+    setTaskFilter('Todas')
+    closeMenu()
+  }
+
+  function closeTaskManager() {
+    setTaskManagerOpen(false)
+    setTaskFilter('Todas')
+  }
+
+  function openAppointmentManager() {
+    setAppointmentManagerOpen(true)
+    setAppointmentFilter('Todos')
+    closeMenu()
+  }
+
+  function closeAppointmentManager() {
+    setAppointmentManagerOpen(false)
+    setAppointmentFilter('Todos')
+  }
+
+  function openSupportModal() {
+    setMemberFormOpen(false)
+    setMemberForm(emptyMemberForm)
+    setMemberError('')
+    setSupportModalOpen(true)
+    closeMenu()
+  }
+
+  function closeSupportModal() {
+    setSupportModalOpen(false)
+    setMemberFormOpen(false)
+    setMemberForm(emptyMemberForm)
+    setMemberError('')
+  }
+
+  function openMemberForm() {
+    setMemberForm(emptyMemberForm)
+    setMemberError('')
+    setMemberFormOpen(true)
+  }
+
+  function handleMemberSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const normalizedEmail = memberForm.email.trim().toLowerCase()
+    const normalizedName = memberForm.name.trim()
+
+    if (
+      members.some(
+        (member) => member.email.toLowerCase() === normalizedEmail,
+      )
+    ) {
+      setMemberError('Este e-mail já está cadastrado na rede de apoio.')
+      return
+    }
+
+    if (
+      members.some(
+        (member) => member.name.toLowerCase() === normalizedName.toLowerCase(),
+      )
+    ) {
+      setMemberError('Esta pessoa já está cadastrada na rede de apoio.')
+      return
+    }
+
+    setMembers((currentMembers) => [
+      ...currentMembers,
+      {
+        id: Date.now(),
+        name: normalizedName,
+        email: normalizedEmail,
+        role: memberForm.role,
+        status: 'Convite enviado',
+      },
+    ])
+
+    setMemberForm(emptyMemberForm)
+    setMemberFormOpen(false)
+    setMemberError('')
+  }
+
+  function deleteMember(member: SupportMember) {
+    if (member.owner) return
+
+    const confirmed = window.confirm(
+      `Deseja realmente remover ${member.name} da rede de apoio?`,
+    )
+
+    if (!confirmed) return
+
+    setMembers((currentMembers) =>
+      currentMembers.filter((person) => person.id !== member.id),
+    )
+
+    setTasks((currentTasks) =>
+      currentTasks.map((task) =>
+        task.responsible === member.name
+          ? { ...task, responsible: 'Não definido' }
+          : task,
+      ),
+    )
+
+    setAppointments((currentAppointments) =>
+      currentAppointments.map((appointment) =>
+        appointment.responsible === member.name
+          ? { ...appointment, responsible: 'Não definido' }
+          : appointment,
+      ),
+    )
+  }
+
   function openNewTask() {
-    setTaskForm(emptyTaskForm)
+    setTaskForm({
+      ...emptyTaskForm,
+      responsible: responsibleOptions[0] ?? '',
+    })
     setEditingTask(null)
     setTaskModalOpen(true)
   }
@@ -303,7 +500,10 @@ export default function DashboardFamiliar() {
   }
 
   function openNewAppointment() {
-    setAppointmentForm(emptyAppointmentForm)
+    setAppointmentForm({
+      ...emptyAppointmentForm,
+      responsible: responsibleOptions[0] ?? '',
+    })
     setEditingAppointment(null)
     setAppointmentModalOpen(true)
   }
@@ -365,6 +565,26 @@ export default function DashboardFamiliar() {
     )
   }
 
+  function openNewTaskFromManager() {
+    closeTaskManager()
+    openNewTask()
+  }
+
+  function editTaskFromManager(task: Task) {
+    closeTaskManager()
+    openEditTask(task)
+  }
+
+  function openNewAppointmentFromManager() {
+    closeAppointmentManager()
+    openNewAppointment()
+  }
+
+  function editAppointmentFromManager(appointment: Appointment) {
+    closeAppointmentManager()
+    openEditAppointment(appointment)
+  }
+
   return (
     <div className="min-h-screen bg-brand-background text-brand-ink">
       <aside
@@ -402,13 +622,36 @@ export default function DashboardFamiliar() {
           <nav className="space-y-1">
             {navigation.map((item, index) => {
               const Icon = item.icon
+              const isSupport = item.label === 'Rede de apoio'
+              const isRoutine = item.label === 'Rotina de cuidados'
+              const isAgenda = item.label === 'Agenda'
 
               return (
-                <a
+                <button
                   key={item.label}
-                  href={item.href}
-                  onClick={closeMenu}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold transition ${
+                  type="button"
+                  onClick={() => {
+                    if (isSupport) {
+                      openSupportModal()
+                      return
+                    }
+
+                    if (isRoutine) {
+                      openTaskManager()
+                      return
+                    }
+
+                    if (isAgenda) {
+                      openAppointmentManager()
+                      return
+                    }
+
+                    document
+                      .querySelector(item.href)
+                      ?.scrollIntoView({ behavior: 'smooth' })
+                    closeMenu()
+                  }}
+                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold transition ${
                     index === 0
                       ? 'bg-brand-lavender/30 text-brand-primary'
                       : 'text-brand-muted hover:bg-brand-background hover:text-brand-primary'
@@ -416,7 +659,7 @@ export default function DashboardFamiliar() {
                 >
                   <Icon size={19} />
                   {item.label}
-                </a>
+                </button>
               )
             })}
           </nav>
@@ -447,7 +690,7 @@ export default function DashboardFamiliar() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-extrabold">Ana Martins</p>
-              <p className="text-xs text-brand-muted">Familiar</p>
+              <p className="text-xs text-brand-muted">Familiar responsável</p>
             </div>
             <button
               type="button"
@@ -615,7 +858,11 @@ export default function DashboardFamiliar() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-brand-border bg-brand-surface p-5">
+              <button
+                type="button"
+                onClick={openSupportModal}
+                className="rounded-2xl border border-brand-border bg-brand-surface p-5 text-left transition hover:border-brand-primary/30 hover:shadow-sm"
+              >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-brand-muted">
                     Rede de apoio
@@ -625,12 +872,12 @@ export default function DashboardFamiliar() {
                   </span>
                 </div>
                 <p className="mt-4 text-3xl font-extrabold text-brand-dark">
-                  3
+                  {members.length}
                 </p>
                 <p className="mt-1 text-xs text-brand-muted">
-                  Pessoas vinculadas
+                  Pessoas vinculadas · Gerenciar
                 </p>
-              </div>
+              </button>
             </div>
           </section>
 
@@ -651,14 +898,24 @@ export default function DashboardFamiliar() {
                     Atividades previstas para hoje
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={openNewTask}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-2.5 text-xs font-extrabold text-white transition hover:bg-brand-dark"
-                >
-                  <Plus size={16} />
-                  Adicionar tarefa
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={openTaskManager}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-brand-border px-4 py-2.5 text-xs font-extrabold text-brand-primary transition hover:bg-brand-background"
+                  >
+                    <ClipboardList size={15} />
+                    Gerenciar rotina
+                  </button>
+                  <button
+                    type="button"
+                    onClick={openNewTask}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-2.5 text-xs font-extrabold text-white transition hover:bg-brand-dark"
+                  >
+                    <Plus size={16} />
+                    Adicionar tarefa
+                  </button>
+                </div>
               </div>
 
               <div className="mt-6 rounded-xl bg-brand-background p-4">
@@ -800,14 +1057,24 @@ export default function DashboardFamiliar() {
                   <CalendarDays size={21} className="text-brand-primary" />
                 </div>
 
-                <button
-                  type="button"
-                  onClick={openNewAppointment}
-                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-3 text-xs font-extrabold text-white transition hover:bg-brand-dark"
-                >
-                  <Plus size={16} />
-                  Adicionar compromisso
-                </button>
+                <div className="mt-5 grid gap-2 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={openAppointmentManager}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-border px-4 py-3 text-xs font-extrabold text-brand-primary transition hover:bg-brand-background"
+                  >
+                    <CalendarDays size={15} />
+                    Gerenciar agenda
+                  </button>
+                  <button
+                    type="button"
+                    onClick={openNewAppointment}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-3 text-xs font-extrabold text-white transition hover:bg-brand-dark"
+                  >
+                    <Plus size={16} />
+                    Adicionar compromisso
+                  </button>
+                </div>
 
                 <div className="mt-5 space-y-3">
                   {sortedAppointments.length === 0 ? (
@@ -964,52 +1231,44 @@ export default function DashboardFamiliar() {
                 </div>
 
                 <div className="mt-5 space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-lavender/30 text-xs font-extrabold text-brand-primary">
-                      AM
+                  {members.map((member) => (
+                    <div key={member.id} className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-lavender/30 text-xs font-extrabold text-brand-primary">
+                        {member.name
+                          .split(' ')
+                          .map((part) => part[0])
+                          .slice(0, 2)
+                          .join('')
+                          .toUpperCase()}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-extrabold text-brand-dark">
+                          {member.name}
+                        </p>
+                        <p className="text-xs text-brand-muted">
+                          {member.role}
+                        </p>
+                      </div>
+                      {member.owner ? (
+                        <span className="rounded-full bg-brand-lavender/30 px-2.5 py-1 text-[10px] font-bold text-brand-primary">
+                          Você
+                        </span>
+                      ) : (
+                        <span className="rounded-full bg-brand-background px-2.5 py-1 text-[10px] font-bold text-brand-muted">
+                          {member.status}
+                        </span>
+                      )}
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-extrabold text-brand-dark">
-                        Ana Martins
-                      </p>
-                      <p className="text-xs text-brand-muted">Familiar</p>
-                    </div>
-                    <span className="rounded-full bg-brand-lavender/30 px-2.5 py-1 text-[10px] font-bold text-brand-primary">
-                      Você
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-pink-light text-xs font-extrabold text-brand-pink">
-                      JM
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-extrabold text-brand-dark">
-                        João Martins
-                      </p>
-                      <p className="text-xs text-brand-muted">Familiar</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-lavender/30 text-xs font-extrabold text-brand-primary">
-                      RC
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-extrabold text-brand-dark">
-                        Renata Costa
-                      </p>
-                      <p className="text-xs text-brand-muted">Cuidadora</p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
 
                 <button
                   type="button"
+                  onClick={openSupportModal}
                   className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-brand-border px-4 py-3 text-xs font-extrabold text-brand-primary transition hover:bg-brand-background"
                 >
-                  <Plus size={15} />
-                  Convidar pessoa
+                  <UsersRound size={15} />
+                  Gerenciar rede de apoio
                 </button>
               </div>
             </div>
@@ -1043,6 +1302,698 @@ export default function DashboardFamiliar() {
           </footer>
         </div>
       </main>
+
+      {taskManagerOpen && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center overflow-y-auto bg-brand-ink/50 p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="task-manager-title"
+            className="my-auto max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-brand-border bg-brand-surface p-5 shadow-xl sm:p-8"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-brand-pink">
+                  Organização diária
+                </p>
+                <h2
+                  id="task-manager-title"
+                  className="mt-1 font-heading text-xl font-bold text-brand-dark sm:text-2xl"
+                >
+                  Gerenciar rotina de cuidados
+                </h2>
+                <p className="mt-1 text-sm text-brand-muted">
+                  Organize as atividades e acompanhe o andamento dos cuidados.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeTaskManager}
+                aria-label="Fechar gerenciamento da rotina"
+                className="rounded-lg p-2 text-brand-muted transition hover:bg-brand-background hover:text-brand-dark"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="mt-6 grid grid-cols-3 gap-3">
+              <div className="rounded-xl bg-brand-background p-3 sm:p-4">
+                <p className="text-[11px] font-bold text-brand-muted">Total</p>
+                <p className="mt-1 text-2xl font-extrabold text-brand-dark">
+                  {tasks.length}
+                </p>
+              </div>
+              <div className="rounded-xl bg-brand-success/5 p-3 sm:p-4">
+                <p className="text-[11px] font-bold text-brand-success">
+                  Concluídas
+                </p>
+                <p className="mt-1 text-2xl font-extrabold text-brand-success">
+                  {completedTasks}
+                </p>
+              </div>
+              <div className="rounded-xl bg-brand-warning/5 p-3 sm:p-4">
+                <p className="text-[11px] font-bold text-brand-warning">
+                  Pendentes
+                </p>
+                <p className="mt-1 text-2xl font-extrabold text-brand-warning">
+                  {pendingTasks}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+              <div className="flex flex-wrap gap-2">
+                {(['Todas', 'Pendentes', 'Concluídas'] as TaskFilter[]).map(
+                  (filter) => (
+                    <button
+                      key={filter}
+                      type="button"
+                      onClick={() => setTaskFilter(filter)}
+                      className={`rounded-xl px-3 py-2 text-xs font-bold transition ${
+                        taskFilter === filter
+                          ? 'bg-brand-primary text-white'
+                          : 'border border-brand-border text-brand-muted hover:bg-brand-background'
+                      }`}
+                    >
+                      {filter}
+                    </button>
+                  ),
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={openNewTaskFromManager}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-3 text-xs font-extrabold text-white transition hover:bg-brand-dark"
+              >
+                <Plus size={16} />
+                Nova tarefa
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-3">
+              {filteredTasks.length === 0 ? (
+                <div className="rounded-xl bg-brand-background px-4 py-10 text-center">
+                  <ClipboardList
+                    size={30}
+                    className="mx-auto text-brand-muted/70"
+                  />
+                  <p className="mt-3 text-sm font-extrabold text-brand-dark">
+                    {taskFilter === 'Todas'
+                      ? 'Nenhuma tarefa cadastrada'
+                      : `Nenhuma tarefa ${taskFilter.toLowerCase()}`}
+                  </p>
+                  <p className="mt-1 text-xs text-brand-muted">
+                    Adicione uma tarefa ou altere o filtro selecionado.
+                  </p>
+                </div>
+              ) : (
+                filteredTasks.map((task) => {
+                  const Icon = categoryIcons[task.category]
+
+                  return (
+                    <div
+                      key={task.id}
+                      className="flex flex-wrap items-center gap-3 rounded-xl border border-brand-border p-4"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => toggleTask(task.id)}
+                        aria-label={
+                          task.completed
+                            ? `Reabrir ${task.title}`
+                            : `Concluir ${task.title}`
+                        }
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition ${
+                          task.completed
+                            ? 'border-brand-success bg-brand-success text-white'
+                            : 'border-brand-border text-transparent hover:border-brand-primary'
+                        }`}
+                      >
+                        <Check size={15} />
+                      </button>
+
+                      <span
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                          task.completed
+                            ? 'bg-brand-success/10 text-brand-success'
+                            : 'bg-brand-pink-light text-brand-pink'
+                        }`}
+                      >
+                        <Icon size={18} />
+                      </span>
+
+                      <div className="min-w-0 flex-1">
+                        <p
+                          className={`text-sm font-extrabold ${
+                            task.completed
+                              ? 'text-brand-muted line-through'
+                              : 'text-brand-dark'
+                          }`}
+                        >
+                          {task.title}
+                        </p>
+                        <p className="mt-1 text-xs text-brand-muted">
+                          {task.description || task.category}
+                        </p>
+                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-brand-muted">
+                          <span className="flex items-center gap-1">
+                            <Clock3 size={12} />
+                            {task.time}
+                          </span>
+                          <span>{task.category}</span>
+                          <span>Responsável: {task.responsible}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => editTaskFromManager(task)}
+                          aria-label={`Editar ${task.title}`}
+                          className="rounded-lg p-2 text-brand-muted transition hover:bg-brand-lavender/30 hover:text-brand-primary"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteTask(task.id)}
+                          aria-label={`Excluir ${task.title}`}
+                          className="rounded-lg p-2 text-brand-muted transition hover:bg-brand-danger/10 hover:text-brand-danger"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+
+            <div className="mt-6 flex justify-end border-t border-brand-border pt-5">
+              <button
+                type="button"
+                onClick={closeTaskManager}
+                className="rounded-xl border border-brand-border px-5 py-3 text-sm font-bold text-brand-muted transition hover:bg-brand-background"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {appointmentManagerOpen && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center overflow-y-auto bg-brand-ink/50 p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="appointment-manager-title"
+            className="my-auto max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-brand-border bg-brand-surface p-5 shadow-xl sm:p-8"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-brand-pink">
+                  Compromissos e consultas
+                </p>
+                <h2
+                  id="appointment-manager-title"
+                  className="mt-1 font-heading text-xl font-bold text-brand-dark sm:text-2xl"
+                >
+                  Gerenciar agenda
+                </h2>
+                <p className="mt-1 text-sm text-brand-muted">
+                  Acompanhe consultas, exames e outros compromissos.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeAppointmentManager}
+                aria-label="Fechar gerenciamento da agenda"
+                className="rounded-lg p-2 text-brand-muted transition hover:bg-brand-background hover:text-brand-dark"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="mt-6 grid grid-cols-3 gap-3">
+              <div className="rounded-xl bg-brand-background p-3 sm:p-4">
+                <p className="text-[11px] font-bold text-brand-muted">Total</p>
+                <p className="mt-1 text-2xl font-extrabold text-brand-dark">
+                  {appointments.length}
+                </p>
+              </div>
+              <div className="rounded-xl bg-brand-success/5 p-3 sm:p-4">
+                <p className="text-[11px] font-bold text-brand-success">
+                  Concluídos
+                </p>
+                <p className="mt-1 text-2xl font-extrabold text-brand-success">
+                  {completedAppointments}
+                </p>
+              </div>
+              <div className="rounded-xl bg-brand-warning/5 p-3 sm:p-4">
+                <p className="text-[11px] font-bold text-brand-warning">
+                  Pendentes
+                </p>
+                <p className="mt-1 text-2xl font-extrabold text-brand-warning">
+                  {pendingAppointments}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+              <div className="flex flex-wrap gap-2">
+                {(
+                  ['Todos', 'Pendentes', 'Concluídos'] as AppointmentFilter[]
+                ).map((filter) => (
+                  <button
+                    key={filter}
+                    type="button"
+                    onClick={() => setAppointmentFilter(filter)}
+                    className={`rounded-xl px-3 py-2 text-xs font-bold transition ${
+                      appointmentFilter === filter
+                        ? 'bg-brand-primary text-white'
+                        : 'border border-brand-border text-brand-muted hover:bg-brand-background'
+                    }`}
+                  >
+                    {filter}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={openNewAppointmentFromManager}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-3 text-xs font-extrabold text-white transition hover:bg-brand-dark"
+              >
+                <Plus size={16} />
+                Novo compromisso
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-3">
+              {filteredAppointments.length === 0 ? (
+                <div className="rounded-xl bg-brand-background px-4 py-10 text-center">
+                  <CalendarDays
+                    size={30}
+                    className="mx-auto text-brand-muted/70"
+                  />
+                  <p className="mt-3 text-sm font-extrabold text-brand-dark">
+                    {appointmentFilter === 'Todos'
+                      ? 'Nenhum compromisso cadastrado'
+                      : `Nenhum compromisso ${appointmentFilter.toLowerCase()}`}
+                  </p>
+                  <p className="mt-1 text-xs text-brand-muted">
+                    Cadastre um compromisso ou altere o filtro selecionado.
+                  </p>
+                </div>
+              ) : (
+                filteredAppointments.map((appointment) => {
+                  const dateParts = getDateParts(appointment.date)
+
+                  return (
+                    <div
+                      key={appointment.id}
+                      className="rounded-xl border border-brand-border p-4"
+                    >
+                      <div className="flex flex-wrap items-start gap-3">
+                        <div
+                          className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl ${
+                            appointment.completed
+                              ? 'bg-brand-success/10 text-brand-success'
+                              : 'bg-brand-lavender/30 text-brand-primary'
+                          }`}
+                        >
+                          <span className="text-[10px] font-extrabold uppercase">
+                            {dateParts.month}
+                          </span>
+                          <span className="text-xl font-extrabold">
+                            {dateParts.day}
+                          </span>
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p
+                              className={`text-sm font-extrabold ${
+                                appointment.completed
+                                  ? 'text-brand-muted line-through'
+                                  : 'text-brand-dark'
+                              }`}
+                            >
+                              {appointment.title}
+                            </p>
+                            <span className="rounded-full bg-brand-background px-2 py-0.5 text-[10px] font-bold text-brand-muted">
+                              {appointment.category}
+                            </span>
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                                appointment.completed
+                                  ? 'bg-brand-success/10 text-brand-success'
+                                  : 'bg-brand-warning/10 text-brand-warning'
+                              }`}
+                            >
+                              {appointment.completed ? 'Concluído' : 'Pendente'}
+                            </span>
+                          </div>
+
+                          {appointment.description && (
+                            <p className="mt-1 text-xs text-brand-muted">
+                              {appointment.description}
+                            </p>
+                          )}
+
+                          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-brand-muted">
+                            <span className="flex items-center gap-1">
+                              <CalendarDays size={13} />
+                              {getFormattedDate(appointment.date)}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock3 size={13} />
+                              {appointment.time}
+                            </span>
+                            {appointment.location && (
+                              <span className="flex items-center gap-1">
+                                <MapPin size={13} />
+                                {appointment.location}
+                              </span>
+                            )}
+                          </div>
+
+                          <p className="mt-2 text-[11px] text-brand-muted">
+                            Responsável: {appointment.responsible}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 flex flex-wrap justify-end gap-2 border-t border-brand-border pt-3">
+                        <button
+                          type="button"
+                          onClick={() => toggleAppointment(appointment.id)}
+                          className={`inline-flex items-center gap-1 rounded-lg px-3 py-2 text-xs font-bold transition ${
+                            appointment.completed
+                              ? 'bg-brand-success/10 text-brand-success hover:bg-brand-success/20'
+                              : 'bg-brand-lavender/30 text-brand-primary hover:bg-brand-lavender/50'
+                          }`}
+                        >
+                          <Check size={13} />
+                          {appointment.completed
+                            ? 'Reabrir'
+                            : 'Marcar como concluído'}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            editAppointmentFromManager(appointment)
+                          }
+                          className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-xs font-bold text-brand-muted transition hover:bg-brand-lavender/30 hover:text-brand-primary"
+                        >
+                          <Pencil size={13} />
+                          Editar
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => deleteAppointment(appointment.id)}
+                          className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-xs font-bold text-brand-muted transition hover:bg-brand-danger/10 hover:text-brand-danger"
+                        >
+                          <Trash2 size={13} />
+                          Excluir
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+
+            <div className="mt-6 flex justify-end border-t border-brand-border pt-5">
+              <button
+                type="button"
+                onClick={closeAppointmentManager}
+                className="rounded-xl border border-brand-border px-5 py-3 text-sm font-bold text-brand-muted transition hover:bg-brand-background"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {supportModalOpen && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center overflow-y-auto bg-brand-ink/50 p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="support-modal-title"
+            className="my-auto w-full max-w-xl rounded-2xl border border-brand-border bg-brand-surface p-6 shadow-xl sm:p-8"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-brand-pink">
+                  Cuidado compartilhado
+                </p>
+                <h2
+                  id="support-modal-title"
+                  className="mt-1 font-heading text-xl font-bold text-brand-dark"
+                >
+                  Gerenciar rede de apoio
+                </h2>
+                <p className="mt-1 text-sm text-brand-muted">
+                  Controle quem participa dos cuidados de Helena.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeSupportModal}
+                aria-label="Fechar gerenciamento"
+                className="rounded-lg p-2 text-brand-muted transition hover:bg-brand-background hover:text-brand-dark"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="mt-6 flex items-center justify-between rounded-xl bg-brand-background p-4">
+              <div>
+                <p className="text-sm font-extrabold text-brand-dark">
+                  {members.length} pessoas na rede
+                </p>
+                <p className="mt-1 text-xs text-brand-muted">
+                  Familiar responsável: Ana Martins
+                </p>
+              </div>
+              <UsersRound size={22} className="text-brand-primary" />
+            </div>
+
+            <div className="mt-5 space-y-3">
+              {members.map((member) => (
+                <div
+                  key={member.id}
+                  className="flex flex-wrap items-center gap-3 rounded-xl border border-brand-border p-4"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-lavender/30 text-xs font-extrabold text-brand-primary">
+                    {member.name
+                      .split(' ')
+                      .map((part) => part[0])
+                      .slice(0, 2)
+                      .join('')
+                      .toUpperCase()}
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm font-extrabold text-brand-dark">
+                        {member.name}
+                      </p>
+                      {member.owner && (
+                        <span className="rounded-full bg-brand-lavender/30 px-2 py-0.5 text-[10px] font-bold text-brand-primary">
+                          Responsável
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-1 flex items-center gap-1 break-all text-xs text-brand-muted">
+                      <Mail size={12} />
+                      {member.email}
+                    </p>
+                    <div className="mt-1 flex flex-wrap items-center gap-2">
+                      <span className="text-xs text-brand-muted">
+                        {member.role}
+                      </span>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                          member.status === 'Ativo'
+                            ? 'bg-brand-success/10 text-brand-success'
+                            : 'bg-brand-warning/10 text-brand-warning'
+                        }`}
+                      >
+                        {member.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  {!member.owner && (
+                    <button
+                      type="button"
+                      onClick={() => deleteMember(member)}
+                      aria-label={`Remover ${member.name}`}
+                      className="rounded-lg p-2 text-brand-muted transition hover:bg-brand-danger/10 hover:text-brand-danger"
+                    >
+                      <Trash2 size={17} />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {!memberFormOpen ? (
+              <button
+                type="button"
+                onClick={openMemberForm}
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-3 text-sm font-extrabold text-white transition hover:bg-brand-dark"
+              >
+                <UserPlus size={17} />
+                Adicionar pessoa à rede
+              </button>
+            ) : (
+              <form
+                onSubmit={handleMemberSubmit}
+                className="mt-5 rounded-xl border border-brand-border bg-brand-background p-4"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-brand-dark">
+                      Novo participante
+                    </h3>
+                    <p className="mt-1 text-xs text-brand-muted">
+                      Informe os dados de quem deseja convidar.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMemberFormOpen(false)
+                      setMemberError('')
+                    }}
+                    aria-label="Cancelar adição"
+                    className="rounded-lg p-2 text-brand-muted transition hover:bg-brand-border"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                <div className="mt-4 space-y-4">
+                  <div>
+                    <label
+                      htmlFor="member-name"
+                      className="mb-1.5 block text-xs font-bold text-brand-dark"
+                    >
+                      Nome completo
+                    </label>
+                    <input
+                      id="member-name"
+                      type="text"
+                      required
+                      minLength={3}
+                      maxLength={80}
+                      value={memberForm.name}
+                      onChange={(event) => {
+                        setMemberForm({
+                          ...memberForm,
+                          name: event.target.value,
+                        })
+                        setMemberError('')
+                      }}
+                      placeholder="Nome da pessoa"
+                      className="w-full rounded-xl border border-brand-border bg-brand-surface px-4 py-3 text-sm text-brand-ink outline-none transition placeholder:text-brand-muted/70 focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="member-email"
+                      className="mb-1.5 block text-xs font-bold text-brand-dark"
+                    >
+                      E-mail
+                    </label>
+                    <input
+                      id="member-email"
+                      type="email"
+                      required
+                      maxLength={120}
+                      value={memberForm.email}
+                      onChange={(event) => {
+                        setMemberForm({
+                          ...memberForm,
+                          email: event.target.value,
+                        })
+                        setMemberError('')
+                      }}
+                      placeholder="email@exemplo.com"
+                      className="w-full rounded-xl border border-brand-border bg-brand-surface px-4 py-3 text-sm text-brand-ink outline-none transition placeholder:text-brand-muted/70 focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="member-role"
+                      className="mb-1.5 block text-xs font-bold text-brand-dark"
+                    >
+                      Tipo de participante
+                    </label>
+                    <select
+                      id="member-role"
+                      value={memberForm.role}
+                      onChange={(event) =>
+                        setMemberForm({
+                          ...memberForm,
+                          role: event.target.value as SupportMember['role'],
+                        })
+                      }
+                      className="w-full rounded-xl border border-brand-border bg-brand-surface px-3 py-3 text-sm text-brand-ink outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
+                    >
+                      <option value="Familiar">Familiar</option>
+                      <option value="Cuidador">Cuidador</option>
+                    </select>
+                  </div>
+
+                  {memberError && (
+                    <p className="rounded-lg bg-brand-danger/10 px-3 py-2 text-xs font-semibold text-brand-danger">
+                      {memberError}
+                    </p>
+                  )}
+
+                  <div className="flex flex-col-reverse gap-3 pt-1 sm:flex-row sm:justify-end">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMemberFormOpen(false)
+                        setMemberError('')
+                      }}
+                      className="rounded-xl border border-brand-border px-5 py-3 text-sm font-bold text-brand-muted transition hover:bg-brand-surface"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-5 py-3 text-sm font-extrabold text-white transition hover:bg-brand-dark"
+                    >
+                      <UserPlus size={16} />
+                      Enviar convite
+                    </button>
+                  </div>
+                </div>
+              </form>
+            )}
+
+            <p className="mt-4 text-[11px] leading-relaxed text-brand-muted">
+              A remoção de uma pessoa também desvincula seu nome das tarefas e
+              compromissos atribuídos a ela. O responsável principal não pode
+              ser removido por este painel.
+            </p>
+          </div>
+        </div>
+      )}
 
       {taskModalOpen && (
         <div className="fixed inset-0 z-60 flex items-center justify-center overflow-y-auto bg-brand-ink/50 p-4">
