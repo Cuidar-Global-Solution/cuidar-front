@@ -1,5 +1,4 @@
-
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
 
@@ -7,6 +6,24 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState('')
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>)  {
+    event.preventDefault()
+    setError('')
+
+    if (!email.trim() || !password.trim()) {
+      setError('Preencha seu e-mail e sua senha.')
+      return
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError('Informe um endereço de e-mail válido.')
+      return
+    }
+
+    setError('Dados validados. A autenticação será habilitada após a integração com a API.')
+  }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-brand-background px-5 py-12">
@@ -27,7 +44,7 @@ export default function Login() {
           </p>
         </div>
 
-        <form className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label htmlFor="email" className="mb-2 block text-sm font-bold">
               E-mail
@@ -76,6 +93,12 @@ export default function Login() {
               </button>
             </div>
           </div>
+
+          {error && (
+            <p role="alert" className="text-sm leading-6 text-brand-danger">
+              {error}
+            </p>
+          )}
 
           <button
             type="submit"
