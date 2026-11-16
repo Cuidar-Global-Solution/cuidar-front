@@ -9,6 +9,7 @@ import {
   LockKeyhole,
   Mail,
   Phone,
+  ShieldCheck,
   UserRound,
 } from 'lucide-react'
 
@@ -77,8 +78,8 @@ export default function Cadastro() {
   }
 
   return (
-    <main className="min-h-screen bg-brand-background lg:grid lg:min-h-screen lg:grid-cols-2">
-      <section className="relative hidden min-h-screen flex-col justify-between overflow-hidden bg-brand-dark p-12 text-white lg:flex xl:p-16">
+    <main className="flex min-h-screen bg-brand-background lg:h-dvh lg:min-h-0 lg:overflow-hidden">
+      <section className="relative hidden min-h-screen w-1/2 flex-col justify-between overflow-hidden bg-brand-dark p-12 text-white lg:flex lg:h-full lg:min-h-0 xl:p-16">
         <Link to="/" className="relative z-10 inline-flex w-fit items-center gap-3">
           <img src="/assets/img01-logo-cuidar.jpeg" alt="Cuidar+" className="h-12 w-12 rounded-xl object-cover" />
           <span className="text-2xl font-bold text-white">Cuidar<span className="text-brand-pink">+</span></span>
@@ -97,12 +98,16 @@ export default function Cadastro() {
           </p>
         </div>
 
-        <p className="relative z-10 text-sm text-white/60">Cuidar+ · Cuidado que conecta.</p>
+        <div className="relative z-10 flex items-center gap-3 text-sm text-white/60">
+          <ShieldCheck size={18} className="text-brand-pink" />
+          Uma proposta pensada para aproximar pessoas e organizar o cuidado.
+        </div>
+
         <div className="pointer-events-none absolute -bottom-40 -left-32 h-96 w-96 rounded-full border border-white/10" />
         <div className="pointer-events-none absolute -bottom-24 -left-16 h-64 w-64 rounded-full border border-white/10" />
       </section>
 
-      <section className="flex min-h-screen items-center justify-center px-5 py-12 sm:px-8 lg:px-12">
+      <section className="flex min-h-screen w-full items-center justify-center px-5 py-12 sm:px-8 lg:h-full lg:min-h-0 lg:w-1/2 lg:overflow-y-auto lg:py-8">
         <div className="w-full max-w-md">
           <Link to="/" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-brand-muted transition hover:text-brand-primary">
             <ArrowLeft size={17} />
