@@ -1,6 +1,29 @@
 
 import { UsersRound } from 'lucide-react'
 
+const members = [
+  {
+    name: 'Leonardo Arnaldo Cerqueira da Silva',
+    image: '/images/img05-leonardo.jpeg',
+  },
+  {
+    name: 'Guilherme Matheus Magalhães Almeida',
+    image: '/images/img06-guilherme.jpeg',
+  },
+  {
+    name: 'Thiago Rodrigues Santa Rosa',
+    image: '/images/img07-thiago.jpeg',
+  },
+  {
+    name: 'Beatriz Urbano Marques de Oliveira',
+    image: '/images/img08-beatriz.jpeg',
+  },
+  {
+    name: 'Geovanna Secchi Egea',
+    image: '/images/img09-geovanna.jpeg',
+  },
+]
+
 export default function Integrantes() {
   return (
     <div className="min-h-screen bg-brand-background">
@@ -38,6 +61,41 @@ export default function Integrantes() {
               famílias e profissionais na organização do cuidado com
               pessoas idosas.
             </p>
+          </div>
+
+          <div className="mt-16">
+            <div className="mb-8">
+              <span className="text-sm font-bold uppercase tracking-wider text-brand-primary">
+                Quem faz acontecer
+              </span>
+
+              <h2 className="mt-2 text-2xl font-bold sm:text-3xl">
+                Conheça os integrantes
+              </h2>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {members.map((member) => (
+                <article
+                  key={member.name}
+                  className="overflow-hidden rounded-2xl border border-brand-border bg-white transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+                >
+                  <div className="aspect-[4/3] overflow-hidden bg-brand-pink-light">
+                    <img
+                      src={member.image}
+                      alt={`Foto de ${member.name}`}
+                      className="h-full w-full object-cover object-center"
+                    />
+                  </div>
+
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold leading-snug">
+                      {member.name}
+                    </h3>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
       </section>
