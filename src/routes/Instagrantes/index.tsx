@@ -5,22 +5,32 @@ const members = [
   {
     name: 'Leonardo Arnaldo Cerqueira da Silva',
     image: '/images/img05-leonardo.jpeg',
+    rm: '573188',
+    class: '1TDSPJ',
   },
   {
     name: 'Guilherme Matheus Magalhães Almeida',
     image: '/images/img06-guilherme.jpeg',
+    rm: '571713',
+    class: '1TDSPJ',
   },
   {
     name: 'Thiago Rodrigues Santa Rosa',
     image: '/images/img07-thiago.jpeg',
+    rm: '572616',
+    class: '1TDSPJ',
   },
   {
     name: 'Beatriz Urbano Marques de Oliveira',
     image: '/images/img08-beatriz.jpeg',
+    rm: '569341',
+    class: '1TDSPJ',
   },
   {
     name: 'Geovanna Secchi Egea',
     image: '/images/img09-geovanna.jpeg',
+    rm: '573452',
+    class: '1TDSPJ',
   },
 ]
 
@@ -77,7 +87,7 @@ export default function Integrantes() {
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {members.map((member) => (
                 <article
-                  key={member.name}
+                  key={member.rm}
                   className="overflow-hidden rounded-2xl border border-brand-border bg-white transition duration-300 hover:-translate-y-1 hover:shadow-lg"
                 >
                   <div className="aspect-[4/3] overflow-hidden bg-brand-pink-light">
@@ -92,6 +102,16 @@ export default function Integrantes() {
                     <h3 className="text-lg font-bold leading-snug">
                       {member.name}
                     </h3>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="rounded-lg bg-brand-pink-light px-3 py-1.5 text-xs font-bold text-brand-primary">
+                        RM {member.rm}
+                      </span>
+
+                      <span className="rounded-lg bg-brand-background px-3 py-1.5 text-xs font-bold text-brand-muted">
+                        {member.class}
+                      </span>
+                    </div>
                   </div>
                 </article>
               ))}
