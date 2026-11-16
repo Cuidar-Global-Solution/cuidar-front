@@ -1,3 +1,4 @@
+
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
@@ -6,23 +7,29 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
+  const [feedback, setFeedback] = useState('')
+  const [hasError, setHasError] = useState(false)
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>)  {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setError('')
+    setFeedback('')
+    setHasError(false)
 
     if (!email.trim() || !password.trim()) {
-      setError('Preencha seu e-mail e sua senha.')
+      setFeedback('Preencha seu e-mail e sua senha.')
+      setHasError(true)
       return
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setError('Informe um endereço de e-mail válido.')
+      setFeedback('Informe um endereço de e-mail válido.')
+      setHasError(true)
       return
     }
 
-    setError('Dados validados. A autenticação será habilitada após a integração com a API.')
+    setFeedback(
+      'Seus dados foram preenchidos corretamente. O acesso será habilitado após a integração com a API.'
+    )
   }
 
   return (
@@ -50,7 +57,7 @@ export default function Login() {
               E-mail
             </label>
 
-            <div className="flex items-center gap-3 rounded-xl border border-brand-border px-4 focus-within:border-brand-primary">
+            <div className="flex items-center gap-3 rounded-xl border border-brand-border px-4 transition focus-within:border-brand-primary">
               <Mail size={18} className="shrink-0 text-brand-muted" />
               <input
                 id="email"
@@ -70,7 +77,7 @@ export default function Login() {
               Senha
             </label>
 
-            <div className="flex items-center gap-3 rounded-xl border border-brand-border px-4 focus-within:border-brand-primary">
+            <div className="flex items-center gap-3 rounded-xl border border-brand-border px-4 transition focus-within:border-brand-primary">
               <LockKeyhole size={18} className="shrink-0 text-brand-muted" />
               <input
                 id="password"
@@ -94,9 +101,14 @@ export default function Login() {
             </div>
           </div>
 
-          {error && (
-            <p role="alert" className="text-sm leading-6 text-brand-danger">
-              {error}
+          {feedback && (
+            <p
+              role="alert"
+              className={`text-sm leading-6 ${
+                hasError ? 'text-brand-danger' : 'text-brand-primary'
+              }`}
+            >
+              {feedback}
             </p>
           )}
 
@@ -110,7 +122,7 @@ export default function Login() {
 
         <p className="mt-7 text-center text-sm text-brand-muted">
           Ainda não tem uma conta?{' '}
-          <Link to="/cadastro" className="font-bold text-brand-primary">
+          <Link to="/cadastro" className="font-bold text-brand-primary hover:text-brand-pink">
             Criar conta
           </Link>
         </p>
