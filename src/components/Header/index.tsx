@@ -7,8 +7,9 @@ const links = [
   { label: 'Início', to: '/' },
   { label: 'Sobre nós', to: '/sobre' },
   { label: 'Como funciona', to: '/solucao' },
-  { label: 'Cuidadores', to: '/cuidadores' },
+  { label: 'Contato', to: '/contato' },
   { label: 'FAQ', to: '/faq' },
+  { label: 'Integrantes', to: '/integrantes' },
 ]
 
 export default function Header() {
@@ -24,7 +25,7 @@ export default function Header() {
           onClick={() => setMenuOpen(false)}
         >
           <img
-            src="/assets/logo-cuidar.jpeg"
+            src="/assets/img01-logo-cuidar.jpeg"
             alt="Cuidar+"
             className="h-12 w-12 rounded-xl object-cover"
           />

@@ -26,7 +26,7 @@ export default function Footer() {
           <div className="max-w-sm">
             <Link to="/" className="inline-flex items-center gap-3">
               <img
-                src="/assets/logo-cuidar.jpeg"
+                src="/assets/img01-logo-cuidar.jpeg"
                 alt="Cuidar+"
                 className="h-12 w-12 rounded-xl object-cover"
               />
@@ -48,7 +48,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider">
+            <h3 className=" text-sm font-bold uppercase tracking-wider">
               Navegação
             </h3>
             <ul className="mt-5 space-y-4">
@@ -66,7 +66,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider">
+            <h3 className="text-sm font-bold uppercase tracking-wider ">
               Cuidar+
             </h3>
             <ul className="mt-5 space-y-4">
