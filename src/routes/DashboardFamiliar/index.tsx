@@ -16,6 +16,7 @@ import {
   HeartPulse,
   LayoutDashboard,
   LogOut,
+  MapPin,
   Menu,
   Pill,
   Plus,
@@ -42,6 +43,20 @@ type Task = {
   description: string
   time: string
   category: TaskCategory
+  responsible: string
+  completed: boolean
+}
+
+type AppointmentCategory = 'Consulta' | 'Exame' | 'Outro'
+
+type Appointment = {
+  id: number
+  title: string
+  description: string
+  category: AppointmentCategory
+  date: string
+  time: string
+  location: string
   responsible: string
   completed: boolean
 }
@@ -102,6 +117,31 @@ const initialTasks: Task[] = [
   },
 ]
 
+const initialAppointments: Appointment[] = [
+  {
+    id: 1,
+    title: 'Consulta médica',
+    description: 'Acompanhamento de rotina',
+    category: 'Consulta',
+    date: '2026-11-18',
+    time: '09:30',
+    location: 'Clínica Central',
+    responsible: 'Ana Martins',
+    completed: false,
+  },
+  {
+    id: 2,
+    title: 'Exame de rotina',
+    description: 'Exames solicitados pelo médico',
+    category: 'Exame',
+    date: '2026-11-21',
+    time: '08:00',
+    location: 'Laboratório',
+    responsible: 'João Martins',
+    completed: false,
+  },
+]
+
 const navigation = [
   { label: 'Visão geral', href: '#visao-geral', icon: LayoutDashboard },
   { label: 'Rotina de cuidados', href: '#rotina', icon: ClipboardList },
@@ -109,7 +149,7 @@ const navigation = [
   { label: 'Rede de apoio', href: '#rede-de-apoio', icon: UsersRound },
 ]
 
-const emptyForm = {
+const emptyTaskForm = {
   title: '',
   description: '',
   time: '',
@@ -117,18 +157,69 @@ const emptyForm = {
   responsible: '',
 }
 
+const emptyAppointmentForm = {
+  title: '',
+  description: '',
+  category: 'Consulta' as AppointmentCategory,
+  date: '',
+  time: '',
+  location: '',
+  responsible: '',
+}
+
+const responsibleOptions = [
+  'Ana Martins',
+  'João Martins',
+  'Renata Costa',
+]
+
+function getDateParts(date: string) {
+  const [year, month, day] = date.split('-').map(Number)
+  const parsedDate = new Date(year, month - 1, day)
+
+  return {
+    day: parsedDate.toLocaleDateString('pt-BR', { day: '2-digit' }),
+    month: parsedDate
+      .toLocaleDateString('pt-BR', { month: 'short' })
+      .replace('.', ''),
+  }
+}
+
 export default function DashboardFamiliar() {
   const [tasks, setTasks] = useState<Task[]>(initialTasks)
+  const [appointments, setAppointments] =
+    useState<Appointment[]>(initialAppointments)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [modalOpen, setModalOpen] = useState(false)
+  const [taskModalOpen, setTaskModalOpen] = useState(false)
+  const [appointmentModalOpen, setAppointmentModalOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<number | null>(null)
-  const [form, setForm] = useState(emptyForm)
+  const [editingAppointment, setEditingAppointment] = useState<number | null>(
+    null,
+  )
+  const [taskForm, setTaskForm] = useState(emptyTaskForm)
+  const [appointmentForm, setAppointmentForm] = useState(
+    emptyAppointmentForm,
+  )
 
   const completedTasks = tasks.filter((task) => task.completed).length
   const progress =
     tasks.length === 0
       ? 0
       : Math.round((completedTasks / tasks.length) * 100)
+
+  const sortedAppointments = appointments
+    .slice()
+    .sort((a, b) =>
+      `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`),
+    )
+
+  const nextAppointment = sortedAppointments.find(
+    (appointment) =>
+      !appointment.completed &&
+      new Date(
+        `${appointment.date}T${appointment.time}:00`,
+      ).getTime() >= Date.now(),
+  )
 
   function toggleTask(id: number) {
     setTasks((currentTasks) =>
@@ -138,18 +229,28 @@ export default function DashboardFamiliar() {
     )
   }
 
+  function toggleAppointment(id: number) {
+    setAppointments((currentAppointments) =>
+      currentAppointments.map((appointment) =>
+        appointment.id === id
+          ? { ...appointment, completed: !appointment.completed }
+          : appointment,
+      ),
+    )
+  }
+
   function closeMenu() {
     setMenuOpen(false)
   }
 
   function openNewTask() {
-    setForm(emptyForm)
+    setTaskForm(emptyTaskForm)
     setEditingTask(null)
-    setModalOpen(true)
+    setTaskModalOpen(true)
   }
 
   function openEditTask(task: Task) {
-    setForm({
+    setTaskForm({
       title: task.title,
       description: task.description,
       time: task.time,
@@ -157,22 +258,22 @@ export default function DashboardFamiliar() {
       responsible: task.responsible,
     })
     setEditingTask(task.id)
-    setModalOpen(true)
+    setTaskModalOpen(true)
   }
 
   function closeTaskModal() {
-    setModalOpen(false)
+    setTaskModalOpen(false)
     setEditingTask(null)
-    setForm(emptyForm)
+    setTaskForm(emptyTaskForm)
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleTaskSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     if (editingTask !== null) {
       setTasks((currentTasks) =>
         currentTasks.map((task) =>
-          task.id === editingTask ? { ...task, ...form } : task,
+          task.id === editingTask ? { ...task, ...taskForm } : task,
         ),
       )
     } else {
@@ -180,7 +281,7 @@ export default function DashboardFamiliar() {
         ...currentTasks,
         {
           id: Date.now(),
-          ...form,
+          ...taskForm,
           completed: false,
         },
       ])
@@ -190,11 +291,78 @@ export default function DashboardFamiliar() {
   }
 
   function deleteTask(id: number) {
-    const confirmed = window.confirm('Deseja realmente excluir esta tarefa?')
+    const confirmed = window.confirm(
+      'Deseja realmente excluir esta tarefa?',
+    )
 
     if (!confirmed) return
 
-    setTasks((currentTasks) => currentTasks.filter((task) => task.id !== id))
+    setTasks((currentTasks) =>
+      currentTasks.filter((task) => task.id !== id),
+    )
+  }
+
+  function openNewAppointment() {
+    setAppointmentForm(emptyAppointmentForm)
+    setEditingAppointment(null)
+    setAppointmentModalOpen(true)
+  }
+
+  function openEditAppointment(appointment: Appointment) {
+    setAppointmentForm({
+      title: appointment.title,
+      description: appointment.description,
+      category: appointment.category,
+      date: appointment.date,
+      time: appointment.time,
+      location: appointment.location,
+      responsible: appointment.responsible,
+    })
+    setEditingAppointment(appointment.id)
+    setAppointmentModalOpen(true)
+  }
+
+  function closeAppointmentModal() {
+    setAppointmentModalOpen(false)
+    setEditingAppointment(null)
+    setAppointmentForm(emptyAppointmentForm)
+  }
+
+  function handleAppointmentSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (editingAppointment !== null) {
+      setAppointments((currentAppointments) =>
+        currentAppointments.map((appointment) =>
+          appointment.id === editingAppointment
+            ? { ...appointment, ...appointmentForm }
+            : appointment,
+        ),
+      )
+    } else {
+      setAppointments((currentAppointments) => [
+        ...currentAppointments,
+        {
+          id: Date.now(),
+          ...appointmentForm,
+          completed: false,
+        },
+      ])
+    }
+
+    closeAppointmentModal()
+  }
+
+  function deleteAppointment(id: number) {
+    const confirmed = window.confirm(
+      'Deseja realmente excluir este compromisso?',
+    )
+
+    if (!confirmed) return
+
+    setAppointments((currentAppointments) =>
+      currentAppointments.filter((appointment) => appointment.id !== id),
+    )
   }
 
   return (
@@ -408,12 +576,26 @@ export default function DashboardFamiliar() {
                     <CalendarDays size={19} />
                   </span>
                 </div>
-                <p className="mt-4 text-2xl font-extrabold text-brand-dark">
-                  18 nov.
-                </p>
-                <p className="mt-1 text-xs text-brand-muted">
-                  Consulta médica · 09:30
-                </p>
+                {nextAppointment ? (
+                  <>
+                    <p className="mt-4 text-2xl font-extrabold text-brand-dark">
+                      {getDateParts(nextAppointment.date).day}{' '}
+                      {getDateParts(nextAppointment.date).month}.
+                    </p>
+                    <p className="mt-1 text-xs text-brand-muted">
+                      {nextAppointment.title} · {nextAppointment.time}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="mt-4 text-lg font-extrabold text-brand-dark">
+                      Nenhum
+                    </p>
+                    <p className="mt-1 text-xs text-brand-muted">
+                      Não há compromissos futuros
+                    </p>
+                  </>
+                )}
               </div>
 
               <div className="rounded-2xl border border-brand-border bg-brand-surface p-5">
@@ -606,64 +788,163 @@ export default function DashboardFamiliar() {
                 id="agenda"
                 className="scroll-mt-28 rounded-2xl border border-brand-border bg-brand-surface p-5 sm:p-6"
               >
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-wider text-brand-pink">
                       Fique atento
                     </p>
                     <h2 className="mt-1 font-heading text-lg font-bold text-brand-dark">
-                      Próximos compromissos
+                      Agenda de cuidados
                     </h2>
                   </div>
                   <CalendarDays size={21} className="text-brand-primary" />
                 </div>
 
-                <div className="mt-5 flex gap-4 rounded-xl border border-brand-border p-4">
-                  <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-brand-lavender/30 text-brand-primary">
-                    <span className="text-[10px] font-extrabold uppercase">
-                      Nov
-                    </span>
-                    <span className="text-xl font-extrabold">18</span>
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-extrabold text-brand-dark">
-                      Consulta médica
-                    </p>
-                    <p className="mt-1 text-xs text-brand-muted">
-                      Acompanhamento de rotina
-                    </p>
-                    <p className="mt-2 flex items-center gap-1 text-xs font-bold text-brand-primary">
-                      <Clock3 size={13} /> 09:30
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-3 flex gap-4 rounded-xl border border-brand-border p-4">
-                  <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl bg-brand-pink-light text-brand-pink">
-                    <span className="text-[10px] font-extrabold uppercase">
-                      Nov
-                    </span>
-                    <span className="text-xl font-extrabold">21</span>
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-extrabold text-brand-dark">
-                      Exame de rotina
-                    </p>
-                    <p className="mt-1 text-xs text-brand-muted">
-                      Laboratório
-                    </p>
-                    <p className="mt-2 flex items-center gap-1 text-xs font-bold text-brand-primary">
-                      <Clock3 size={13} /> 08:00
-                    </p>
-                  </div>
-                </div>
-
-                <a
-                  href="#agenda"
-                  className="mt-4 inline-flex items-center gap-2 text-xs font-extrabold text-brand-primary hover:text-brand-pink"
+                <button
+                  type="button"
+                  onClick={openNewAppointment}
+                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-3 text-xs font-extrabold text-white transition hover:bg-brand-dark"
                 >
-                  Ver agenda completa <ArrowRight size={14} />
-                </a>
+                  <Plus size={16} />
+                  Adicionar compromisso
+                </button>
+
+                <div className="mt-5 space-y-3">
+                  {sortedAppointments.length === 0 ? (
+                    <div className="rounded-xl bg-brand-background px-4 py-8 text-center">
+                      <CalendarDays
+                        size={28}
+                        className="mx-auto text-brand-muted/70"
+                      />
+                      <p className="mt-3 text-sm font-extrabold text-brand-dark">
+                        Agenda vazia
+                      </p>
+                      <p className="mt-1 text-xs text-brand-muted">
+                        Cadastre consultas, exames ou outros compromissos.
+                      </p>
+                    </div>
+                  ) : (
+                    sortedAppointments.map((appointment, index) => {
+                      const dateParts = getDateParts(appointment.date)
+
+                      return (
+                        <div
+                          key={appointment.id}
+                          className={`rounded-xl border p-4 transition ${
+                            appointment.completed
+                              ? 'border-brand-success/20 bg-brand-success/5'
+                              : 'border-brand-border'
+                          }`}
+                        >
+                          <div className="flex gap-3">
+                            <div
+                              className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl ${
+                                appointment.completed
+                                  ? 'bg-brand-success/10 text-brand-success'
+                                  : index % 2 === 0
+                                    ? 'bg-brand-lavender/30 text-brand-primary'
+                                    : 'bg-brand-pink-light text-brand-pink'
+                              }`}
+                            >
+                              <span className="text-[10px] font-extrabold uppercase">
+                                {dateParts.month}
+                              </span>
+                              <span className="text-xl font-extrabold">
+                                {dateParts.day}
+                              </span>
+                            </div>
+
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <p
+                                  className={`text-sm font-extrabold ${
+                                    appointment.completed
+                                      ? 'text-brand-muted line-through'
+                                      : 'text-brand-dark'
+                                  }`}
+                                >
+                                  {appointment.title}
+                                </p>
+                                <span className="rounded-full bg-brand-background px-2 py-0.5 text-[10px] font-bold text-brand-muted">
+                                  {appointment.category}
+                                </span>
+                              </div>
+
+                              {appointment.description && (
+                                <p className="mt-1 text-xs text-brand-muted">
+                                  {appointment.description}
+                                </p>
+                              )}
+
+                              <p className="mt-2 flex items-center gap-1 text-xs font-bold text-brand-primary">
+                                <Clock3 size={13} />
+                                {appointment.time}
+                              </p>
+
+                              {appointment.location && (
+                                <p className="mt-1 flex items-center gap-1 text-xs text-brand-muted">
+                                  <MapPin size={12} />
+                                  {appointment.location}
+                                </p>
+                              )}
+
+                              <p className="mt-1 text-[11px] text-brand-muted">
+                                Responsável: {appointment.responsible}
+                              </p>
+
+                              {appointment.completed && (
+                                <p className="mt-2 text-[11px] font-bold text-brand-success">
+                                  Compromisso concluído
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="mt-3 flex flex-wrap justify-end gap-2 border-t border-brand-border pt-3">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                toggleAppointment(appointment.id)
+                              }
+                              className={`inline-flex items-center gap-1 rounded-lg px-3 py-2 text-xs font-bold transition ${
+                                appointment.completed
+                                  ? 'bg-brand-success/10 text-brand-success hover:bg-brand-success/20'
+                                  : 'bg-brand-lavender/30 text-brand-primary hover:bg-brand-lavender/50'
+                              }`}
+                            >
+                              <Check size={13} />
+                              {appointment.completed
+                                ? 'Concluído'
+                                : 'Concluir'}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                openEditAppointment(appointment)
+                              }
+                              className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-xs font-bold text-brand-muted transition hover:bg-brand-lavender/30 hover:text-brand-primary"
+                            >
+                              <Pencil size={13} />
+                              Editar
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                deleteAppointment(appointment.id)
+                              }
+                              className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-xs font-bold text-brand-muted transition hover:bg-brand-danger/10 hover:text-brand-danger"
+                            >
+                              <Trash2 size={13} />
+                              Excluir
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
               </div>
 
               <div
@@ -763,7 +1044,7 @@ export default function DashboardFamiliar() {
         </div>
       </main>
 
-      {modalOpen && (
+      {taskModalOpen && (
         <div className="fixed inset-0 z-60 flex items-center justify-center overflow-y-auto bg-brand-ink/50 p-4">
           <div
             role="dialog"
@@ -796,7 +1077,7 @@ export default function DashboardFamiliar() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <form onSubmit={handleTaskSubmit} className="mt-6 space-y-4">
               <div>
                 <label
                   htmlFor="task-title"
@@ -809,9 +1090,9 @@ export default function DashboardFamiliar() {
                   type="text"
                   required
                   maxLength={70}
-                  value={form.title}
+                  value={taskForm.title}
                   onChange={(event) =>
-                    setForm({ ...form, title: event.target.value })
+                    setTaskForm({ ...taskForm, title: event.target.value })
                   }
                   placeholder="Ex.: Medicamento da manhã"
                   className="w-full rounded-xl border border-brand-border bg-brand-background px-4 py-3 text-sm text-brand-ink outline-none transition placeholder:text-brand-muted/70 focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
@@ -829,9 +1110,12 @@ export default function DashboardFamiliar() {
                   id="task-description"
                   rows={3}
                   maxLength={180}
-                  value={form.description}
+                  value={taskForm.description}
                   onChange={(event) =>
-                    setForm({ ...form, description: event.target.value })
+                    setTaskForm({
+                      ...taskForm,
+                      description: event.target.value,
+                    })
                   }
                   placeholder="Adicione detalhes sobre a atividade"
                   className="w-full resize-none rounded-xl border border-brand-border bg-brand-background px-4 py-3 text-sm text-brand-ink outline-none transition placeholder:text-brand-muted/70 focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
@@ -848,10 +1132,10 @@ export default function DashboardFamiliar() {
                   </label>
                   <select
                     id="task-category"
-                    value={form.category}
+                    value={taskForm.category}
                     onChange={(event) =>
-                      setForm({
-                        ...form,
+                      setTaskForm({
+                        ...taskForm,
                         category: event.target.value as TaskCategory,
                       })
                     }
@@ -876,9 +1160,9 @@ export default function DashboardFamiliar() {
                     id="task-time"
                     type="time"
                     required
-                    value={form.time}
+                    value={taskForm.time}
                     onChange={(event) =>
-                      setForm({ ...form, time: event.target.value })
+                      setTaskForm({ ...taskForm, time: event.target.value })
                     }
                     className="w-full rounded-xl border border-brand-border bg-brand-background px-3 py-3 text-sm text-brand-ink outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
                   />
@@ -895,16 +1179,21 @@ export default function DashboardFamiliar() {
                 <select
                   id="task-responsible"
                   required
-                  value={form.responsible}
+                  value={taskForm.responsible}
                   onChange={(event) =>
-                    setForm({ ...form, responsible: event.target.value })
+                    setTaskForm({
+                      ...taskForm,
+                      responsible: event.target.value,
+                    })
                   }
                   className="w-full rounded-xl border border-brand-border bg-brand-background px-3 py-3 text-sm text-brand-ink outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
                 >
                   <option value="">Selecione uma pessoa</option>
-                  <option value="Ana Martins">Ana Martins</option>
-                  <option value="João Martins">João Martins</option>
-                  <option value="Renata Costa">Renata Costa</option>
+                  {responsibleOptions.map((person) => (
+                    <option key={person} value={person}>
+                      {person}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -921,7 +1210,240 @@ export default function DashboardFamiliar() {
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-5 py-3 text-sm font-extrabold text-white transition hover:bg-brand-dark"
                 >
                   <Check size={17} />
-                  {editingTask !== null ? 'Salvar alterações' : 'Adicionar tarefa'}
+                  {editingTask !== null
+                    ? 'Salvar alterações'
+                    : 'Adicionar tarefa'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {appointmentModalOpen && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center overflow-y-auto bg-brand-ink/50 p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="appointment-modal-title"
+            className="my-auto w-full max-w-lg rounded-2xl border border-brand-border bg-brand-surface p-6 shadow-xl sm:p-8"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-brand-pink">
+                  Agenda de cuidados
+                </p>
+                <h2
+                  id="appointment-modal-title"
+                  className="mt-1 font-heading text-xl font-bold text-brand-dark"
+                >
+                  {editingAppointment !== null
+                    ? 'Editar compromisso'
+                    : 'Novo compromisso'}
+                </h2>
+                <p className="mt-1 text-sm text-brand-muted">
+                  Cadastre os detalhes do compromisso.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeAppointmentModal}
+                aria-label="Fechar formulário"
+                className="rounded-lg p-2 text-brand-muted transition hover:bg-brand-background hover:text-brand-dark"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form
+              onSubmit={handleAppointmentSubmit}
+              className="mt-6 space-y-4"
+            >
+              <div>
+                <label
+                  htmlFor="appointment-title"
+                  className="mb-1.5 block text-xs font-bold text-brand-dark"
+                >
+                  Nome do compromisso
+                </label>
+                <input
+                  id="appointment-title"
+                  type="text"
+                  required
+                  maxLength={70}
+                  value={appointmentForm.title}
+                  onChange={(event) =>
+                    setAppointmentForm({
+                      ...appointmentForm,
+                      title: event.target.value,
+                    })
+                  }
+                  placeholder="Ex.: Consulta com cardiologista"
+                  className="w-full rounded-xl border border-brand-border bg-brand-background px-4 py-3 text-sm text-brand-ink outline-none transition placeholder:text-brand-muted/70 focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="appointment-description"
+                  className="mb-1.5 block text-xs font-bold text-brand-dark"
+                >
+                  Descrição
+                </label>
+                <textarea
+                  id="appointment-description"
+                  rows={2}
+                  maxLength={180}
+                  value={appointmentForm.description}
+                  onChange={(event) =>
+                    setAppointmentForm({
+                      ...appointmentForm,
+                      description: event.target.value,
+                    })
+                  }
+                  placeholder="Informações adicionais sobre o compromisso"
+                  className="w-full resize-none rounded-xl border border-brand-border bg-brand-background px-4 py-3 text-sm text-brand-ink outline-none transition placeholder:text-brand-muted/70 focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="appointment-category"
+                  className="mb-1.5 block text-xs font-bold text-brand-dark"
+                >
+                  Tipo de compromisso
+                </label>
+                <select
+                  id="appointment-category"
+                  value={appointmentForm.category}
+                  onChange={(event) =>
+                    setAppointmentForm({
+                      ...appointmentForm,
+                      category: event.target.value as AppointmentCategory,
+                    })
+                  }
+                  className="w-full rounded-xl border border-brand-border bg-brand-background px-3 py-3 text-sm text-brand-ink outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
+                >
+                  <option value="Consulta">Consulta</option>
+                  <option value="Exame">Exame</option>
+                  <option value="Outro">Outro</option>
+                </select>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label
+                    htmlFor="appointment-date"
+                    className="mb-1.5 block text-xs font-bold text-brand-dark"
+                  >
+                    Data
+                  </label>
+                  <input
+                    id="appointment-date"
+                    type="date"
+                    required
+                    min={new Date().toLocaleDateString('en-CA')}
+                    value={appointmentForm.date}
+                    onChange={(event) =>
+                      setAppointmentForm({
+                        ...appointmentForm,
+                        date: event.target.value,
+                      })
+                    }
+                    className="w-full rounded-xl border border-brand-border bg-brand-background px-3 py-3 text-sm text-brand-ink outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="appointment-time"
+                    className="mb-1.5 block text-xs font-bold text-brand-dark"
+                  >
+                    Horário
+                  </label>
+                  <input
+                    id="appointment-time"
+                    type="time"
+                    required
+                    value={appointmentForm.time}
+                    onChange={(event) =>
+                      setAppointmentForm({
+                        ...appointmentForm,
+                        time: event.target.value,
+                      })
+                    }
+                    className="w-full rounded-xl border border-brand-border bg-brand-background px-3 py-3 text-sm text-brand-ink outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="appointment-location"
+                  className="mb-1.5 block text-xs font-bold text-brand-dark"
+                >
+                  Local
+                </label>
+                <input
+                  id="appointment-location"
+                  type="text"
+                  maxLength={100}
+                  value={appointmentForm.location}
+                  onChange={(event) =>
+                    setAppointmentForm({
+                      ...appointmentForm,
+                      location: event.target.value,
+                    })
+                  }
+                  placeholder="Ex.: Clínica ou laboratório"
+                  className="w-full rounded-xl border border-brand-border bg-brand-background px-4 py-3 text-sm text-brand-ink outline-none transition placeholder:text-brand-muted/70 focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="appointment-responsible"
+                  className="mb-1.5 block text-xs font-bold text-brand-dark"
+                >
+                  Responsável
+                </label>
+                <select
+                  id="appointment-responsible"
+                  required
+                  value={appointmentForm.responsible}
+                  onChange={(event) =>
+                    setAppointmentForm({
+                      ...appointmentForm,
+                      responsible: event.target.value,
+                    })
+                  }
+                  className="w-full rounded-xl border border-brand-border bg-brand-background px-3 py-3 text-sm text-brand-ink outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
+                >
+                  <option value="">Selecione uma pessoa</option>
+                  {responsibleOptions.map((person) => (
+                    <option key={person} value={person}>
+                      {person}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={closeAppointmentModal}
+                  className="rounded-xl border border-brand-border px-5 py-3 text-sm font-bold text-brand-muted transition hover:bg-brand-background"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-5 py-3 text-sm font-extrabold text-white transition hover:bg-brand-dark"
+                >
+                  <Check size={17} />
+                  {editingAppointment !== null
+                    ? 'Salvar alterações'
+                    : 'Adicionar compromisso'}
                 </button>
               </div>
             </form>
