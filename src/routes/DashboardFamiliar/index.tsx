@@ -30,6 +30,8 @@ import {
   Trash2,
   Mail,
   UserPlus,
+  Type,
+  UserRound,
 } from 'lucide-react'
 
 type TaskCategory =
@@ -74,6 +76,14 @@ type SupportMember = {
 
 type TaskFilter = 'Todas' | 'Pendentes' | 'Concluídas'
 type AppointmentFilter = 'Todos' | 'Pendentes' | 'Concluídos'
+
+type Notification = {
+  id: string
+  title: string
+  description: string
+  date: string
+  type: 'task' | 'appointment'
+}
 
 const categoryIcons = {
   Medicamentos: Pill,
@@ -212,6 +222,8 @@ const emptyMemberForm = {
   role: 'Familiar' as SupportMember['role'],
 }
 
+
+
 function getDateParts(date: string) {
   const [year, month, day] = date.split('-').map(Number)
   const parsedDate = new Date(year, month - 1, day)
@@ -230,6 +242,45 @@ function getFormattedDate(date: string) {
     month: 'long',
     year: 'numeric',
   })
+}
+
+function PreferenceSwitch({
+  checked,
+  onChange,
+  label,
+  description,
+}: {
+  checked: boolean
+  onChange: (value: boolean) => void
+  label: string
+  description: string
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-3">
+      <div className="min-w-0">
+        <p className="text-sm font-bold text-brand-dark">{label}</p>
+        <p className="mt-1 text-xs leading-relaxed text-brand-muted">
+          {description}
+        </p>
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        aria-label={label}
+        onClick={() => onChange(!checked)}
+        className={`relative h-6 w-11 shrink-0 rounded-full transition ${
+          checked ? 'bg-brand-primary' : 'bg-brand-border'
+        }`}
+      >
+        <span
+          className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition ${
+            checked ? 'left-6' : 'left-1'
+          }`}
+        />
+      </button>
+    </div>
+  )
 }
 
 export default function DashboardFamiliar() {
@@ -257,6 +308,38 @@ export default function DashboardFamiliar() {
   )
   const [memberForm, setMemberForm] = useState(emptyMemberForm)
   const [memberError, setMemberError] = useState('')
+
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false)
+  const [readNotifications, setReadNotifications] = useState<string[]>([])
+  const [preferences, setPreferences] = useState({
+    taskReminders: true,
+    appointmentReminders: true,
+    showEmail: true,
+    largerText: false,
+    reducedMotion: false,
+  })
+  function toggleTask(id: number) {
+    setTasks((currentTasks) =>
+      currentTasks.map((task) =>
+        task.id === id
+          ? { ...task, completed: !task.completed }
+          : task,
+      ),
+    )
+  }
+
+  function toggleAppointment(id: number) {
+    setAppointments((currentAppointments) =>
+      currentAppointments.map((appointment) =>
+        appointment.id === id
+          ? { ...appointment, completed: !appointment.completed }
+          : appointment,
+      ),
+    )
+  }
+
 
   const completedTasks = tasks.filter((task) => task.completed).length
   const pendingTasks = tasks.length - completedTasks
@@ -302,22 +385,67 @@ export default function DashboardFamiliar() {
     return true
   })
 
-  function toggleTask(id: number) {
-    setTasks((currentTasks) =>
-      currentTasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task,
-      ),
+  const notifications: Notification[] = [
+    ...(preferences.taskReminders
+      ? tasks
+          .filter((task) => !task.completed)
+          .map((task) => ({
+            id: `task-${task.id}`,
+            title: task.title,
+            description: `Tarefa pendente · ${task.time}`,
+            date: task.time,
+            type: 'task' as const,
+          }))
+      : []),
+    ...(preferences.appointmentReminders
+      ? appointments
+          .filter((appointment) => !appointment.completed)
+          .map((appointment) => ({
+            id: `appointment-${appointment.id}`,
+            title: appointment.title,
+            description: `Compromisso · ${getFormattedDate(appointment.date)} às ${appointment.time}`,
+            date: appointment.date,
+            type: 'appointment' as const,
+          }))
+      : []),
+  ]
+
+  const unreadCount = notifications.filter(
+    (notification) => !readNotifications.includes(notification.id),
+  ).length
+
+  function togglePreference(
+    preference: keyof typeof preferences,
+    value: boolean,
+  ) {
+    setPreferences((current) => ({
+      ...current,
+      [preference]: value,
+    }))
+  }
+
+  function openSettings() {
+    setSettingsOpen(true)
+    setNotificationsOpen(false)
+    setProfileMenuOpen(false)
+    setMenuOpen(false)
+  }
+
+  function openNotifications() {
+    setNotificationsOpen((current) => !current)
+    setProfileMenuOpen(false)
+  }
+
+  function markNotificationAsRead(id: string) {
+    setReadNotifications((current) =>
+      current.includes(id) ? current : [...current, id],
     )
   }
 
-  function toggleAppointment(id: number) {
-    setAppointments((currentAppointments) =>
-      currentAppointments.map((appointment) =>
-        appointment.id === id
-          ? { ...appointment, completed: !appointment.completed }
-          : appointment,
-      ),
-    )
+  function markAllNotificationsAsRead() {
+    setReadNotifications((current) => [
+      ...new Set([...current, ...notifications.map((item) => item.id)]),
+    ])
   }
 
   function closeMenu() {
@@ -586,7 +714,15 @@ export default function DashboardFamiliar() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-background text-brand-ink">
+    <div
+      className={`min-h-screen bg-brand-background text-brand-ink ${
+        preferences.largerText ? '[&_p]:text-[1.05em] [&_label]:text-[1.05em]' : ''
+      } ${
+        preferences.reducedMotion
+          ? '**:animate-none! **:transition-none!'
+          : ''
+      }`}
+    >
       <aside
         className={`fixed inset-y-0 left-0 z-50 flex w-67.5 flex-col border-r border-brand-border bg-brand-surface transition-transform duration-300 lg:translate-x-0 ${
           menuOpen ? 'translate-x-0' : '-translate-x-full'
@@ -694,8 +830,9 @@ export default function DashboardFamiliar() {
             </div>
             <button
               type="button"
-              aria-label="Configurações"
-              className="rounded-lg p-2 text-brand-muted hover:bg-brand-lavender/30 hover:text-brand-primary"
+              onClick={openSettings}
+              aria-label="Abrir configurações"
+              className="rounded-lg p-2 text-brand-muted transition hover:bg-brand-lavender/30 hover:text-brand-primary"
             >
               <Settings size={18} />
             </button>
@@ -743,26 +880,196 @@ export default function DashboardFamiliar() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              aria-label="Notificações"
-              className="relative rounded-xl border border-brand-border p-2.5 text-brand-muted transition hover:bg-brand-background"
-            >
-              <Bell size={18} />
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-brand-pink" />
-            </button>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={openNotifications}
+                aria-label={`Notificações${unreadCount > 0 ? `, ${unreadCount} não lidas` : ''}`}
+                aria-expanded={notificationsOpen}
+                className="relative rounded-xl border border-brand-border p-2.5 text-brand-muted transition hover:bg-brand-background"
+              >
+                <Bell size={18} />
+                {unreadCount > 0 && (
+                  <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-pink px-1 text-[10px] font-extrabold text-white">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {notificationsOpen && (
+                <>
+                  <button
+                    type="button"
+                    aria-label="Fechar notificações"
+                    onClick={() => setNotificationsOpen(false)}
+                    className="fixed inset-0 z-40 cursor-default"
+                  />
+                  <div className="absolute right-0 top-14 z-50 w-[min(360px,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-brand-border bg-brand-surface shadow-xl">
+                    <div className="flex items-center justify-between border-b border-brand-border px-4 py-4">
+                      <div>
+                        <h3 className="text-sm font-extrabold text-brand-dark">
+                          Notificações
+                        </h3>
+                        <p className="mt-1 text-xs text-brand-muted">
+                          {unreadCount > 0
+                            ? `${unreadCount} não lida${unreadCount > 1 ? 's' : ''}`
+                            : 'Tudo em dia'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={markAllNotificationsAsRead}
+                        disabled={unreadCount === 0}
+                        className="text-xs font-bold text-brand-primary transition hover:text-brand-pink disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        Marcar todas como lidas
+                      </button>
+                    </div>
+
+                    <div className="max-h-96 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="px-5 py-10 text-center">
+                          <Bell
+                            size={26}
+                            className="mx-auto text-brand-muted/50"
+                          />
+                          <p className="mt-3 text-sm font-bold text-brand-dark">
+                            Nenhuma notificação
+                          </p>
+                          <p className="mt-1 text-xs text-brand-muted">
+                            Quando houver tarefas ou compromissos pendentes,
+                            eles aparecerão aqui.
+                          </p>
+                        </div>
+                      ) : (
+                        notifications.map((notification) => {
+                          const isRead = readNotifications.includes(
+                            notification.id,
+                          )
+                          const NotificationIcon =
+                            notification.type === 'task'
+                              ? ClipboardList
+                              : CalendarDays
+
+                          return (
+                            <button
+                              key={notification.id}
+                              type="button"
+                              onClick={() =>
+                                markNotificationAsRead(notification.id)
+                              }
+                              className={`flex w-full gap-3 border-b border-brand-border px-4 py-4 text-left transition last:border-b-0 hover:bg-brand-background ${
+                                isRead ? 'opacity-60' : 'bg-brand-lavender/10'
+                              }`}
+                            >
+                              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-lavender/30 text-brand-primary">
+                                <NotificationIcon size={17} />
+                              </span>
+                              <span className="min-w-0 flex-1">
+                                <span className="flex items-center gap-2">
+                                  <span className="text-xs font-extrabold text-brand-dark">
+                                    {notification.title}
+                                  </span>
+                                  {!isRead && (
+                                    <span className="h-2 w-2 shrink-0 rounded-full bg-brand-pink" />
+                                  )}
+                                </span>
+                                <span className="mt-1 block text-[11px] leading-relaxed text-brand-muted">
+                                  {notification.description}
+                                </span>
+                                <span className="mt-2 block text-[10px] font-bold text-brand-primary">
+                                  {isRead ? 'Lida' : 'Toque para marcar como lida'}
+                                </span>
+                              </span>
+                            </button>
+                          )
+                        })
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
 
             <div className="hidden h-9 w-px bg-brand-border sm:block" />
 
-            <div className="hidden items-center gap-2 sm:flex">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-lavender/30 text-xs font-extrabold text-brand-primary">
-                AM
-              </div>
-              <div>
-                <p className="text-xs font-extrabold">Ana Martins</p>
-                <p className="text-[10px] text-brand-muted">Familiar</p>
-              </div>
-              <ChevronDown size={15} className="text-brand-muted" />
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setProfileMenuOpen((current) => !current)
+                  setNotificationsOpen(false)
+                }}
+                aria-expanded={profileMenuOpen}
+                aria-label="Abrir menu da conta"
+                className="flex items-center gap-2 rounded-xl p-1.5 transition hover:bg-brand-background sm:gap-3"
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-lavender/30 text-xs font-extrabold text-brand-primary">
+                  AM
+                </div>
+                <div className="hidden text-left sm:block">
+                  <p className="text-xs font-extrabold">Ana Martins</p>
+                  <p className="text-[10px] text-brand-muted">Familiar</p>
+                </div>
+                <ChevronDown
+                  size={15}
+                  className={`text-brand-muted transition ${
+                    profileMenuOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {profileMenuOpen && (
+                <>
+                  <button
+                    type="button"
+                    aria-label="Fechar menu da conta"
+                    onClick={() => setProfileMenuOpen(false)}
+                    className="fixed inset-0 z-40 cursor-default"
+                  />
+                  <div className="absolute right-0 top-14 z-50 w-64 overflow-hidden rounded-2xl border border-brand-border bg-brand-surface shadow-xl">
+                    <div className="border-b border-brand-border p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-lavender/30 text-sm font-extrabold text-brand-primary">
+                          AM
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-extrabold text-brand-dark">
+                            Ana Martins
+                          </p>
+                          <p className="text-xs text-brand-muted">
+                            Familiar responsável
+                          </p>
+                        </div>
+                      </div>
+                      {preferences.showEmail && (
+                        <p className="mt-3 flex items-center gap-2 break-all text-xs text-brand-muted">
+                          <Mail size={13} />
+                          ana@email.com
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="p-2">
+                      <button
+                        type="button"
+                        onClick={openSettings}
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-bold text-brand-muted transition hover:bg-brand-background hover:text-brand-primary"
+                      >
+                        <Settings size={17} />
+                        Configurações
+                      </button>
+                      <Link
+                        to="/login"
+                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-brand-danger transition hover:bg-brand-danger/10"
+                      >
+                        <LogOut size={17} />
+                        Sair da conta
+                      </Link>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </header>
@@ -1302,6 +1609,137 @@ export default function DashboardFamiliar() {
           </footer>
         </div>
       </main>
+
+      {settingsOpen && (
+        <div className="fixed inset-0 z-70 flex items-center justify-center overflow-y-auto bg-brand-ink/50 p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="settings-title"
+            className="my-auto w-full max-w-lg rounded-2xl border border-brand-border bg-brand-surface p-6 shadow-xl sm:p-8"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-brand-pink">
+                  Preferências da conta
+                </p>
+                <h2
+                  id="settings-title"
+                  className="mt-1 font-heading text-xl font-bold text-brand-dark"
+                >
+                  Configurações
+                </h2>
+                <p className="mt-1 text-sm text-brand-muted">
+                  Personalize sua experiência no Cuidar+.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSettingsOpen(false)}
+                aria-label="Fechar configurações"
+                className="rounded-lg p-2 text-brand-muted transition hover:bg-brand-background hover:text-brand-dark"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="mt-6">
+              <div className="flex items-center gap-2 border-b border-brand-border pb-3">
+                <Bell size={17} className="text-brand-primary" />
+                <h3 className="text-sm font-extrabold text-brand-dark">
+                  Notificações
+                </h3>
+              </div>
+
+              <div className="divide-y divide-brand-border">
+                <PreferenceSwitch
+                  checked={preferences.taskReminders}
+                  onChange={(value) =>
+                    togglePreference('taskReminders', value)
+                  }
+                  label="Lembretes de tarefas"
+                  description="Exibir avisos sobre tarefas que ainda não foram concluídas."
+                />
+                <PreferenceSwitch
+                  checked={preferences.appointmentReminders}
+                  onChange={(value) =>
+                    togglePreference('appointmentReminders', value)
+                  }
+                  label="Lembretes de compromissos"
+                  description="Exibir avisos sobre consultas, exames e compromissos pendentes."
+                />
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <div className="flex items-center gap-2 border-b border-brand-border pb-3">
+                <UserRound size={17} className="text-brand-primary" />
+                <h3 className="text-sm font-extrabold text-brand-dark">
+                  Privacidade
+                </h3>
+              </div>
+
+              <div className="divide-y divide-brand-border">
+                <PreferenceSwitch
+                  checked={preferences.showEmail}
+                  onChange={(value) => togglePreference('showEmail', value)}
+                  label="Exibir e-mail no perfil"
+                  description="Controla a exibição do seu e-mail no menu da conta."
+                />
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <div className="flex items-center gap-2 border-b border-brand-border pb-3">
+                <Type size={17} className="text-brand-primary" />
+                <h3 className="text-sm font-extrabold text-brand-dark">
+                  Acessibilidade
+                </h3>
+              </div>
+
+              <div className="divide-y divide-brand-border">
+                <PreferenceSwitch
+                  checked={preferences.largerText}
+                  onChange={(value) => togglePreference('largerText', value)}
+                  label="Texto ampliado"
+                  description="Aumenta o tamanho de textos e rótulos da interface."
+                />
+                <PreferenceSwitch
+                  checked={preferences.reducedMotion}
+                  onChange={(value) => togglePreference('reducedMotion', value)}
+                  label="Reduzir animações"
+                  description="Diminui transições e movimentos na interface."
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-col-reverse gap-3 border-t border-brand-border pt-5 sm:flex-row sm:justify-between">
+              <button
+                type="button"
+                onClick={() =>
+                  setPreferences({
+                    taskReminders: true,
+                    appointmentReminders: true,
+                    showEmail: true,
+                    largerText: false,
+                    reducedMotion: false,
+                  })
+                }
+                className="rounded-xl px-4 py-3 text-sm font-bold text-brand-muted transition hover:bg-brand-background"
+              >
+                Restaurar padrões
+              </button>
+              <button
+                type="button"
+                onClick={() => setSettingsOpen(false)}
+                className="rounded-xl bg-brand-primary px-6 py-3 text-sm font-extrabold text-white transition hover:bg-brand-dark"
+              >
+                Salvar preferências
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {taskManagerOpen && (
         <div className="fixed inset-0 z-60 flex items-center justify-center overflow-y-auto bg-brand-ink/50 p-4">
