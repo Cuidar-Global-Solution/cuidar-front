@@ -41,9 +41,9 @@ export default function Login() {
   }
 
   return (
-    <main className="flex min-h-screen bg-brand-background">
-      <section className="hidden w-1/2 flex-col justify-between overflow-hidden bg-brand-dark p-12 text-white lg:flex xl:p-16">
-        <Link to="/" className="inline-flex w-fit items-center gap-3">
+    <main className="flex min-h-screen bg-brand-background lg:h-dvh lg:min-h-0 lg:overflow-hidden">
+      <section className="relative hidden min-h-screen w-1/2 flex-col justify-between overflow-hidden bg-brand-dark p-12 text-white lg:flex lg:h-full lg:min-h-0 xl:p-16">
+        <Link to="/" className="relative z-10 inline-flex w-fit items-center gap-3">
           <img
             src="/assets/img01-logo-cuidar.jpeg"
             alt="Cuidar+"
@@ -70,7 +70,7 @@ export default function Login() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 text-sm text-white/60">
+        <div className="relative z-10 flex items-center gap-3 text-sm text-white/60">
           <ShieldCheck size={18} className="text-brand-pink" />
           Uma proposta pensada para aproximar pessoas e organizar o cuidado.
         </div>
@@ -79,11 +79,11 @@ export default function Login() {
         <div className="pointer-events-none absolute -bottom-24 -left-16 h-64 w-64 rounded-full border border-white/10" />
       </section>
 
-      <section className="flex min-h-screen w-full items-center justify-center px-5 py-12 sm:px-8 lg:w-1/2">
+      <section className="flex min-h-screen w-full items-center justify-center px-5 py-12 sm:px-8 lg:h-full lg:min-h-0 lg:w-1/2 lg:overflow-y-auto lg:py-8">
         <div className="w-full max-w-md">
           <Link
             to="/"
-            className="mb-10 inline-flex items-center gap-2 text-sm font-semibold text-brand-muted transition hover:text-brand-primary"
+            className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-brand-muted transition hover:text-brand-primary"
           >
             <ArrowLeft size={17} />
             Voltar para o início
@@ -111,7 +111,7 @@ export default function Login() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-9 space-y-6">
+          <form onSubmit={handleSubmit} className="mt-7 space-y-5">
             <div>
               <label htmlFor="email" className="mb-2 block text-sm font-bold">
                 E-mail
@@ -191,7 +191,7 @@ export default function Login() {
             </button>
           </form>
 
-          <p className="mt-8 text-center text-sm text-brand-muted">
+          <p className="mt-7 text-center text-sm text-brand-muted">
             Ainda não tem uma conta?{' '}
             <Link
               to="/cadastro"
@@ -201,7 +201,7 @@ export default function Login() {
             </Link>
           </p>
 
-          <p className="mt-10 text-center text-xs leading-6 text-brand-muted">
+          <p className="mt-8 text-center text-xs leading-6 text-brand-muted">
             Cuidar+ · Cuidado que conecta.
           </p>
         </div>
