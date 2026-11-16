@@ -1,5 +1,5 @@
 
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Activity,
@@ -19,21 +19,39 @@ import {
   Menu,
   Pill,
   Plus,
-  Search,
   Settings,
   ShieldCheck,
   Utensils,
   UsersRound,
   X,
+  Bath,
+  Pencil,
+  Trash2,
 } from 'lucide-react'
+
+type TaskCategory =
+  | 'Medicamentos'
+  | 'Alimentação'
+  | 'Hidratação'
+  | 'Higiene'
+  | 'Atividades'
 
 type Task = {
   id: number
   title: string
   description: string
   time: string
-  icon: typeof Pill
+  category: TaskCategory
+  responsible: string
   completed: boolean
+}
+
+const categoryIcons = {
+  Medicamentos: Pill,
+  Alimentação: Utensils,
+  Hidratação: Droplets,
+  Higiene: Bath,
+  Atividades: Activity,
 }
 
 const initialTasks: Task[] = [
@@ -42,7 +60,8 @@ const initialTasks: Task[] = [
     title: 'Medicamento da manhã',
     description: 'Losartana — 1 comprimido',
     time: '08:00',
-    icon: Pill,
+    category: 'Medicamentos',
+    responsible: 'Ana Martins',
     completed: true,
   },
   {
@@ -50,7 +69,8 @@ const initialTasks: Task[] = [
     title: 'Café da manhã',
     description: 'Refeição e acompanhamento',
     time: '08:30',
-    icon: Utensils,
+    category: 'Alimentação',
+    responsible: 'João Martins',
     completed: true,
   },
   {
@@ -58,7 +78,8 @@ const initialTasks: Task[] = [
     title: 'Hidratação',
     description: 'Oferecer um copo de água',
     time: '10:00',
-    icon: Droplets,
+    category: 'Hidratação',
+    responsible: 'Renata Costa',
     completed: false,
   },
   {
@@ -66,7 +87,8 @@ const initialTasks: Task[] = [
     title: 'Caminhada leve',
     description: 'Atividade acompanhada',
     time: '14:00',
-    icon: Activity,
+    category: 'Atividades',
+    responsible: 'Ana Martins',
     completed: false,
   },
   {
@@ -74,7 +96,8 @@ const initialTasks: Task[] = [
     title: 'Medicamento da noite',
     description: 'Conforme orientação médica',
     time: '20:00',
-    icon: Pill,
+    category: 'Medicamentos',
+    responsible: 'Renata Costa',
     completed: false,
   },
 ]
@@ -86,12 +109,26 @@ const navigation = [
   { label: 'Rede de apoio', href: '#rede-de-apoio', icon: UsersRound },
 ]
 
+const emptyForm = {
+  title: '',
+  description: '',
+  time: '',
+  category: 'Medicamentos' as TaskCategory,
+  responsible: '',
+}
+
 export default function DashboardFamiliar() {
-  const [tasks, setTasks] = useState(initialTasks)
+  const [tasks, setTasks] = useState<Task[]>(initialTasks)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [editingTask, setEditingTask] = useState<number | null>(null)
+  const [form, setForm] = useState(emptyForm)
 
   const completedTasks = tasks.filter((task) => task.completed).length
-  const progress = Math.round((completedTasks / tasks.length) * 100)
+  const progress =
+    tasks.length === 0
+      ? 0
+      : Math.round((completedTasks / tasks.length) * 100)
 
   function toggleTask(id: number) {
     setTasks((currentTasks) =>
@@ -103,6 +140,61 @@ export default function DashboardFamiliar() {
 
   function closeMenu() {
     setMenuOpen(false)
+  }
+
+  function openNewTask() {
+    setForm(emptyForm)
+    setEditingTask(null)
+    setModalOpen(true)
+  }
+
+  function openEditTask(task: Task) {
+    setForm({
+      title: task.title,
+      description: task.description,
+      time: task.time,
+      category: task.category,
+      responsible: task.responsible,
+    })
+    setEditingTask(task.id)
+    setModalOpen(true)
+  }
+
+  function closeTaskModal() {
+    setModalOpen(false)
+    setEditingTask(null)
+    setForm(emptyForm)
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (editingTask !== null) {
+      setTasks((currentTasks) =>
+        currentTasks.map((task) =>
+          task.id === editingTask ? { ...task, ...form } : task,
+        ),
+      )
+    } else {
+      setTasks((currentTasks) => [
+        ...currentTasks,
+        {
+          id: Date.now(),
+          ...form,
+          completed: false,
+        },
+      ])
+    }
+
+    closeTaskModal()
+  }
+
+  function deleteTask(id: number) {
+    const confirmed = window.confirm('Deseja realmente excluir esta tarefa?')
+
+    if (!confirmed) return
+
+    setTasks((currentTasks) => currentTasks.filter((task) => task.id !== id))
   }
 
   return (
@@ -242,14 +334,6 @@ export default function DashboardFamiliar() {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              aria-label="Pesquisar"
-              className="hidden rounded-xl border border-brand-border p-2.5 text-brand-muted transition hover:bg-brand-background sm:block"
-            >
-              <Search size={18} />
-            </button>
-
-            <button
-              type="button"
               aria-label="Notificações"
               className="relative rounded-xl border border-brand-border p-2.5 text-brand-muted transition hover:bg-brand-background"
             >
@@ -283,7 +367,8 @@ export default function DashboardFamiliar() {
                   Bom dia, Ana!
                 </h1>
                 <p className="mt-2 max-w-xl text-sm leading-relaxed text-brand-muted">
-                  Acompanhe os cuidados de hoje e mantenha tudo organizado em um só lugar.
+                  Acompanhe os cuidados de hoje e mantenha tudo organizado em
+                  um só lugar.
                 </p>
               </div>
 
@@ -305,7 +390,9 @@ export default function DashboardFamiliar() {
                 </div>
                 <p className="mt-4 text-3xl font-extrabold text-brand-dark">
                   {completedTasks}
-                  <span className="text-lg text-brand-muted/70">/{tasks.length}</span>
+                  <span className="text-lg text-brand-muted/70">
+                    /{tasks.length}
+                  </span>
                 </p>
                 <p className="mt-1 text-xs text-brand-muted">
                   Tarefas concluídas
@@ -384,6 +471,7 @@ export default function DashboardFamiliar() {
                 </div>
                 <button
                   type="button"
+                  onClick={openNewTask}
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-2.5 text-xs font-extrabold text-white transition hover:bg-brand-dark"
                 >
                   <Plus size={16} />
@@ -414,63 +502,102 @@ export default function DashboardFamiliar() {
               </div>
 
               <div className="mt-5 divide-y divide-brand-border">
-                {tasks.map((task) => {
-                  const Icon = task.icon
+                {tasks.length === 0 ? (
+                  <div className="py-10 text-center">
+                    <ClipboardList
+                      size={30}
+                      className="mx-auto text-brand-muted/70"
+                    />
+                    <p className="mt-3 text-sm font-extrabold text-brand-dark">
+                      Nenhuma tarefa cadastrada
+                    </p>
+                    <p className="mt-1 text-xs text-brand-muted">
+                      Adicione uma atividade para organizar os cuidados.
+                    </p>
+                  </div>
+                ) : (
+                  tasks
+                    .slice()
+                    .sort((a, b) => a.time.localeCompare(b.time))
+                    .map((task) => {
+                      const Icon = categoryIcons[task.category]
 
-                  return (
-                    <div
-                      key={task.id}
-                      className="flex items-center gap-3 py-4"
-                    >
-                      <button
-                        type="button"
-                        onClick={() => toggleTask(task.id)}
-                        aria-label={
-                          task.completed
-                            ? `Desmarcar ${task.title}`
-                            : `Marcar ${task.title} como concluída`
-                        }
-                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition ${
-                          task.completed
-                            ? 'border-brand-primary bg-brand-primary text-white'
-                            : 'border-brand-border bg-brand-surface text-transparent hover:border-brand-primary'
-                        }`}
-                      >
-                        <Check size={14} />
-                      </button>
-
-                      <span
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                          task.completed
-                            ? 'bg-brand-lavender/30 text-brand-muted/70'
-                            : 'bg-brand-pink-light text-brand-pink'
-                        }`}
-                      >
-                        <Icon size={18} />
-                      </span>
-
-                      <div className="min-w-0 flex-1">
-                        <p
-                          className={`text-sm font-extrabold ${
-                            task.completed
-                              ? 'text-brand-muted/70 line-through'
-                              : 'text-brand-dark'
-                          }`}
+                      return (
+                        <div
+                          key={task.id}
+                          className="flex flex-wrap items-center gap-3 py-4"
                         >
-                          {task.title}
-                        </p>
-                        <p className="mt-1 text-xs text-brand-muted">
-                          {task.description}
-                        </p>
-                      </div>
+                          <button
+                            type="button"
+                            onClick={() => toggleTask(task.id)}
+                            aria-label={
+                              task.completed
+                                ? `Desmarcar ${task.title}`
+                                : `Marcar ${task.title} como concluída`
+                            }
+                            className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition ${
+                              task.completed
+                                ? 'border-brand-primary bg-brand-primary text-white'
+                                : 'border-brand-border bg-brand-surface text-transparent hover:border-brand-primary'
+                            }`}
+                          >
+                            <Check size={14} />
+                          </button>
 
-                      <span className="flex shrink-0 items-center gap-1 text-xs font-bold text-brand-muted">
-                        <Clock3 size={13} />
-                        {task.time}
-                      </span>
-                    </div>
-                  )
-                })}
+                          <span
+                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                              task.completed
+                                ? 'bg-brand-lavender/30 text-brand-muted/70'
+                                : 'bg-brand-pink-light text-brand-pink'
+                            }`}
+                          >
+                            <Icon size={18} />
+                          </span>
+
+                          <div className="min-w-0 flex-1">
+                            <p
+                              className={`text-sm font-extrabold ${
+                                task.completed
+                                  ? 'text-brand-muted/70 line-through'
+                                  : 'text-brand-dark'
+                              }`}
+                            >
+                              {task.title}
+                            </p>
+                            <p className="mt-1 text-xs text-brand-muted">
+                              {task.description || task.category}
+                            </p>
+                            <p className="mt-1 text-[11px] text-brand-muted">
+                              Responsável: {task.responsible}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <span className="flex shrink-0 items-center gap-1 text-xs font-bold text-brand-muted">
+                              <Clock3 size={13} />
+                              {task.time}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => openEditTask(task)}
+                              aria-label={`Editar ${task.title}`}
+                              className="rounded-lg p-2 text-brand-muted transition hover:bg-brand-lavender/30 hover:text-brand-primary"
+                            >
+                              <Pencil size={15} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteTask(task.id)}
+                              aria-label={`Excluir ${task.title}`}
+                              className="rounded-lg p-2 text-brand-muted transition hover:bg-brand-danger/10 hover:text-brand-danger"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })
+                )}
               </div>
             </div>
 
@@ -620,7 +747,8 @@ export default function DashboardFamiliar() {
                   Cuidar também é compartilhar.
                 </h2>
                 <p className="mt-2 text-sm leading-relaxed text-white/75">
-                  Uma rede de apoio organizada torna a rotina mais clara e ajuda todos a participarem do cuidado.
+                  Uma rede de apoio organizada torna a rotina mais clara e
+                  ajuda todos a participarem do cuidado.
                 </p>
               </div>
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-brand-lavender">
@@ -634,6 +762,172 @@ export default function DashboardFamiliar() {
           </footer>
         </div>
       </main>
+
+      {modalOpen && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center overflow-y-auto bg-brand-ink/50 p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="task-modal-title"
+            className="my-auto w-full max-w-lg rounded-2xl border border-brand-border bg-brand-surface p-6 shadow-xl sm:p-8"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-brand-pink">
+                  Organização dos cuidados
+                </p>
+                <h2
+                  id="task-modal-title"
+                  className="mt-1 font-heading text-xl font-bold text-brand-dark"
+                >
+                  {editingTask !== null ? 'Editar tarefa' : 'Nova tarefa'}
+                </h2>
+                <p className="mt-1 text-sm text-brand-muted">
+                  Preencha os dados da atividade.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeTaskModal}
+                aria-label="Fechar formulário"
+                className="rounded-lg p-2 text-brand-muted transition hover:bg-brand-background hover:text-brand-dark"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+              <div>
+                <label
+                  htmlFor="task-title"
+                  className="mb-1.5 block text-xs font-bold text-brand-dark"
+                >
+                  Nome da atividade
+                </label>
+                <input
+                  id="task-title"
+                  type="text"
+                  required
+                  maxLength={70}
+                  value={form.title}
+                  onChange={(event) =>
+                    setForm({ ...form, title: event.target.value })
+                  }
+                  placeholder="Ex.: Medicamento da manhã"
+                  className="w-full rounded-xl border border-brand-border bg-brand-background px-4 py-3 text-sm text-brand-ink outline-none transition placeholder:text-brand-muted/70 focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="task-description"
+                  className="mb-1.5 block text-xs font-bold text-brand-dark"
+                >
+                  Descrição
+                </label>
+                <textarea
+                  id="task-description"
+                  rows={3}
+                  maxLength={180}
+                  value={form.description}
+                  onChange={(event) =>
+                    setForm({ ...form, description: event.target.value })
+                  }
+                  placeholder="Adicione detalhes sobre a atividade"
+                  className="w-full resize-none rounded-xl border border-brand-border bg-brand-background px-4 py-3 text-sm text-brand-ink outline-none transition placeholder:text-brand-muted/70 focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
+                />
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label
+                    htmlFor="task-category"
+                    className="mb-1.5 block text-xs font-bold text-brand-dark"
+                  >
+                    Categoria
+                  </label>
+                  <select
+                    id="task-category"
+                    value={form.category}
+                    onChange={(event) =>
+                      setForm({
+                        ...form,
+                        category: event.target.value as TaskCategory,
+                      })
+                    }
+                    className="w-full rounded-xl border border-brand-border bg-brand-background px-3 py-3 text-sm text-brand-ink outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
+                  >
+                    {Object.keys(categoryIcons).map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="task-time"
+                    className="mb-1.5 block text-xs font-bold text-brand-dark"
+                  >
+                    Horário
+                  </label>
+                  <input
+                    id="task-time"
+                    type="time"
+                    required
+                    value={form.time}
+                    onChange={(event) =>
+                      setForm({ ...form, time: event.target.value })
+                    }
+                    className="w-full rounded-xl border border-brand-border bg-brand-background px-3 py-3 text-sm text-brand-ink outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="task-responsible"
+                  className="mb-1.5 block text-xs font-bold text-brand-dark"
+                >
+                  Responsável
+                </label>
+                <select
+                  id="task-responsible"
+                  required
+                  value={form.responsible}
+                  onChange={(event) =>
+                    setForm({ ...form, responsible: event.target.value })
+                  }
+                  className="w-full rounded-xl border border-brand-border bg-brand-background px-3 py-3 text-sm text-brand-ink outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30"
+                >
+                  <option value="">Selecione uma pessoa</option>
+                  <option value="Ana Martins">Ana Martins</option>
+                  <option value="João Martins">João Martins</option>
+                  <option value="Renata Costa">Renata Costa</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={closeTaskModal}
+                  className="rounded-xl border border-brand-border px-5 py-3 text-sm font-bold text-brand-muted transition hover:bg-brand-background"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-5 py-3 text-sm font-extrabold text-white transition hover:bg-brand-dark"
+                >
+                  <Check size={17} />
+                  {editingTask !== null ? 'Salvar alterações' : 'Adicionar tarefa'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
