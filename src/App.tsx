@@ -1,3 +1,4 @@
+
 import { Routes, Route, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -11,17 +12,23 @@ import PerfilIntegrante from "./routes/PerfilIntegrante";
 import Login from "./routes/Login";
 import Cadastro from "./routes/Cadastro";
 import CadastroFamiliar from "./routes/CadastroFamiliar";
-import CadastroCuidador from './routes/CadastroCuidador'
+import CadastroCuidador from "./routes/CadastroCuidador";
+import DashboardFamiliar from "./routes/DashboardFamiliar";
 
 function App() {
   const location = useLocation();
-  const isLoginPage = location.pathname === "/login",
-    isCadastroPage = location.pathname === "/cadastro",
-    CadastroFamiliarPage = location.pathname === "/cadastro/familiar",
-    CadastroCuidadorPage = location.pathname === "/cadastro/cuidador";
+
+  const isAuthPage =
+    location.pathname === "/login" ||
+    location.pathname.startsWith("/cadastro");
+
+  const isDashboardPage = location.pathname.startsWith("/dashboard");
+
+  const showPublicLayout = !isAuthPage && !isDashboardPage;
+
   return (
     <>
-      {!isLoginPage && !isCadastroPage && !CadastroFamiliarPage && !CadastroCuidadorPage && <Header />}
+      {showPublicLayout && <Header />}
 
       <main>
         <Routes>
@@ -36,10 +43,11 @@ function App() {
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/cadastro/familiar" element={<CadastroFamiliar />} />
           <Route path="/cadastro/cuidador" element={<CadastroCuidador />} />
+          <Route path="/dashboard/familiar" element={<DashboardFamiliar />} />
         </Routes>
       </main>
 
-      {!isLoginPage && !isCadastroPage && !CadastroFamiliarPage && !CadastroCuidadorPage && <Footer />}
+      {showPublicLayout && <Footer />}
     </>
   );
 }
