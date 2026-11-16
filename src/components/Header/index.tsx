@@ -7,7 +7,7 @@ const links = [
   { label: 'Início', to: '/' },
   { label: 'Sobre nós', to: '/sobre' },
   { label: 'Como funciona', to: '/solucao' },
-  { label: 'Cuidadores', to: '/cuidadores' },
+  { label: 'Contato', to: '/contato' },
   { label: 'FAQ', to: '/faq' },
 ]
 
