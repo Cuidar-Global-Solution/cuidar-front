@@ -10,7 +10,7 @@ import {
 import { Link } from 'react-router-dom'
 
 const cardClass =
-  'group flex items-start gap-4 rounded-2xl border border-brand-border bg-white p-5 transition duration-200 hover:-translate-y-0.5 hover:border-brand-primary hover:shadow-lg hover:shadow-brand-primary/5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/20 sm:p-6'
+  'group flex items-start gap-3 rounded-2xl border border-brand-border bg-white p-4 transition duration-200 hover:-translate-y-0.5 hover:border-brand-primary hover:shadow-lg hover:shadow-brand-primary/5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/20 sm:gap-4 sm:p-6'
 
 export default function Cadastro() {
   return (
@@ -51,76 +51,76 @@ export default function Cadastro() {
         <div className="pointer-events-none absolute -bottom-24 -left-16 h-64 w-64 rounded-full border border-white/10" />
       </section>
 
-      <section className="flex min-h-screen w-full items-center justify-center px-5 py-10 sm:px-8 lg:h-full lg:min-h-0 lg:w-1/2 lg:overflow-y-auto lg:py-8">
+      <section className="flex min-h-screen w-full items-center justify-center px-4 py-8 sm:px-8 sm:py-10 lg:h-full lg:min-h-0 lg:w-1/2 lg:overflow-y-auto lg:px-10 lg:py-8 xl:px-16">
         <div className="w-full max-w-lg">
           <Link
             to="/"
-            className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-brand-muted transition hover:text-brand-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/20"
+            className="mb-7 inline-flex items-center gap-2 text-sm font-semibold text-brand-muted transition hover:text-brand-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/20 sm:mb-8"
           >
             <ArrowLeft size={17} />
             Voltar para o início
           </Link>
 
-          <div className="mb-8 lg:hidden">
+          <div className="mb-7 lg:hidden">
             <img
               src="/assets/img01-logo-cuidar.jpeg"
               alt="Cuidar+"
-              className="h-14 w-14 rounded-xl object-cover"
+              className="h-12 w-12 rounded-xl object-cover sm:h-14 sm:w-14"
             />
           </div>
 
           <div>
-            <span className="text-sm font-bold uppercase tracking-[0.16em] text-brand-pink">
+            <span className="text-xs font-bold uppercase tracking-[0.16em] text-brand-pink sm:text-sm">
               Criar conta
             </span>
 
-            <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
+            <h2 className="mt-3 text-2xl font-bold leading-tight sm:text-3xl lg:text-4xl">
               Como você quer fazer parte do Cuidar+?
             </h2>
 
-            <p className="mt-4 text-sm leading-7 text-brand-muted">
+            <p className="mt-3 text-sm leading-6 text-brand-muted sm:mt-4 sm:leading-7">
               Escolha o tipo de conta que melhor representa sua participação na rede de cuidados.
             </p>
           </div>
 
-          <div className="mt-8 space-y-4">
+          <div className="mt-6 space-y-3 sm:mt-8 sm:space-y-4">
             <Link
               to="/cadastro/familiar"
               className={cardClass}
               aria-label="Criar conta como familiar"
             >
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-pink-light text-brand-primary transition group-hover:bg-brand-primary group-hover:text-white">
-                <UsersRound size={26} />
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-pink-light text-brand-primary transition group-hover:bg-brand-primary group-hover:text-white sm:h-14 sm:w-14 sm:rounded-2xl">
+                <UsersRound size={22} className="sm:h-26px sm:w-26px" />
               </div>
 
               <div className="min-w-0 flex-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-brand-pink">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-brand-pink sm:text-xs">
                   Para famílias
                 </span>
 
-                <h3 className="mt-1 text-lg font-bold text-brand-ink">
+                <h3 className="mt-1 text-base font-bold text-brand-ink sm:text-lg">
                   Sou familiar
                 </h3>
 
-                <p className="mt-1 text-sm leading-6 text-brand-muted">
+                <p className="mt-1 text-xs leading-5 text-brand-muted sm:text-sm sm:leading-6">
                   Quero organizar os cuidados de um familiar e acompanhar sua rotina.
                 </p>
 
-                <ul className="mt-3 space-y-1.5 text-sm text-brand-muted">
-                  <li className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-brand-pink" />
+                <ul className="mt-3 space-y-1.5 text-xs leading-5 text-brand-muted sm:text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-pink" />
                     Organizar tarefas e compromissos
                   </li>
-                  <li className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-brand-pink" />
+                  <li className="flex items-start gap-2">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-pink" />
                     Compartilhar informações do cuidado
                   </li>
                 </ul>
               </div>
 
               <ArrowRight
-                size={20}
-                className="mt-1 shrink-0 text-brand-muted transition group-hover:translate-x-1 group-hover:text-brand-primary"
+                size={18}
+                className="mt-1 shrink-0 text-brand-muted transition group-hover:translate-x-1 group-hover:text-brand-primary sm:h-5 sm:w-5"
               />
             </Link>
 
@@ -129,49 +129,49 @@ export default function Cadastro() {
               className={cardClass}
               aria-label="Criar conta como cuidador"
             >
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#F3E8FF] text-brand-primary transition group-hover:bg-brand-primary group-hover:text-white">
-                <HeartHandshake size={26} />
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F3E8FF] text-brand-primary transition group-hover:bg-brand-primary group-hover:text-white sm:h-14 sm:w-14 sm:rounded-2xl">
+                <HeartHandshake size={22} className="sm:h-26px sm:w-26px" />
               </div>
 
               <div className="min-w-0 flex-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-brand-pink">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-brand-pink sm:text-xs">
                   Para profissionais
                 </span>
 
-                <h3 className="mt-1 text-lg font-bold text-brand-ink">
+                <h3 className="mt-1 text-base font-bold text-brand-ink sm:text-lg">
                   Sou cuidador
                 </h3>
 
-                <p className="mt-1 text-sm leading-6 text-brand-muted">
+                <p className="mt-1 text-xs leading-5 text-brand-muted sm:text-sm sm:leading-6">
                   Quero apresentar minha experiência e me conectar com famílias.
                 </p>
 
-                <ul className="mt-3 space-y-1.5 text-sm text-brand-muted">
-                  <li className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-brand-pink" />
+                <ul className="mt-3 space-y-1.5 text-xs leading-5 text-brand-muted sm:text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-pink" />
                     Criar um perfil profissional
                   </li>
-                  <li className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-brand-pink" />
+                  <li className="flex items-start gap-2">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-pink" />
                     Apresentar experiência e formação
                   </li>
                 </ul>
               </div>
 
               <ArrowRight
-                size={20}
-                className="mt-1 shrink-0 text-brand-muted transition group-hover:translate-x-1 group-hover:text-brand-primary"
+                size={18}
+                className="mt-1 shrink-0 text-brand-muted transition group-hover:translate-x-1 group-hover:text-brand-primary sm:h-5 sm:w-5"
               />
             </Link>
           </div>
 
-          <div className="mt-6 rounded-xl border border-brand-border bg-white/70 px-4 py-3">
+          <div className="mt-5 rounded-xl border border-brand-border bg-white/70 px-4 py-3 sm:mt-6">
             <p className="text-xs leading-5 text-brand-muted">
               Cada perfil possui recursos próprios, pensados para as diferentes necessidades de quem participa da rede de cuidados.
             </p>
           </div>
 
-          <p className="mt-8 text-center text-sm text-brand-muted">
+          <p className="mt-7 text-center text-sm text-brand-muted sm:mt-8">
             Já tem uma conta?{' '}
             <Link
               to="/login"
