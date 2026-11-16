@@ -7,6 +7,7 @@ import Sobre from './routes/Sobre'
 import Solucao from './routes/Solucao'
 import FAQ from './routes/Faq'
 import Contato from './routes/Contato'
+import Integrantes from './routes/Integrantes'
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/solucao" element={<Solucao />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/contato" element={<Contato />} />
+          <Route path="/integrantes" element={<Integrantes />} />
         </Routes>
       </main>
 
