@@ -9,6 +9,9 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
+const cardClass =
+  'group flex items-start gap-4 rounded-2xl border border-brand-border bg-white p-5 transition duration-200 hover:-translate-y-0.5 hover:border-brand-primary hover:shadow-lg hover:shadow-brand-primary/5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/20 sm:p-6'
+
 export default function Cadastro() {
   return (
     <main className="flex min-h-screen bg-brand-background lg:h-dvh lg:min-h-0 lg:overflow-hidden">
@@ -52,7 +55,7 @@ export default function Cadastro() {
         <div className="w-full max-w-lg">
           <Link
             to="/"
-            className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-brand-muted transition hover:text-brand-primary"
+            className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-brand-muted transition hover:text-brand-primary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/20"
           >
             <ArrowLeft size={17} />
             Voltar para o início
@@ -83,14 +86,19 @@ export default function Cadastro() {
           <div className="mt-8 space-y-4">
             <Link
               to="/cadastro/familiar"
-              className="group flex items-start gap-4 rounded-2xl border border-brand-border bg-white p-5 transition hover:border-brand-primary hover:shadow-lg hover:shadow-brand-primary/5 sm:p-6"
+              className={cardClass}
+              aria-label="Criar conta como familiar"
             >
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-pink-light text-brand-primary transition group-hover:bg-brand-primary group-hover:text-white">
                 <UsersRound size={26} />
               </div>
 
               <div className="min-w-0 flex-1">
-                <h3 className="text-lg font-bold text-brand-ink">
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-pink">
+                  Para famílias
+                </span>
+
+                <h3 className="mt-1 text-lg font-bold text-brand-ink">
                   Sou familiar
                 </h3>
 
@@ -118,14 +126,19 @@ export default function Cadastro() {
 
             <Link
               to="/cadastro/cuidador"
-              className="group flex items-start gap-4 rounded-2xl border border-brand-border bg-white p-5 transition hover:border-brand-primary hover:shadow-lg hover:shadow-brand-primary/5 sm:p-6"
+              className={cardClass}
+              aria-label="Criar conta como cuidador"
             >
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#F3E8FF] text-brand-primary transition group-hover:bg-brand-primary group-hover:text-white">
                 <HeartHandshake size={26} />
               </div>
 
               <div className="min-w-0 flex-1">
-                <h3 className="text-lg font-bold text-brand-ink">
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-pink">
+                  Para profissionais
+                </span>
+
+                <h3 className="mt-1 text-lg font-bold text-brand-ink">
                   Sou cuidador
                 </h3>
 
@@ -162,7 +175,7 @@ export default function Cadastro() {
             Já tem uma conta?{' '}
             <Link
               to="/login"
-              className="font-bold text-brand-primary transition hover:text-brand-pink"
+              className="font-bold text-brand-primary transition hover:text-brand-pink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/20"
             >
               Entrar
             </Link>
