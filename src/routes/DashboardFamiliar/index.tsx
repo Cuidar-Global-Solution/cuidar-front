@@ -1,6 +1,10 @@
 
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
+import {
+  listarPessoasAcompanhadas,
+  type PessoaAcompanhada,
+} from '../../services/pessoasAcompanhadas'
 import {
   Activity,
   ArrowRight,
@@ -308,6 +312,26 @@ export default function DashboardFamiliar() {
   )
   const [memberForm, setMemberForm] = useState(emptyMemberForm)
   const [memberError, setMemberError] = useState('')
+  const [pessoasAcompanhadas, setPessoasAcompanhadas] = useState<PessoaAcompanhada[]>([])
+  const [carregandoPessoas, setCarregandoPessoas] = useState(true)
+  const [erroPessoas, setErroPessoas] = useState(false)
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    listarPessoasAcompanhadas(controller.signal)
+      .then((pessoas) => {
+        if (!controller.signal.aborted) setPessoasAcompanhadas(pessoas)
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setErroPessoas(true)
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setCarregandoPessoas(false)
+      })
+
+    return () => controller.abort()
+  }, [])
 
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
@@ -1157,12 +1181,27 @@ export default function DashboardFamiliar() {
                     <HeartPulse size={19} />
                   </span>
                 </div>
-                <p className="mt-4 text-2xl font-extrabold text-brand-dark">
-                  Helena
-                </p>
-                <p className="mt-1 text-xs text-brand-muted">
-                  Perfil de demonstração
-                </p>
+                <div aria-live="polite" aria-busy={carregandoPessoas}>
+                  {carregandoPessoas ? (
+                    <p className="mt-4 text-xs text-brand-muted">
+                      Carregando pessoas acompanhadas...
+                    </p>
+                  ) : erroPessoas ? (
+                    <p role="alert" className="mt-4 text-xs text-brand-danger">
+                      Não foi possível carregar as pessoas acompanhadas. Tente recarregar a página.
+                    </p>
+                  ) : pessoasAcompanhadas.length === 0 ? (
+                    <p className="mt-4 text-xs text-brand-muted">
+                      Nenhuma pessoa acompanhada encontrada.
+                    </p>
+                  ) : (
+                    <ul className="mt-4 space-y-2 text-2xl font-extrabold text-brand-dark">
+                      {pessoasAcompanhadas.map((pessoa) => (
+                        <li key={pessoa.id} className="break-words">{pessoa.nome}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
 
               <button
