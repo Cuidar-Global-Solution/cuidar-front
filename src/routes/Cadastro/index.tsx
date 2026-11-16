@@ -1,5 +1,12 @@
 
-import { ArrowLeft, ArrowRight, Heart, HeartHandshake, ShieldCheck, UsersRound } from 'lucide-react'
+import {
+  ArrowLeft,
+  ArrowRight,
+  Heart,
+  HeartHandshake,
+  ShieldCheck,
+  UsersRound,
+} from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function Cadastro() {
@@ -76,7 +83,7 @@ export default function Cadastro() {
           <div className="mt-8 space-y-4">
             <Link
               to="/cadastro/familiar"
-              className="group flex items-center gap-4 rounded-2xl border border-brand-border bg-white p-5 transition hover:border-brand-primary hover:shadow-lg hover:shadow-brand-primary/5 sm:p-6"
+              className="group flex items-start gap-4 rounded-2xl border border-brand-border bg-white p-5 transition hover:border-brand-primary hover:shadow-lg hover:shadow-brand-primary/5 sm:p-6"
             >
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-pink-light text-brand-primary transition group-hover:bg-brand-primary group-hover:text-white">
                 <UsersRound size={26} />
@@ -86,20 +93,32 @@ export default function Cadastro() {
                 <h3 className="text-lg font-bold text-brand-ink">
                   Sou familiar
                 </h3>
+
                 <p className="mt-1 text-sm leading-6 text-brand-muted">
                   Quero organizar os cuidados de um familiar e acompanhar sua rotina.
                 </p>
+
+                <ul className="mt-3 space-y-1.5 text-sm text-brand-muted">
+                  <li className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-brand-pink" />
+                    Organizar tarefas e compromissos
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-brand-pink" />
+                    Compartilhar informações do cuidado
+                  </li>
+                </ul>
               </div>
 
               <ArrowRight
                 size={20}
-                className="shrink-0 text-brand-muted transition group-hover:translate-x-1 group-hover:text-brand-primary"
+                className="mt-1 shrink-0 text-brand-muted transition group-hover:translate-x-1 group-hover:text-brand-primary"
               />
             </Link>
 
             <Link
               to="/cadastro/cuidador"
-              className="group flex items-center gap-4 rounded-2xl border border-brand-border bg-white p-5 transition hover:border-brand-primary hover:shadow-lg hover:shadow-brand-primary/5 sm:p-6"
+              className="group flex items-start gap-4 rounded-2xl border border-brand-border bg-white p-5 transition hover:border-brand-primary hover:shadow-lg hover:shadow-brand-primary/5 sm:p-6"
             >
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#F3E8FF] text-brand-primary transition group-hover:bg-brand-primary group-hover:text-white">
                 <HeartHandshake size={26} />
@@ -109,16 +128,34 @@ export default function Cadastro() {
                 <h3 className="text-lg font-bold text-brand-ink">
                   Sou cuidador
                 </h3>
+
                 <p className="mt-1 text-sm leading-6 text-brand-muted">
                   Quero apresentar minha experiência e me conectar com famílias.
                 </p>
+
+                <ul className="mt-3 space-y-1.5 text-sm text-brand-muted">
+                  <li className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-brand-pink" />
+                    Criar um perfil profissional
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-brand-pink" />
+                    Apresentar experiência e formação
+                  </li>
+                </ul>
               </div>
 
               <ArrowRight
                 size={20}
-                className="shrink-0 text-brand-muted transition group-hover:translate-x-1 group-hover:text-brand-primary"
+                className="mt-1 shrink-0 text-brand-muted transition group-hover:translate-x-1 group-hover:text-brand-primary"
               />
             </Link>
+          </div>
+
+          <div className="mt-6 rounded-xl border border-brand-border bg-white/70 px-4 py-3">
+            <p className="text-xs leading-5 text-brand-muted">
+              Cada perfil possui recursos próprios, pensados para as diferentes necessidades de quem participa da rede de cuidados.
+            </p>
           </div>
 
           <p className="mt-8 text-center text-sm text-brand-muted">
