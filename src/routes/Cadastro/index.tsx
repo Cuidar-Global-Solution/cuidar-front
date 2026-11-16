@@ -3,6 +3,8 @@ import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ArrowLeft,
+  Eye,
+  EyeOff,
   Heart,
   LockKeyhole,
   Mail,
@@ -16,8 +18,25 @@ export default function Cadastro() {
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [feedback, setFeedback] = useState('')
   const [hasError, setHasError] = useState(false)
+
+  function handlePhoneChange(value: string) {
+    const digits = value.replace(/\D/g, '').slice(0, 11)
+    let formatted = digits
+
+    if (digits.length > 2) {
+      formatted = `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+    }
+
+    if (digits.length > 7) {
+      formatted = `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+    }
+
+    setPhone(formatted)
+  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -54,11 +73,11 @@ export default function Cadastro() {
       return
     }
 
-    setFeedback('Dados validados. O cadastro será habilitado após a integração com a API.')
+    setFeedback('Seus dados foram validados. O cadastro será habilitado após a integração com a API.')
   }
 
   return (
-    <main className="min-h-screen bg-brand-background lg:grid lg:grid-cols-2">
+    <main className="min-h-screen bg-brand-background lg:grid lg:min-h-screen lg:grid-cols-2">
       <section className="relative hidden min-h-screen flex-col justify-between overflow-hidden bg-brand-dark p-12 text-white lg:flex xl:p-16">
         <Link to="/" className="relative z-10 inline-flex w-fit items-center gap-3">
           <img src="/assets/img01-logo-cuidar.jpeg" alt="Cuidar+" className="h-12 w-12 rounded-xl object-cover" />
@@ -102,44 +121,50 @@ export default function Cadastro() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+          <form onSubmit={handleSubmit} className="mt-7 space-y-4">
             <div>
               <label htmlFor="name" className="mb-2 block text-sm font-bold">Nome completo</label>
-              <div className="flex items-center gap-3 rounded-xl border border-brand-border bg-white px-4">
+              <div className="flex items-center gap-3 rounded-xl border border-brand-border bg-white px-4 transition focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/10">
                 <UserRound size={18} className="shrink-0 text-brand-muted" />
-                <input id="name" type="text" value={name} onChange={(event) => setName(event.target.value)} placeholder="Digite seu nome completo" autoComplete="name" className="w-full bg-transparent py-4 text-sm outline-none" required />
+                <input id="name" type="text" value={name} onChange={(event) => setName(event.target.value)} placeholder="Digite seu nome completo" autoComplete="name" className="w-full bg-transparent py-3.5 text-sm outline-none" required />
               </div>
             </div>
 
             <div>
               <label htmlFor="email" className="mb-2 block text-sm font-bold">E-mail</label>
-              <div className="flex items-center gap-3 rounded-xl border border-brand-border bg-white px-4">
+              <div className="flex items-center gap-3 rounded-xl border border-brand-border bg-white px-4 transition focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/10">
                 <Mail size={18} className="shrink-0 text-brand-muted" />
-                <input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="seuemail@exemplo.com" autoComplete="email" className="w-full bg-transparent py-4 text-sm outline-none" required />
+                <input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="seuemail@exemplo.com" autoComplete="email" className="w-full bg-transparent py-3.5 text-sm outline-none" required />
               </div>
             </div>
 
             <div>
               <label htmlFor="phone" className="mb-2 block text-sm font-bold">Telefone</label>
-              <div className="flex items-center gap-3 rounded-xl border border-brand-border bg-white px-4">
+              <div className="flex items-center gap-3 rounded-xl border border-brand-border bg-white px-4 transition focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/10">
                 <Phone size={18} className="shrink-0 text-brand-muted" />
-                <input id="phone" type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="(11) 99999-9999" autoComplete="tel" className="w-full bg-transparent py-4 text-sm outline-none" required />
+                <input id="phone" type="tel" value={phone} onChange={(event) => handlePhoneChange(event.target.value)} placeholder="(11) 99999-9999" autoComplete="tel" className="w-full bg-transparent py-3.5 text-sm outline-none" required />
               </div>
             </div>
 
             <div>
               <label htmlFor="password" className="mb-2 block text-sm font-bold">Senha</label>
-              <div className="flex items-center gap-3 rounded-xl border border-brand-border bg-white px-4">
+              <div className="flex items-center gap-3 rounded-xl border border-brand-border bg-white px-4 transition focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/10">
                 <LockKeyhole size={18} className="shrink-0 text-brand-muted" />
-                <input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Crie uma senha" autoComplete="new-password" className="w-full bg-transparent py-4 text-sm outline-none" required />
+                <input id="password" type={showPassword ? 'text' : 'password'} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Crie uma senha" autoComplete="new-password" className="w-full bg-transparent py-3.5 text-sm outline-none" required />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="shrink-0 text-brand-muted transition hover:text-brand-primary" aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}>
+                  {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
+                </button>
               </div>
             </div>
 
             <div>
               <label htmlFor="confirmPassword" className="mb-2 block text-sm font-bold">Confirmar senha</label>
-              <div className="flex items-center gap-3 rounded-xl border border-brand-border bg-white px-4">
+              <div className="flex items-center gap-3 rounded-xl border border-brand-border bg-white px-4 transition focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/10">
                 <LockKeyhole size={18} className="shrink-0 text-brand-muted" />
-                <input id="confirmPassword" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} placeholder="Digite sua senha novamente" autoComplete="new-password" className="w-full bg-transparent py-4 text-sm outline-none" required />
+                <input id="confirmPassword" type={showConfirmPassword ? 'text' : 'password'} value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} placeholder="Digite sua senha novamente" autoComplete="new-password" className="w-full bg-transparent py-3.5 text-sm outline-none" required />
+                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="shrink-0 text-brand-muted transition hover:text-brand-primary" aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}>
+                  {showConfirmPassword ? <EyeOff size={19} /> : <Eye size={19} />}
+                </button>
               </div>
             </div>
 
@@ -154,7 +179,7 @@ export default function Cadastro() {
             </button>
           </form>
 
-          <p className="mt-7 text-center text-sm text-brand-muted">
+          <p className="mt-6 text-center text-sm text-brand-muted">
             Já tem uma conta? <Link to="/login" className="font-bold text-brand-primary transition hover:text-brand-pink">Entrar</Link>
           </p>
         </div>
