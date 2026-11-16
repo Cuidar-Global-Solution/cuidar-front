@@ -2,6 +2,8 @@
 import { useState, type FormEvent } from 'react'
 import {
   ArrowLeft,
+  Eye,
+  EyeOff,
   Heart,
   LockKeyhole,
   Mail,
@@ -18,12 +20,26 @@ type FormErrors = {
   confirmarSenha?: string
 }
 
+function formatPhone(value: string) {
+  const digits = value.replace(/\D/g, '').slice(0, 11)
+
+  if (digits.length <= 2) return digits ? `(${digits}` : ''
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+  if (digits.length <= 10) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`
+  }
+
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+}
+
 export default function CadastroFamiliar() {
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
   const [telefone, setTelefone] = useState('')
   const [senha, setSenha] = useState('')
   const [confirmarSenha, setConfirmarSenha] = useState('')
+  const [mostrarSenha, setMostrarSenha] = useState(false)
+  const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false)
   const [errors, setErrors] = useState<FormErrors>({})
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -31,34 +47,18 @@ export default function CadastroFamiliar() {
 
     const newErrors: FormErrors = {}
 
-    if (nome.trim().length < 3) {
-      newErrors.nome = 'Informe seu nome completo.'
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = 'Informe um e-mail válido.'
-    }
-
-    if (telefone.replace(/\D/g, '').length < 10) {
-      newErrors.telefone = 'Informe um telefone válido.'
-    }
-
-    if (senha.length < 8) {
-      newErrors.senha = 'A senha deve ter pelo menos 8 caracteres.'
-    }
-
-    if (confirmarSenha !== senha || !confirmarSenha) {
-      newErrors.confirmarSenha = 'As senhas precisam ser iguais.'
-    }
+    if (nome.trim().length < 3) newErrors.nome = 'Informe seu nome completo.'
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = 'Informe um e-mail válido.'
+    if (telefone.replace(/\D/g, '').length < 10) newErrors.telefone = 'Informe um telefone válido.'
+    if (senha.length < 8) newErrors.senha = 'A senha deve ter pelo menos 8 caracteres.'
+    if (confirmarSenha !== senha || !confirmarSenha) newErrors.confirmarSenha = 'As senhas precisam ser iguais.'
 
     setErrors(newErrors)
   }
 
   const inputClass = (hasError: boolean) =>
-    `w-full rounded-xl border bg-white py-3.5 pl-11 pr-4 text-sm outline-none transition placeholder:text-brand-muted/70 focus:ring-4 focus:ring-brand-primary/10 ${
-      hasError
-        ? 'border-brand-danger focus:border-brand-danger'
-        : 'border-brand-border focus:border-brand-primary'
+    `w-full rounded-xl border bg-white py-3.5 pl-11 pr-12 text-sm outline-none transition placeholder:text-brand-muted/70 focus:ring-4 focus:ring-brand-primary/10 ${
+      hasError ? 'border-brand-danger focus:border-brand-danger' : 'border-brand-border focus:border-brand-primary'
     }`
 
   return (
@@ -82,9 +82,7 @@ export default function CadastroFamiliar() {
           </p>
         </div>
 
-        <p className="relative z-10 text-sm text-white/60">
-          Uma rotina mais organizada começa com o primeiro passo.
-        </p>
+        <p className="relative z-10 text-sm text-white/60">Uma rotina mais organizada começa com o primeiro passo.</p>
         <div className="pointer-events-none absolute -bottom-40 -left-32 h-96 w-96 rounded-full border border-white/10" />
         <div className="pointer-events-none absolute -bottom-24 -left-16 h-64 w-64 rounded-full border border-white/10" />
       </section>
@@ -113,7 +111,7 @@ export default function CadastroFamiliar() {
               <label htmlFor="nome" className="mb-2 block text-sm font-semibold text-brand-ink">Nome completo</label>
               <div className="relative">
                 <UserRound size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted" />
-                <input id="nome" name="nome" type="text" value={nome} onChange={(event) => setNome(event.target.value)} placeholder="Digite seu nome completo" aria-invalid={!!errors.nome} className={inputClass(!!errors.nome)} />
+                <input id="nome" name="nome" type="text" autoComplete="name" value={nome} onChange={(event) => setNome(event.target.value)} placeholder="Digite seu nome completo" aria-invalid={!!errors.nome} className={inputClass(!!errors.nome)} />
               </div>
               {errors.nome && <p className="mt-1.5 text-xs text-brand-danger">{errors.nome}</p>}
             </div>
@@ -122,7 +120,7 @@ export default function CadastroFamiliar() {
               <label htmlFor="email" className="mb-2 block text-sm font-semibold text-brand-ink">E-mail</label>
               <div className="relative">
                 <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted" />
-                <input id="email" name="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="seuemail@exemplo.com" aria-invalid={!!errors.email} className={inputClass(!!errors.email)} />
+                <input id="email" name="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="seuemail@exemplo.com" aria-invalid={!!errors.email} className={inputClass(!!errors.email)} />
               </div>
               {errors.email && <p className="mt-1.5 text-xs text-brand-danger">{errors.email}</p>}
             </div>
@@ -131,7 +129,7 @@ export default function CadastroFamiliar() {
               <label htmlFor="telefone" className="mb-2 block text-sm font-semibold text-brand-ink">Telefone</label>
               <div className="relative">
                 <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted" />
-                <input id="telefone" name="telefone" type="tel" value={telefone} onChange={(event) => setTelefone(event.target.value)} placeholder="(00) 00000-0000" aria-invalid={!!errors.telefone} className={inputClass(!!errors.telefone)} />
+                <input id="telefone" name="telefone" type="tel" autoComplete="tel" inputMode="numeric" value={telefone} onChange={(event) => setTelefone(formatPhone(event.target.value))} placeholder="(00) 00000-0000" aria-invalid={!!errors.telefone} className={inputClass(!!errors.telefone)} />
               </div>
               {errors.telefone && <p className="mt-1.5 text-xs text-brand-danger">{errors.telefone}</p>}
             </div>
@@ -140,7 +138,10 @@ export default function CadastroFamiliar() {
               <label htmlFor="senha" className="mb-2 block text-sm font-semibold text-brand-ink">Senha</label>
               <div className="relative">
                 <LockKeyhole size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted" />
-                <input id="senha" name="senha" type="password" value={senha} onChange={(event) => setSenha(event.target.value)} placeholder="Crie uma senha" aria-invalid={!!errors.senha} className={inputClass(!!errors.senha)} />
+                <input id="senha" name="senha" type={mostrarSenha ? 'text' : 'password'} autoComplete="new-password" value={senha} onChange={(event) => setSenha(event.target.value)} placeholder="Crie uma senha" aria-invalid={!!errors.senha} className={inputClass(!!errors.senha)} />
+                <button type="button" onClick={() => setMostrarSenha(!mostrarSenha)} aria-label={mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'} className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted hover:text-brand-primary">
+                  {mostrarSenha ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
               {errors.senha && <p className="mt-1.5 text-xs text-brand-danger">{errors.senha}</p>}
             </div>
@@ -149,7 +150,10 @@ export default function CadastroFamiliar() {
               <label htmlFor="confirmarSenha" className="mb-2 block text-sm font-semibold text-brand-ink">Confirmar senha</label>
               <div className="relative">
                 <LockKeyhole size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted" />
-                <input id="confirmarSenha" name="confirmarSenha" type="password" value={confirmarSenha} onChange={(event) => setConfirmarSenha(event.target.value)} placeholder="Digite sua senha novamente" aria-invalid={!!errors.confirmarSenha} className={inputClass(!!errors.confirmarSenha)} />
+                <input id="confirmarSenha" name="confirmarSenha" type={mostrarConfirmacao ? 'text' : 'password'} autoComplete="new-password" value={confirmarSenha} onChange={(event) => setConfirmarSenha(event.target.value)} placeholder="Digite sua senha novamente" aria-invalid={!!errors.confirmarSenha} className={inputClass(!!errors.confirmarSenha)} />
+                <button type="button" onClick={() => setMostrarConfirmacao(!mostrarConfirmacao)} aria-label={mostrarConfirmacao ? 'Ocultar confirmação de senha' : 'Mostrar confirmação de senha'} className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted hover:text-brand-primary">
+                  {mostrarConfirmacao ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
               {errors.confirmarSenha && <p className="mt-1.5 text-xs text-brand-danger">{errors.confirmarSenha}</p>}
             </div>
