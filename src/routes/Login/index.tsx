@@ -1,8 +1,13 @@
 
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { LockKeyhole, Mail } from 'lucide-react'
+import { Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
 
 export default function Login() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-brand-background px-5 py-12">
       <section className="w-full max-w-md rounded-3xl border border-brand-border bg-white p-8 shadow-sm sm:p-10">
@@ -28,12 +33,15 @@ export default function Login() {
               E-mail
             </label>
 
-            <div className="flex items-center gap-3 rounded-xl border border-brand-border px-4">
-              <Mail size={18} className="text-brand-muted" />
+            <div className="flex items-center gap-3 rounded-xl border border-brand-border px-4 focus-within:border-brand-primary">
+              <Mail size={18} className="shrink-0 text-brand-muted" />
               <input
                 id="email"
                 type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
                 placeholder="seuemail@exemplo.com"
+                autoComplete="email"
                 className="w-full bg-transparent py-4 text-sm outline-none"
                 required
               />
@@ -45,15 +53,27 @@ export default function Login() {
               Senha
             </label>
 
-            <div className="flex items-center gap-3 rounded-xl border border-brand-border px-4">
-              <LockKeyhole size={18} className="text-brand-muted" />
+            <div className="flex items-center gap-3 rounded-xl border border-brand-border px-4 focus-within:border-brand-primary">
+              <LockKeyhole size={18} className="shrink-0 text-brand-muted" />
               <input
                 id="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
                 placeholder="Digite sua senha"
+                autoComplete="current-password"
                 className="w-full bg-transparent py-4 text-sm outline-none"
                 required
               />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="text-brand-muted transition hover:text-brand-primary"
+                aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+              >
+                {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
+              </button>
             </div>
           </div>
 
