@@ -1,5 +1,5 @@
 
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -16,6 +16,46 @@ export default function Cadastro() {
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [feedback, setFeedback] = useState('')
+  const [hasError, setHasError] = useState(false)
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setFeedback('')
+    setHasError(false)
+
+    if (!name.trim() || !email.trim() || !phone.trim() || !password || !confirmPassword) {
+      setFeedback('Preencha todos os campos para continuar.')
+      setHasError(true)
+      return
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setFeedback('Informe um endereço de e-mail válido.')
+      setHasError(true)
+      return
+    }
+
+    if (phone.replace(/\D/g, '').length < 10) {
+      setFeedback('Informe um telefone válido com DDD.')
+      setHasError(true)
+      return
+    }
+
+    if (password.length < 8) {
+      setFeedback('A senha deve ter pelo menos 8 caracteres.')
+      setHasError(true)
+      return
+    }
+
+    if (password !== confirmPassword) {
+      setFeedback('As senhas informadas não coincidem.')
+      setHasError(true)
+      return
+    }
+
+    setFeedback('Dados validados. O cadastro será habilitado após a integração com a API.')
+  }
 
   return (
     <main className="min-h-screen bg-brand-background lg:grid lg:grid-cols-2">
@@ -62,12 +102,12 @@ export default function Cadastro() {
             </p>
           </div>
 
-          <form className="mt-8 space-y-5">
+          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             <div>
               <label htmlFor="name" className="mb-2 block text-sm font-bold">Nome completo</label>
               <div className="flex items-center gap-3 rounded-xl border border-brand-border bg-white px-4">
                 <UserRound size={18} className="shrink-0 text-brand-muted" />
-                <input id="name" type="text" value={name} onChange={(event) => setName(event.target.value)} placeholder="Digite seu nome completo" autoComplete="name" className="w-full bg-transparent py-4 text-sm outline-none" />
+                <input id="name" type="text" value={name} onChange={(event) => setName(event.target.value)} placeholder="Digite seu nome completo" autoComplete="name" className="w-full bg-transparent py-4 text-sm outline-none" required />
               </div>
             </div>
 
@@ -75,7 +115,7 @@ export default function Cadastro() {
               <label htmlFor="email" className="mb-2 block text-sm font-bold">E-mail</label>
               <div className="flex items-center gap-3 rounded-xl border border-brand-border bg-white px-4">
                 <Mail size={18} className="shrink-0 text-brand-muted" />
-                <input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="seuemail@exemplo.com" autoComplete="email" className="w-full bg-transparent py-4 text-sm outline-none" />
+                <input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="seuemail@exemplo.com" autoComplete="email" className="w-full bg-transparent py-4 text-sm outline-none" required />
               </div>
             </div>
 
@@ -83,7 +123,7 @@ export default function Cadastro() {
               <label htmlFor="phone" className="mb-2 block text-sm font-bold">Telefone</label>
               <div className="flex items-center gap-3 rounded-xl border border-brand-border bg-white px-4">
                 <Phone size={18} className="shrink-0 text-brand-muted" />
-                <input id="phone" type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="(11) 99999-9999" autoComplete="tel" className="w-full bg-transparent py-4 text-sm outline-none" />
+                <input id="phone" type="tel" value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="(11) 99999-9999" autoComplete="tel" className="w-full bg-transparent py-4 text-sm outline-none" required />
               </div>
             </div>
 
@@ -91,7 +131,7 @@ export default function Cadastro() {
               <label htmlFor="password" className="mb-2 block text-sm font-bold">Senha</label>
               <div className="flex items-center gap-3 rounded-xl border border-brand-border bg-white px-4">
                 <LockKeyhole size={18} className="shrink-0 text-brand-muted" />
-                <input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Crie uma senha" autoComplete="new-password" className="w-full bg-transparent py-4 text-sm outline-none" />
+                <input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Crie uma senha" autoComplete="new-password" className="w-full bg-transparent py-4 text-sm outline-none" required />
               </div>
             </div>
 
@@ -99,11 +139,17 @@ export default function Cadastro() {
               <label htmlFor="confirmPassword" className="mb-2 block text-sm font-bold">Confirmar senha</label>
               <div className="flex items-center gap-3 rounded-xl border border-brand-border bg-white px-4">
                 <LockKeyhole size={18} className="shrink-0 text-brand-muted" />
-                <input id="confirmPassword" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} placeholder="Digite sua senha novamente" autoComplete="new-password" className="w-full bg-transparent py-4 text-sm outline-none" />
+                <input id="confirmPassword" type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} placeholder="Digite sua senha novamente" autoComplete="new-password" className="w-full bg-transparent py-4 text-sm outline-none" required />
               </div>
             </div>
 
-            <button type="button" disabled className="w-full cursor-not-allowed rounded-full bg-brand-primary py-4 text-sm font-bold text-white opacity-70">
+            {feedback && (
+              <p role="alert" className={`rounded-xl px-4 py-3 text-sm leading-6 ${hasError ? 'bg-red-50 text-brand-danger' : 'bg-brand-pink-light text-brand-primary'}`}>
+                {feedback}
+              </p>
+            )}
+
+            <button type="submit" className="w-full rounded-full bg-brand-primary py-4 text-sm font-bold text-white shadow-sm transition hover:bg-brand-dark focus:outline-none focus:ring-4 focus:ring-brand-primary/20">
               Criar conta
             </button>
           </form>
