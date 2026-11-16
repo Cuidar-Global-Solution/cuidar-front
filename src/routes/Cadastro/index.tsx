@@ -10,7 +10,7 @@ import {
 import { Link } from 'react-router-dom'
 
 const cardClass =
-  'group flex items-start gap-3 rounded-2xl border border-brand-border bg-white p-4 transition duration-200 hover:-translate-y-0.5 hover:border-brand-primary hover:shadow-lg hover:shadow-brand-primary/5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/20 sm:gap-4 sm:p-6'
+  'group flex items-start gap-3 rounded-2xl border border-brand-border bg-white p-4 transition duration-200 hover:-translate-y-0.5 hover:border-brand-primary hover:shadow-lg hover:shadow-brand-primary/5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/20 motion-reduce:transform-none motion-reduce:transition-none sm:gap-4 sm:p-6'
 
 export default function Cadastro() {
   return (
@@ -116,12 +116,12 @@ export default function Cadastro() {
                     Compartilhar informações do cuidado
                   </li>
                 </ul>
-              </div>
 
-              <ArrowRight
-                size={18}
-                className="mt-1 shrink-0 text-brand-muted transition group-hover:translate-x-1 group-hover:text-brand-primary sm:h-5 sm:w-5"
-              />
+                <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-brand-primary">
+                  Continuar como familiar
+                  <ArrowRight size={16} />
+                </span>
+              </div>
             </Link>
 
             <Link
@@ -156,18 +156,18 @@ export default function Cadastro() {
                     Apresentar experiência e formação
                   </li>
                 </ul>
-              </div>
 
-              <ArrowRight
-                size={18}
-                className="mt-1 shrink-0 text-brand-muted transition group-hover:translate-x-1 group-hover:text-brand-primary sm:h-5 sm:w-5"
-              />
+                <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-brand-primary">
+                  Continuar como cuidador
+                  <ArrowRight size={16} />
+                </span>
+              </div>
             </Link>
           </div>
 
           <div className="mt-5 rounded-xl border border-brand-border bg-white/70 px-4 py-3 sm:mt-6">
             <p className="text-xs leading-5 text-brand-muted">
-              Cada perfil possui recursos próprios, pensados para as diferentes necessidades de quem participa da rede de cuidados.
+              Não se preocupe: cada tipo de conta terá uma área própria. Você poderá acessar os recursos correspondentes ao seu perfil depois de entrar.
             </p>
           </div>
 
