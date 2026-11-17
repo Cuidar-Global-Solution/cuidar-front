@@ -1,5 +1,5 @@
 
-import { useState, type FormEvent } from 'react'
+import { useState, type ChangeEvent, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ArrowRight,
@@ -13,8 +13,11 @@ import {
 
 const contactOptions = [
   'Dúvidas sobre a plataforma',
-  'Informações para familiares',
-  'Interesse em atuar como cuidador',
+  'Pessoa acompanhada e autonomia',
+  'Familiares e rede de apoio',
+  'Rotina, lembretes e registros',
+  'Cuidar+ Conecta e profissionais',
+  'Privacidade e permissões de acesso',
   'Sugestões e melhorias',
   'Outros assuntos',
 ]
@@ -31,7 +34,7 @@ export default function Contato() {
   const [feedback, setFeedback] = useState('')
 
   function handleChange(
-    event: React.ChangeEvent<
+    event: ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >,
   ) {
@@ -49,7 +52,7 @@ export default function Contato() {
     event.preventDefault()
 
     setFeedback(
-      'Os campos foram preenchidos. O envio de mensagens ainda precisa ser conectado ao serviço responsável.',
+      'Preenchimento validado. O envio da mensagem estará disponível quando o formulário for conectado ao serviço de atendimento.',
     )
   }
 
@@ -68,8 +71,9 @@ export default function Contato() {
             </h1>
 
             <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-brand-muted sm:text-lg">
-              Tem alguma dúvida, sugestão ou quer conhecer melhor o
-              Cuidar+? Este é o espaço para conversar com a nossa equipe.
+              Tem alguma dúvida sobre a plataforma, a organização dos
+              cuidados ou o Cuidar+ Conecta? Compartilhe sua mensagem
+              com a gente.
             </p>
           </div>
 
@@ -81,9 +85,10 @@ export default function Contato() {
                 </h2>
 
                 <p className="mt-3 text-base leading-7 text-brand-muted">
-                  Queremos entender suas necessidades e conhecer suas
-                  ideias para tornar a experiência de cuidado mais simples
-                  e organizada.
+                  O Cuidar+ reúne pessoas acompanhadas, familiares,
+                  pessoas da rede de apoio e cuidadores profissionais.
+                  Queremos conhecer suas dúvidas e sugestões sobre essa
+                  experiência.
                 </p>
               </div>
 
@@ -93,13 +98,12 @@ export default function Contato() {
                 </div>
 
                 <h3 className="mt-5 text-lg font-bold">
-                  Fale com a equipe
+                  Fale sobre sua experiência
                 </h3>
 
                 <p className="mt-2 text-sm leading-7 text-brand-muted">
-                  Escolha o assunto e compartilhe sua mensagem pelo
-                  formulário. Assim, sua solicitação fica melhor
-                  identificada.
+                  Escolha o assunto que melhor representa sua solicitação
+                  e descreva sua dúvida, sugestão ou interesse.
                 </p>
               </div>
 
@@ -113,9 +117,10 @@ export default function Contato() {
                 </h3>
 
                 <p className="mt-2 text-sm leading-7 text-brand-muted">
-                  Compartilhe apenas as informações necessárias para
-                  explicar sua solicitação. Evite incluir dados pessoais
-                  ou informações de saúde de terceiros.
+                  O compartilhamento de informações de cuidado deve
+                  respeitar a autorização da pessoa acompanhada.
+                  Evite incluir dados pessoais ou informações de saúde
+                  de terceiros neste formulário.
                 </p>
               </div>
 
@@ -155,6 +160,7 @@ export default function Contato() {
                     id="name"
                     name="name"
                     type="text"
+                    autoComplete="name"
                     value={form.name}
                     onChange={handleChange}
                     required
@@ -176,6 +182,7 @@ export default function Contato() {
                     id="email"
                     name="email"
                     type="email"
+                    autoComplete="email"
                     value={form.email}
                     onChange={handleChange}
                     required
@@ -250,7 +257,7 @@ export default function Contato() {
                     minLength={10}
                     rows={5}
                     placeholder="Escreva sua mensagem..."
-                    className="w-full resize-y rounded-xl border border-brand-border bg-brand-background px-4 py-3.5 text-sm outline-none transition placeholder:text-brand-muted/70 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
+                    className="w-full resize-none rounded-xl border border-brand-border bg-brand-background px-4 py-3.5 text-sm outline-none transition placeholder:text-brand-muted/70 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/10"
                   />
                 </div>
 
@@ -270,7 +277,7 @@ export default function Contato() {
                   type="submit"
                   className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-6 py-4 text-sm font-bold text-white transition hover:bg-brand-dark"
                 >
-                  Validar mensagem
+                  Validar preenchimento
                   <Send size={17} />
                 </button>
 
@@ -284,8 +291,9 @@ export default function Contato() {
                 )}
 
                 <p className="text-center text-xs leading-5 text-brand-muted">
-                  O formulário ainda não está conectado a um serviço de
-                  envio de mensagens.
+                  O formulário ainda não está conectado a um serviço
+                  de envio de mensagens. Nenhuma mensagem é enviada
+                  neste momento.
                 </p>
               </form>
             </div>
