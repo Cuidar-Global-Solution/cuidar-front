@@ -90,8 +90,8 @@ export default function CadastroCuidador() {
     }`
 
   return (
-    <main className="flex min-h-screen bg-brand-background lg:h-dvh lg:min-h-0 lg:overflow-hidden">
-      <section className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-brand-dark p-12 text-white lg:flex xl:p-16">
+    <main className="flex min-h-screen bg-brand-background">
+      <section className="relative hidden min-h-screen w-1/2 flex-col justify-between overflow-hidden bg-brand-dark p-12 text-white lg:sticky lg:top-0 lg:flex lg:h-screen xl:p-16">
         <Link to="/" className="relative z-10 flex w-fit items-center gap-3">
           <img src="/assets/img01-logo-cuidar.jpeg" alt="Cuidar+" className="h-12 w-12 rounded-xl object-cover" />
           <span className="text-2xl font-bold">
@@ -122,7 +122,7 @@ export default function CadastroCuidador() {
         <div className="pointer-events-none absolute -bottom-24 -left-16 h-64 w-64 rounded-full border border-white/10" />
       </section>
 
-      <section className="flex min-h-screen w-full items-center justify-center px-4 py-8 sm:px-8 sm:py-10 lg:h-full lg:min-h-0 lg:w-1/2 lg:overflow-y-auto lg:px-12 lg:py-8">
+      <section className="flex min-h-screen w-full items-start justify-center px-4 py-8 sm:px-8 sm:py-10 lg:min-h-screen lg:w-1/2 lg:px-12 lg:py-12">
         <div className="w-full max-w-md">
           <Link
             to="/cadastro"
