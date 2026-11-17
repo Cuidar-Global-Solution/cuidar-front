@@ -14,6 +14,10 @@ import Cadastro from "./routes/Cadastro";
 import CadastroFamiliar from "./routes/CadastroFamiliar";
 import CadastroCuidador from "./routes/CadastroCuidador";
 import DashboardFamiliar from "./routes/DashboardFamiliar";
+import DashboardCuidador from "./routes/DashboardCuidador";
+import DashboardPessoa from "./routes/DashboardPessoa";
+import Conecta from './routes/Conecta'
+import CadastroPessoa from './routes/CadastroPessoa'
 
 function App() {
   const location = useLocation();
@@ -44,6 +48,10 @@ function App() {
           <Route path="/cadastro/familiar" element={<CadastroFamiliar />} />
           <Route path="/cadastro/cuidador" element={<CadastroCuidador />} />
           <Route path="/dashboard/familiar" element={<DashboardFamiliar />} />
+          <Route path="/dashboard/cuidador" element={<DashboardCuidador />} />
+          <Route path="/dashboard/pessoa" element={<DashboardPessoa />} />
+          <Route path="/conecta" element={<Conecta />} />
+          <Route path="/cadastro/pessoa" element={<CadastroPessoa />} />
         </Routes>
       </main>
 
