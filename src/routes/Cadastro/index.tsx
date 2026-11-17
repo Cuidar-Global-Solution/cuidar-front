@@ -5,12 +5,55 @@ import {
   Heart,
   HeartHandshake,
   ShieldCheck,
+  UserRound,
   UsersRound,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const cardClass =
   'group flex items-start gap-3 rounded-2xl border border-brand-border bg-white p-4 transition duration-200 hover:-translate-y-0.5 hover:border-brand-primary hover:shadow-lg hover:shadow-brand-primary/5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/20 motion-reduce:transform-none motion-reduce:transition-none sm:gap-4 sm:p-6'
+
+const profiles = [
+  {
+    label: 'Para quem recebe cuidados',
+    title: 'Sou a pessoa acompanhada',
+    description:
+      'Quero participar da organização da minha rotina e acompanhar meus próprios cuidados.',
+    benefits: [
+      'Acompanhar minha rotina de cuidados',
+      'Compartilhar informações com pessoas de confiança',
+    ],
+    action: 'Continuar como pessoa acompanhada',
+    to: '/cadastro/pessoa',
+    icon: UserRound,
+  },
+  {
+    label: 'Para famílias',
+    title: 'Sou familiar',
+    description:
+      'Quero organizar os cuidados de um familiar e acompanhar sua rotina.',
+    benefits: [
+      'Organizar tarefas e compromissos',
+      'Compartilhar informações do cuidado',
+    ],
+    action: 'Continuar como familiar',
+    to: '/cadastro/familiar',
+    icon: UsersRound,
+  },
+  {
+    label: 'Para profissionais',
+    title: 'Sou cuidador',
+    description:
+      'Quero apresentar minha experiência e me conectar com pessoas e famílias.',
+    benefits: [
+      'Criar um perfil profissional',
+      'Apresentar experiência e formação',
+    ],
+    action: 'Continuar como cuidador',
+    to: '/cadastro/cuidador',
+    icon: HeartHandshake,
+  },
+]
 
 export default function Cadastro() {
   return (
@@ -38,7 +81,8 @@ export default function Cadastro() {
           </h1>
 
           <p className="mt-6 max-w-md text-base leading-8 text-white/70">
-            O Cuidar+ aproxima famílias e profissionais para tornar a rotina de cuidados mais organizada e colaborativa.
+            O Cuidar+ aproxima pessoas acompanhadas, famílias e profissionais
+            para tornar a rotina de cuidados mais organizada e colaborativa.
           </p>
         </div>
 
@@ -79,95 +123,62 @@ export default function Cadastro() {
             </h2>
 
             <p className="mt-3 text-sm leading-6 text-brand-muted sm:mt-4 sm:leading-7">
-              Escolha o tipo de conta que melhor representa sua participação na rede de cuidados.
+              Escolha o tipo de conta que melhor representa sua participação
+              na rede de cuidados.
             </p>
           </div>
 
           <div className="mt-6 space-y-3 sm:mt-8 sm:space-y-4">
-            <Link
-              to="/cadastro/familiar"
-              className={cardClass}
-              aria-label="Criar conta como familiar"
-            >
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-pink-light text-brand-primary transition group-hover:bg-brand-primary group-hover:text-white sm:h-14 sm:w-14 sm:rounded-2xl">
-                <UsersRound size={22} className="sm:h-26px sm:w-26px" />
-              </div>
+            {profiles.map((profile) => {
+              const Icon = profile.icon
 
-              <div className="min-w-0 flex-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-brand-pink sm:text-xs">
-                  Para famílias
-                </span>
+              return (
+                <Link
+                  key={profile.to}
+                  to={profile.to}
+                  className={cardClass}
+                  aria-label={profile.action}
+                >
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-pink-light text-brand-primary transition group-hover:bg-brand-primary group-hover:text-white sm:h-14 sm:w-14 sm:rounded-2xl">
+                    <Icon size={22} />
+                  </div>
 
-                <h3 className="mt-1 text-base font-bold text-brand-ink sm:text-lg">
-                  Sou familiar
-                </h3>
+                  <div className="min-w-0 flex-1">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-brand-pink sm:text-xs">
+                      {profile.label}
+                    </span>
 
-                <p className="mt-1 text-xs leading-5 text-brand-muted sm:text-sm sm:leading-6">
-                  Quero organizar os cuidados de um familiar e acompanhar sua rotina.
-                </p>
+                    <h3 className="mt-1 text-base font-bold text-brand-ink sm:text-lg">
+                      {profile.title}
+                    </h3>
 
-                <ul className="mt-3 space-y-1.5 text-xs leading-5 text-brand-muted sm:text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-pink" />
-                    Organizar tarefas e compromissos
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-pink" />
-                    Compartilhar informações do cuidado
-                  </li>
-                </ul>
+                    <p className="mt-1 text-xs leading-5 text-brand-muted sm:text-sm sm:leading-6">
+                      {profile.description}
+                    </p>
 
-                <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-brand-primary">
-                  Continuar como familiar
-                  <ArrowRight size={16} />
-                </span>
-              </div>
-            </Link>
+                    <ul className="mt-3 space-y-1.5 text-xs leading-5 text-brand-muted sm:text-sm">
+                      {profile.benefits.map((benefit) => (
+                        <li key={benefit} className="flex items-start gap-2">
+                          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-pink" />
+                          {benefit}
+                        </li>
+                      ))}
+                    </ul>
 
-            <Link
-              to="/cadastro/cuidador"
-              className={cardClass}
-              aria-label="Criar conta como cuidador"
-            >
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#F3E8FF] text-brand-primary transition group-hover:bg-brand-primary group-hover:text-white sm:h-14 sm:w-14 sm:rounded-2xl">
-                <HeartHandshake size={22} className="sm:h-26px sm:w-26px" />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-brand-pink sm:text-xs">
-                  Para profissionais
-                </span>
-
-                <h3 className="mt-1 text-base font-bold text-brand-ink sm:text-lg">
-                  Sou cuidador
-                </h3>
-
-                <p className="mt-1 text-xs leading-5 text-brand-muted sm:text-sm sm:leading-6">
-                  Quero apresentar minha experiência e me conectar com famílias.
-                </p>
-
-                <ul className="mt-3 space-y-1.5 text-xs leading-5 text-brand-muted sm:text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-pink" />
-                    Criar um perfil profissional
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-pink" />
-                    Apresentar experiência e formação
-                  </li>
-                </ul>
-
-                <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-brand-primary">
-                  Continuar como cuidador
-                  <ArrowRight size={16} />
-                </span>
-              </div>
-            </Link>
+                    <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-brand-primary">
+                      {profile.action}
+                      <ArrowRight size={16} />
+                    </span>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
 
           <div className="mt-5 rounded-xl border border-brand-border bg-white/70 px-4 py-3 sm:mt-6">
             <p className="text-xs leading-5 text-brand-muted">
-              Não se preocupe: cada tipo de conta terá uma área própria. Você poderá acessar os recursos correspondentes ao seu perfil depois de entrar.
+              Cada perfil terá uma área própria, com recursos e permissões
+              adequados à sua participação na rede de cuidados.
             </p>
           </div>
 
