@@ -1,6 +1,7 @@
 
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
+import CadastroPessoa from '../../components/CadastroPessoa'
 import {
   listarPessoasAcompanhadas,
   type PessoaAcompanhada,
@@ -1202,6 +1203,13 @@ export default function DashboardFamiliar() {
                     </ul>
                   )}
                 </div>
+                <CadastroPessoa
+                  disabled={carregandoPessoas}
+                  onCadastrada={(pessoa) => {
+                    setPessoasAcompanhadas((pessoas) => [...pessoas, pessoa])
+                    setErroPessoas(false)
+                  }}
+                />
               </div>
 
               <button

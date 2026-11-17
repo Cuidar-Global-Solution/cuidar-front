@@ -3,9 +3,46 @@ export type PessoaAcompanhada = {
   nome: string
 }
 
+export type PessoaAcompanhadaRequest = {
+  nome: string
+  dataNascimento: string
+  observacao: string | null
+  tamanhoFonte: number
+  altoContraste: 'S' | 'N'
+  usuarioId: number | null
+}
+
 const apiBaseUrl = (
   import.meta.env.VITE_API_BASE_URL?.trim() || 'http://localhost:8080'
 ).replace(/\/+$/, '')
+
+export async function cadastrarPessoaAcompanhada(
+  dados: PessoaAcompanhadaRequest,
+): Promise<PessoaAcompanhada> {
+  let response: Response
+  try {
+    response = await fetch(`${apiBaseUrl}/pessoas-acompanhadas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados),
+    })
+  } catch {
+    throw new Error('Não foi possível conectar à API. Verifique a conexão e tente novamente.')
+  }
+
+  if (response.status !== 201) {
+    const erro = await response.json().catch(() => null)
+    const mensagem = typeof erro?.mensagem === 'string'
+      ? erro.mensagem
+      : `Não foi possível cadastrar a pessoa (HTTP ${response.status}).`
+    const detalhes = Array.isArray(erro?.detalhes)
+      ? erro.detalhes.filter((detalhe: unknown) => typeof detalhe === 'string')
+      : []
+    throw new Error([mensagem, ...detalhes].join('\n'))
+  }
+
+  return response.json()
+}
 
 export async function listarPessoasAcompanhadas(
   signal: AbortSignal,
