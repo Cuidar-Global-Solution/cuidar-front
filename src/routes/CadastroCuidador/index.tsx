@@ -12,6 +12,7 @@ import {
   MapPin,
   Phone,
   UserRound,
+  CalendarDays,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
@@ -19,8 +20,10 @@ type FormErrors = {
   nome?: string
   email?: string
   telefone?: string
-  cidade?: string
+  regiao?: string
   experiencia?: string
+  servicos?: string
+  disponibilidade?: string
   senha?: string
   confirmarSenha?: string
 }
@@ -41,9 +44,11 @@ export default function CadastroCuidador() {
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
   const [telefone, setTelefone] = useState('')
-  const [cidade, setCidade] = useState('')
+  const [regiao, setRegiao] = useState('')
   const [experiencia, setExperiencia] = useState('')
   const [formacao, setFormacao] = useState('')
+  const [servicos, setServicos] = useState('')
+  const [disponibilidade, setDisponibilidade] = useState('')
   const [senha, setSenha] = useState('')
   const [confirmarSenha, setConfirmarSenha] = useState('')
   const [mostrarSenha, setMostrarSenha] = useState(false)
@@ -57,10 +62,12 @@ export default function CadastroCuidador() {
     const newErrors: FormErrors = {}
 
     if (nome.trim().length < 3) newErrors.nome = 'Informe seu nome completo.'
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = 'Informe um e-mail válido.'
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) newErrors.email = 'Informe um e-mail válido.'
     if (telefone.replace(/\D/g, '').length < 10) newErrors.telefone = 'Informe um telefone válido.'
-    if (cidade.trim().length < 2) newErrors.cidade = 'Informe sua cidade.'
+    if (regiao.trim().length < 2) newErrors.regiao = 'Informe sua região de atendimento.'
     if (!experiencia) newErrors.experiencia = 'Selecione seu tempo de experiência.'
+    if (servicos.trim().length < 3) newErrors.servicos = 'Descreva os serviços que você oferece.'
+    if (disponibilidade.trim().length < 3) newErrors.disponibilidade = 'Informe sua disponibilidade.'
     if (senha.length < 8) newErrors.senha = 'A senha deve ter pelo menos 8 caracteres.'
     if (confirmarSenha !== senha || !confirmarSenha) newErrors.confirmarSenha = 'As senhas precisam ser iguais.'
 
@@ -70,6 +77,13 @@ export default function CadastroCuidador() {
 
   const inputClass = (hasError: boolean) =>
     `w-full rounded-xl border bg-white py-3.5 pl-11 pr-12 text-sm outline-none transition placeholder:text-brand-muted/70 focus:ring-4 focus:ring-brand-primary/10 ${
+      hasError
+        ? 'border-brand-danger focus:border-brand-danger'
+        : 'border-brand-border focus:border-brand-primary'
+    }`
+
+  const textareaClass = (hasError: boolean) =>
+    `w-full resize-none rounded-xl border bg-white px-4 py-3.5 text-sm outline-none transition placeholder:text-brand-muted/70 focus:ring-4 focus:ring-brand-primary/10 ${
       hasError
         ? 'border-brand-danger focus:border-brand-danger'
         : 'border-brand-border focus:border-brand-primary'
@@ -96,7 +110,7 @@ export default function CadastroCuidador() {
           </h1>
 
           <p className="mt-6 text-base leading-8 text-white/70">
-            Apresente sua experiência, compartilhe sua formação e aproxime-se de famílias que procuram apoio para cuidar de quem importa.
+            Apresente sua experiência, informe os serviços que oferece e encontre oportunidades para atuar com famílias da sua região.
           </p>
         </div>
 
@@ -128,11 +142,11 @@ export default function CadastroCuidador() {
             </span>
 
             <h2 className="mt-3 text-2xl font-bold leading-tight sm:text-3xl lg:text-4xl">
-              Crie seu perfil
+              Crie seu perfil profissional
             </h2>
 
             <p className="mt-3 text-sm leading-6 text-brand-muted sm:leading-7">
-              Informe seus dados e algumas informações sobre sua atuação profissional.
+              Informe seus dados, sua experiência e as condições de atendimento.
             </p>
           </div>
 
@@ -205,25 +219,25 @@ export default function CadastroCuidador() {
             </div>
 
             <div>
-              <label htmlFor="cidade" className="mb-2 block text-sm font-semibold text-brand-ink">Cidade</label>
+              <label htmlFor="regiao" className="mb-2 block text-sm font-semibold text-brand-ink">Região de atendimento</label>
               <div className="relative">
                 <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted" />
                 <input
-                  id="cidade"
-                  name="cidade"
+                  id="regiao"
+                  name="regiao"
                   type="text"
                   autoComplete="address-level2"
-                  value={cidade}
+                  value={regiao}
                   onChange={(event) => {
-                    setCidade(event.target.value)
+                    setRegiao(event.target.value)
                     setSubmitted(false)
                   }}
-                  placeholder="Ex.: São Paulo - SP"
-                  aria-invalid={!!errors.cidade}
-                  className={inputClass(!!errors.cidade)}
+                  placeholder="Informe cidade ou bairro"
+                  aria-invalid={!!errors.regiao}
+                  className={inputClass(!!errors.regiao)}
                 />
               </div>
-              {errors.cidade && <p className="mt-1.5 text-xs text-brand-danger">{errors.cidade}</p>}
+              {errors.regiao && <p className="mt-1.5 text-xs text-brand-danger">{errors.regiao}</p>}
             </div>
 
             <div>
@@ -267,9 +281,48 @@ export default function CadastroCuidador() {
                   setFormacao(event.target.value)
                   setSubmitted(false)
                 }}
-                placeholder="Conte se possui cursos, capacitações ou formação na área."
-                className="w-full resize-none rounded-xl border border-brand-border bg-white px-4 py-3.5 text-sm outline-none transition placeholder:text-brand-muted/70 focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10"
+                placeholder="Informe cursos, capacitações ou formação na área."
+                className={textareaClass(false)}
               />
+            </div>
+
+            <div>
+              <label htmlFor="servicos" className="mb-2 block text-sm font-semibold text-brand-ink">Serviços oferecidos</label>
+              <textarea
+                id="servicos"
+                name="servicos"
+                rows={3}
+                value={servicos}
+                onChange={(event) => {
+                  setServicos(event.target.value)
+                  setSubmitted(false)
+                }}
+                placeholder="Descreva os serviços de cuidado que você oferece."
+                aria-invalid={!!errors.servicos}
+                className={textareaClass(!!errors.servicos)}
+              />
+              {errors.servicos && <p className="mt-1.5 text-xs text-brand-danger">{errors.servicos}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="disponibilidade" className="mb-2 block text-sm font-semibold text-brand-ink">Disponibilidade</label>
+              <div className="relative">
+                <CalendarDays size={18} className="absolute left-4 top-4 text-brand-muted" />
+                <textarea
+                  id="disponibilidade"
+                  name="disponibilidade"
+                  rows={3}
+                  value={disponibilidade}
+                  onChange={(event) => {
+                    setDisponibilidade(event.target.value)
+                    setSubmitted(false)
+                  }}
+                  placeholder="Informe os dias e horários em que pode atender."
+                  aria-invalid={!!errors.disponibilidade}
+                  className={`${textareaClass(!!errors.disponibilidade)} pl-11`}
+                />
+              </div>
+              {errors.disponibilidade && <p className="mt-1.5 text-xs text-brand-danger">{errors.disponibilidade}</p>}
             </div>
 
             <div>
@@ -333,11 +386,17 @@ export default function CadastroCuidador() {
               {errors.confirmarSenha && <p className="mt-1.5 text-xs text-brand-danger">{errors.confirmarSenha}</p>}
             </div>
 
+            <div className="rounded-xl border border-brand-border bg-brand-surface p-4">
+              <p className="text-sm leading-6 text-brand-muted">
+                A proposta do Cuidar+ prevê uma etapa de verificação de identidade antes da publicação do perfil profissional.
+              </p>
+            </div>
+
             {submitted && (
               <div role="status" className="flex items-start gap-3 rounded-xl border border-brand-success/20 bg-brand-success/5 p-4">
                 <CheckCircle2 size={19} className="mt-0.5 shrink-0 text-brand-success" />
                 <p className="text-sm leading-6 text-brand-ink">
-                  Seus dados foram validados. O cadastro ainda precisa ser conectado à API para criar sua conta.
+                  Seus dados foram validados. A criação da conta e a publicação do perfil ainda dependem da integração com a API.
                 </p>
               </div>
             )}
@@ -346,7 +405,7 @@ export default function CadastroCuidador() {
               type="submit"
               className="w-full rounded-xl bg-brand-primary px-5 py-3.5 text-sm font-bold text-white transition hover:bg-brand-dark focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/20"
             >
-              Criar conta de cuidador
+              Criar perfil profissional
             </button>
           </form>
 
