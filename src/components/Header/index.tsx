@@ -7,6 +7,7 @@ const links = [
   { label: 'Início', to: '/' },
   { label: 'Sobre nós', to: '/sobre' },
   { label: 'Como funciona', to: '/solucao' },
+  { label: 'Cuidar+ Conecta', to: '/conecta' },
   { label: 'Contato', to: '/contato' },
   { label: 'FAQ', to: '/faq' },
   { label: 'Integrantes', to: '/integrantes' },
@@ -15,14 +16,15 @@ const links = [
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
 
+  const closeMenu = () => setMenuOpen(false)
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-brand-border bg-white/95 backdrop-blur-md">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-10">
-
         <Link
           to="/"
           className="flex items-center gap-3"
-          onClick={() => setMenuOpen(false)}
+          onClick={closeMenu}
         >
           <img
             src="/assets/img01-logo-cuidar.jpeg"
@@ -40,14 +42,14 @@ export default function Header() {
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-6 lg:flex">
           {links.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
               end={link.to === '/'}
               className={({ isActive }) =>
-                `text-sm font-bold transition-colors ${
+                `whitespace-nowrap text-sm font-bold transition-colors ${
                   isActive
                     ? 'text-brand-primary'
                     : 'text-brand-muted hover:text-brand-primary'
@@ -77,24 +79,28 @@ export default function Header() {
 
         <button
           type="button"
-          onClick={() => setMenuOpen(!menuOpen)}
+          onClick={() => setMenuOpen((current) => !current)}
           className="rounded-xl p-2 text-brand-dark transition hover:bg-brand-pink-light md:hidden"
           aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
           aria-expanded={menuOpen}
+          aria-controls="mobile-navigation"
         >
           {menuOpen ? <X size={25} /> : <Menu size={25} />}
         </button>
       </div>
 
       {menuOpen && (
-        <div className="border-t border-brand-border bg-white px-5 py-5 shadow-lg md:hidden">
+        <div
+          id="mobile-navigation"
+          className="border-t border-brand-border bg-white px-5 py-5 shadow-lg md:hidden"
+        >
           <nav className="flex flex-col gap-1">
             {links.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
                 end={link.to === '/'}
-                onClick={() => setMenuOpen(false)}
+                onClick={closeMenu}
                 className={({ isActive }) =>
                   `rounded-xl px-4 py-3 text-sm font-bold transition ${
                     isActive
@@ -111,16 +117,16 @@ export default function Header() {
           <div className="mt-4 flex flex-col gap-3 border-t border-brand-border pt-4">
             <Link
               to="/login"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-xl border border-brand-border py-3 text-center text-sm font-bold text-brand-primary"
+              onClick={closeMenu}
+              className="rounded-xl border border-brand-border py-3 text-center text-sm font-bold text-brand-primary transition hover:bg-brand-pink-light"
             >
               Entrar
             </Link>
 
             <Link
               to="/cadastro"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-xl bg-brand-primary py-3 text-center text-sm font-bold text-white"
+              onClick={closeMenu}
+              className="rounded-xl bg-brand-primary py-3 text-center text-sm font-bold text-white transition hover:bg-brand-dark"
             >
               Criar conta
             </Link>
