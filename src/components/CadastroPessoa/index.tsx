@@ -93,7 +93,7 @@ export default function CadastroPessoa({
           event.preventDefault()
           fechar()
         }}
-        className="fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%_-_2rem)] max-w-lg overflow-y-auto rounded-2xl border border-brand-border bg-brand-surface p-6 text-brand-ink shadow-xl backdrop:bg-brand-ink/50 sm:p-8"
+        className="fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-2xl border border-brand-border bg-brand-surface p-6 text-brand-ink shadow-xl backdrop:bg-brand-ink/50 sm:p-8"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
