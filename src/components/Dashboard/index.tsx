@@ -1,5 +1,10 @@
 
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import CadastroPessoa from '../CadastroPessoa'
+import {
+  listarPessoasAcompanhadas,
+  type PessoaAcompanhada,
+} from '../../services/pessoasAcompanhadas'
 import {
   Bell,
   CalendarDays,
@@ -688,6 +693,8 @@ export default function Dashboard({ role }: DashboardProps) {
           <MetricCard icon={AlertTriangle} label="Atrasadas" value={String(overdueTasks.length)} detail="Precisam de atenção" />
           <MetricCard icon={CalendarDays} label="Compromissos" value={String(appointments.length)} detail="Na agenda demonstrativa" />
         </div>
+
+        {role === 'familiar' && <PessoasAcompanhadas />}
 
         <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
           <section className="rounded-2xl border border-brand-border bg-white p-5 sm:p-6">
