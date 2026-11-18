@@ -38,7 +38,7 @@ export const members: Member[] = [
     skills: [],
     technologies: [],
     github: 'https://github.com/guimmalmd',
-    linkedin: 'http://www.linkedin.com/in/guimmalmeida',
+    linkedin: 'https://www.linkedin.com/in/guimmalmeida',
   },
   {
     id: 'thiago',
@@ -59,7 +59,7 @@ export const members: Member[] = [
     image: '/assets/img05-beatriz.jpeg',
     rm: '569341',
     class: '1TDSPJ',
-    presentation: 'Apresentação pessoal a ser preenchida pela integrante.',
+    presentation: 'Apresentação pessoal a ser preenchida pelo integrante.',
     contribution: 'Descreva aqui sua principal contribuição no desenvolvimento do Cuidar+.',
     skills: [],
     technologies: [],
