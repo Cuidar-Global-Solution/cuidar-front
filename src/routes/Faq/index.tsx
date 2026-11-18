@@ -15,88 +15,129 @@ const sections = [
         id: 'what-is',
         question: 'O que é o Cuidar+?',
         answer:
-          'O Cuidar+ é uma plataforma pensada para facilitar a organização dos cuidados com pessoas idosas. A proposta é reunir informações importantes da rotina e aproximar familiares, responsáveis e profissionais de cuidado.',
+          'O Cuidar+ é uma plataforma que busca facilitar a organização e o acompanhamento dos cuidados. A proposta é reunir informações importantes da rotina, organizar compromissos e aproximar a pessoa acompanhada, seus familiares e profissionais de cuidado.',
       },
       {
         id: 'who-is-for',
         question: 'Para quem é a plataforma?',
         answer:
-          'A plataforma é voltada principalmente para familiares, responsáveis e pessoas que participam da rotina de cuidado de idosos. Também considera profissionais que atuam de forma independente nessa área.',
+          'O Cuidar+ possui três perfis principais: pessoa acompanhada, familiar ou integrante da rede de apoio e cuidador profissional. Cada perfil possui uma experiência adequada à sua participação na rotina de cuidados.',
       },
       {
         id: 'replace-care',
         question: 'O Cuidar+ substitui um cuidador ou profissional de saúde?',
         answer:
-          'Não. O Cuidar+ tem como objetivo apoiar a organização e a comunicação entre as pessoas envolvidas no cuidado. A plataforma não substitui o acompanhamento de profissionais de saúde nem o trabalho de um cuidador.',
+          'Não. O Cuidar+ apoia a organização das informações e a comunicação entre as pessoas envolvidas no cuidado. A plataforma não substitui o acompanhamento de profissionais de saúde, o trabalho de um cuidador ou a convivência entre familiares.',
       },
     ],
   },
   {
-    title: 'Funcionalidades e organização',
+    title: 'Rotina e funcionalidades',
     questions: [
       {
         id: 'routine',
-        question: 'Como posso organizar a rotina de cuidados?',
+        question: 'Quais atividades podem ser organizadas?',
         answer:
-          'A proposta é permitir o registro de atividades importantes, como horários, alimentação, hidratação, compromissos e outras informações relevantes para o acompanhamento diário.',
+          'A proposta contempla nove áreas de cuidado: medicamentos, consultas e exames, alimentação, hidratação, medições de saúde, sono, atividades físicas e mobilidade, alertas e bem-estar. Essas áreas ajudam a organizar diferentes aspectos da rotina.',
+      },
+      {
+        id: 'reminders',
+        question: 'Qual é a diferença entre lembretes e registros?',
+        answer:
+          'Lembretes representam atividades planejadas para o futuro, como um horário de medicamento ou uma consulta. Registros representam acontecimentos que já ocorreram, permitindo informar o que foi realizado, quando aconteceu e quem adicionou a informação.',
       },
       {
         id: 'medication',
-        question: 'É possível acompanhar os horários dos medicamentos?',
+        question: 'É possível acompanhar os medicamentos?',
         answer:
-          'A plataforma prevê recursos para registrar medicamentos e seus horários, ajudando os responsáveis a acompanhar a rotina. Essas informações devem seguir sempre as orientações dos profissionais de saúde.',
+          'A proposta inclui o cadastro de medicamentos e horários para ajudar na organização da rotina. As informações devem seguir as orientações da prescrição e dos profissionais de saúde responsáveis. O Cuidar+ não recomenda alterações de doses ou tratamentos.',
       },
       {
         id: 'appointments',
-        question: 'Posso registrar consultas e compromissos?',
+        question: 'Posso organizar consultas e exames?',
         answer:
-          'Sim. A proposta inclui uma área para organizar consultas, exames e outros compromissos, facilitando o acompanhamento das atividades programadas.',
+          'Sim. A plataforma prevê uma área de agenda para organizar consultas, exames e outros compromissos, facilitando a visualização das atividades programadas.',
+      },
+      {
+        id: 'history',
+        question: 'Como funciona o histórico de cuidados?',
+        answer:
+          'O histórico busca reunir os lembretes planejados e os acontecimentos registrados, apresentando informações como atividade, data, horário e responsável pelo registro. Assim, as pessoas autorizadas podem acompanhar o que aconteceu ao longo do tempo.',
       },
     ],
   },
   {
-    title: 'Famílias e profissionais',
+    title: 'Perfis e rede de apoio',
     questions: [
+      {
+        id: 'profiles',
+        question: 'Qual é a diferença entre os perfis?',
+        answer:
+          'A pessoa acompanhada pode consultar sua rotina e participar das decisões sobre o compartilhamento de informações. O familiar ou integrante da rede de apoio pode organizar e acompanhar os cuidados conforme suas permissões. O cuidador profissional pode consultar informações autorizadas e registrar os cuidados realizados.',
+      },
       {
         id: 'sharing',
         question: 'Os familiares podem acompanhar as informações cadastradas?',
         answer:
-          'A proposta do Cuidar+ é permitir o compartilhamento de informações com pessoas autorizadas, facilitando a comunicação entre familiares e responsáveis pela rotina de cuidado.',
+          'A proposta permite compartilhar informações com pessoas autorizadas, respeitando as permissões definidas para cada perfil. Nem todos os participantes precisam ter acesso a todas as informações.',
+      },
+      {
+        id: 'autonomy',
+        question: 'A pessoa acompanhada pode decidir quem acessa suas informações?',
+        answer:
+          'Sim. A autonomia da pessoa acompanhada deve ser respeitada. Sempre que possível, ela participa das decisões sobre quem poderá acompanhar sua rotina e quais informações poderão ser compartilhadas.',
       },
       {
         id: 'caregiver-search',
-        question: 'Como encontrar um cuidador pela plataforma?',
+        question: 'O que é o Cuidar+ Conecta?',
         answer:
-          'A proposta inclui uma área de busca regional para encontrar profissionais independentes, com informações sobre experiência, formação e disponibilidade. A contratação e a avaliação do profissional devem ser feitas diretamente pelos envolvidos.',
+          'O Cuidar+ Conecta é uma proposta de espaço para aproximar famílias e cuidadores profissionais independentes. A ideia é permitir buscas por região e tipo de serviço, além da consulta de informações sobre experiência, formação e disponibilidade dos profissionais.',
       },
       {
         id: 'caregiver-employment',
-        question: 'Os cuidadores são funcionários do Cuidar+?',
+        question: 'Os cuidadores encontrados no Conecta são funcionários do Cuidar+?',
         answer:
-          'Não. A proposta é aproximar famílias e profissionais independentes. A plataforma não deve ser confundida com uma empresa empregadora ou prestadora direta de serviços de cuidado.',
+          'Não. A proposta do Cuidar+ Conecta é facilitar o contato entre famílias e profissionais independentes. A plataforma não deve ser confundida com uma empresa empregadora ou prestadora direta de serviços de cuidado.',
       },
     ],
   },
   {
-    title: 'Privacidade e segurança',
+    title: 'Tecnologia e recursos adicionais',
+    questions: [
+      {
+        id: 'chatbot',
+        question: 'O Cuidar+ possui um assistente com inteligência artificial?',
+        answer:
+          'O projeto prevê um assistente com inteligência artificial para ajudar na consulta e organização das informações de cuidado. Esse recurso é planejado para apoiar a interpretação dos registros, sem realizar diagnósticos ou substituir orientações profissionais.',
+      },
+      {
+        id: 'reports',
+        question: 'É possível gerar relatórios sobre os cuidados?',
+        answer:
+          'A proposta prevê resumos dos registros de períodos como os últimos 7 ou 30 dias, ajudando a organizar informações para acompanhamento e conversas com profissionais de saúde. Os recursos avançados de relatórios fazem parte da evolução planejada da plataforma.',
+      },
+      {
+        id: 'family-plan',
+        question: 'O que é o Plano Família?',
+        answer:
+          'O Plano Família é uma modalidade planejada com valor de R$ 19,90 por mês. A proposta inclui recursos adicionais, como relatórios com apoio de inteligência artificial e acesso compartilhado, respeitando as permissões de cada participante. Sua disponibilidade depende da implementação do serviço.',
+      },
+    ],
+  },
+  {
+    title: 'Privacidade, segurança e emergências',
     questions: [
       {
         id: 'data-privacy',
         question: 'Como o Cuidar+ trata os dados pessoais?',
         answer:
-          'A proposta considera a proteção das informações pessoais e o tratamento responsável dos dados, seguindo os princípios da Lei Geral de Proteção de Dados (LGPD). A implementação deve definir medidas adequadas de segurança e privacidade.',
+          'O projeto considera a proteção dos dados pessoais e o tratamento responsável das informações, seguindo os princípios da Lei Geral de Proteção de Dados (LGPD). A implementação deve adotar medidas adequadas de segurança, privacidade e controle de acesso.',
       },
       {
-        id: 'access',
-        question: 'Quem pode acessar as informações de uma pessoa idosa?',
+        id: 'third-party-data',
+        question: 'Posso cadastrar informações de saúde de outra pessoa?',
         answer:
-          'O acesso deve ser restrito às pessoas autorizadas, de acordo com as permissões definidas para cada perfil. Informações pessoais não devem ser compartilhadas indiscriminadamente.',
-      },
-      {
-        id: 'autonomy',
-        question: 'A pessoa idosa pode decidir quem acompanha sua rotina?',
-        answer:
-          'Sim. Sempre que possível, a pessoa idosa deve participar das decisões sobre seu cuidado e sobre quais informações deseja compartilhar. Sua autonomia e suas preferências precisam ser respeitadas.',
+          'Informações pessoais e de saúde de terceiros devem ser tratadas com cuidado e autorização adequada. A proposta do Cuidar+ considera a criação do perfil da pessoa acompanhada com seu consentimento, evitando o cadastro indiscriminado de dados de terceiros.',
       },
       {
         id: 'medical-advice',
@@ -106,9 +147,9 @@ const sections = [
       },
       {
         id: 'emergency',
-        question: 'O que fazer em uma situação de emergência?',
+        question: 'O Cuidar+ funciona como serviço de emergência?',
         answer:
-          'O Cuidar+ não é um serviço de emergência. Em situações urgentes, procure imediatamente os serviços de emergência ou atendimento de saúde adequados.',
+          'Não. A proposta inclui recursos para organizar contatos de confiança e facilitar pedidos de ajuda, mas o Cuidar+ não substitui os serviços oficiais de emergência. Em situações urgentes, entre em contato diretamente com o serviço de atendimento adequado.',
       },
     ],
   },
@@ -127,20 +168,20 @@ export default function FAQ() {
               Central de dúvidas
             </span>
 
-            <h1 className="mt-7 text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+            <h1 className="mt-7 text-4xl font-bold leading-tight tracking-tight text-brand-dark sm:text-5xl lg:text-6xl">
               Perguntas frequentes
             </h1>
 
             <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-brand-muted sm:text-lg">
               Reunimos respostas para ajudar você a entender como o Cuidar+
-              funciona e de que forma ele pode apoiar a rotina de cuidado.
+              funciona e de que forma ele pode apoiar a organização dos cuidados.
             </p>
           </div>
 
           <div className="mx-auto mt-14 max-w-3xl space-y-12">
             {sections.map((section) => (
               <section key={section.title}>
-                <h2 className="mb-5 text-xl font-bold sm:text-2xl">
+                <h2 className="mb-5 text-xl font-bold text-brand-dark sm:text-2xl">
                   {section.title}
                 </h2>
 
@@ -168,7 +209,7 @@ export default function FAQ() {
 
                           <ChevronDown
                             size={20}
-                            className={`shrink-0 text-brand-primary transition-transform ${
+                            className={`shrink-0 text-brand-primary transition-transform duration-200 ${
                               isOpen ? 'rotate-180' : ''
                             }`}
                           />

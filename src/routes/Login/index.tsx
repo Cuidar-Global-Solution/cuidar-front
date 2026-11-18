@@ -23,20 +23,22 @@ export default function Login() {
     setFeedback('')
     setHasError(false)
 
-    if (!email.trim() || !password.trim()) {
+    const normalizedEmail = email.trim()
+
+    if (!normalizedEmail || !password.trim()) {
       setFeedback('Preencha seu e-mail e sua senha.')
       setHasError(true)
       return
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       setFeedback('Informe um endereço de e-mail válido.')
       setHasError(true)
       return
     }
 
     setFeedback(
-      'Seus dados foram preenchidos corretamente. O acesso será habilitado após a integração com a API.'
+      'Validação concluída. O acesso à sua conta estará disponível após a integração com o sistema de autenticação.'
     )
   }
 
@@ -61,18 +63,18 @@ export default function Login() {
           </span>
 
           <h1 className="mt-8 text-4xl font-bold leading-tight text-white xl:text-5xl">
-            Cuidar de quem importa começa com uma rede de apoio.
+            O cuidado acontece melhor quando todos podem participar.
           </h1>
 
           <p className="mt-6 max-w-md text-base leading-8 text-white/70">
-            Organize informações, acompanhe a rotina e mantenha as pessoas
-            envolvidas no cuidado mais próximas.
+            Organize a rotina, acompanhe informações importantes e conecte
+            pessoas em uma rede de cuidado que respeita a autonomia de cada um.
           </p>
         </div>
 
         <div className="relative z-10 flex items-center gap-3 text-sm text-white/60">
           <ShieldCheck size={18} className="text-brand-pink" />
-          Uma proposta pensada para aproximar pessoas e organizar o cuidado.
+          Mais organização, autonomia e conexão no cuidado.
         </div>
 
         <div className="pointer-events-none absolute -bottom-40 -left-32 h-96 w-96 rounded-full border border-white/10" />
@@ -102,18 +104,19 @@ export default function Login() {
               Acesse sua conta
             </span>
 
-            <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
+            <h2 className="mt-3 text-3xl font-bold text-brand-dark sm:text-4xl">
               Bem-vindo de volta
             </h2>
 
             <p className="mt-4 text-sm leading-7 text-brand-muted">
-              Entre com seus dados para continuar acompanhando a rotina de cuidados.
+              Entre com seus dados para continuar acompanhando sua rotina de
+              cuidados.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="mt-7 space-y-5">
             <div>
-              <label htmlFor="email" className="mb-2 block text-sm font-bold">
+              <label htmlFor="email" className="mb-2 block text-sm font-bold text-brand-ink">
                 E-mail
               </label>
 
@@ -126,7 +129,7 @@ export default function Login() {
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="seuemail@exemplo.com"
                   autoComplete="email"
-                  className="w-full bg-transparent py-4 text-sm outline-none"
+                  className="w-full bg-transparent py-4 text-sm text-brand-ink outline-none placeholder:text-brand-muted/70"
                   required
                 />
               </div>
@@ -134,7 +137,7 @@ export default function Login() {
 
             <div>
               <div className="mb-2 flex items-center justify-between gap-3">
-                <label htmlFor="password" className="text-sm font-bold">
+                <label htmlFor="password" className="text-sm font-bold text-brand-ink">
                   Senha
                 </label>
 
@@ -155,13 +158,13 @@ export default function Login() {
                   onChange={(event) => setPassword(event.target.value)}
                   placeholder="Digite sua senha"
                   autoComplete="current-password"
-                  className="w-full bg-transparent py-4 text-sm outline-none"
+                  className="w-full bg-transparent py-4 text-sm text-brand-ink outline-none placeholder:text-brand-muted/70"
                   required
                 />
 
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() => setShowPassword((current) => !current)}
                   className="text-brand-muted transition hover:text-brand-primary"
                   aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                 >
@@ -173,6 +176,7 @@ export default function Login() {
             {feedback && (
               <p
                 role="alert"
+                aria-live="polite"
                 className={`rounded-xl px-4 py-3 text-sm leading-6 ${
                   hasError
                     ? 'bg-red-50 text-brand-danger'

@@ -15,35 +15,47 @@ import {
 const features = [
   {
     icon: ClipboardList,
-    title: 'Rotina organizada',
+    title: 'Rotina em um só lugar',
     description:
-      'Reúna tarefas, compromissos e informações importantes em um só lugar.',
+      'Organize lembretes e registre o que aconteceu no dia a dia, mantendo as informações reunidas.',
   },
   {
     icon: CalendarDays,
-    title: 'Medicamentos e consultas',
+    title: 'Acompanhamento completo',
     description:
-      'Organize horários de medicamentos e acompanhe consultas e exames.',
+      'Acompanhe medicamentos, consultas, alimentação, hidratação, sono e outras áreas de cuidado.',
   },
   {
     icon: Users,
     title: 'Cuidado compartilhado',
     description:
-      'Mantenha familiares e cuidadores autorizados alinhados sobre a rotina.',
+      'Aproxime familiares e cuidadores, com acesso definido pelas permissões de cada pessoa.',
   },
   {
     icon: ShieldCheck,
-    title: 'Mais segurança',
+    title: 'Autonomia e segurança',
     description:
-      'Tenha informações e contatos importantes acessíveis quando necessário.',
+      'A pessoa acompanhada participa da própria rotina e decide o que compartilhar e com quem.',
   },
 ]
 
+const careAreas = [
+  'Medicamentos',
+  'Consultas e exames',
+  'Alimentação',
+  'Hidratação',
+  'Medições de saúde',
+  'Sono',
+  'Atividades físicas e mobilidade',
+  'Alertas',
+  'Bem-estar',
+]
+
 const benefits = [
-  'Organização das atividades diárias',
-  'Acompanhamento de compromissos',
-  'Informações compartilhadas com pessoas autorizadas',
-  'Mais clareza na comunicação entre familiares e cuidadores',
+  'Organização de lembretes e compromissos',
+  'Registro de atividades e acontecimentos',
+  'Histórico com data, horário e responsável pelo registro',
+  'Compartilhamento de informações conforme as permissões',
 ]
 
 function Home() {
@@ -58,14 +70,17 @@ function Home() {
             </span>
 
             <h1 className="mt-7 text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-              Cuidar de quem importa pode ser{' '}
-              <span className="text-brand-primary">mais simples.</span>
+              Todo cuidado em uma só plataforma.
+              <span className="text-brand-primary">
+                {' '}Mais organização, autonomia e conexão.
+              </span>
             </h1>
 
             <p className="mt-6 max-w-xl text-base leading-8 text-brand-muted sm:text-lg">
-              Uma plataforma para organizar a rotina de cuidados de pessoas
-              idosas e aproximar familiares e profissionais em cada etapa
-              dessa jornada.
+              O Cuidar+ reúne a rotina de cuidados em um só lugar, aproximando
+              a pessoa acompanhada, seus familiares e cuidadores profissionais.
+              Tudo com mais clareza sobre o que precisa ser feito, o que
+              aconteceu e quem participou.
             </p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -88,11 +103,11 @@ function Home() {
             <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-brand-muted">
               <span className="inline-flex items-center gap-2">
                 <Check size={16} className="text-brand-success" />
-                Rotina centralizada
+                Rotina organizada
               </span>
               <span className="inline-flex items-center gap-2">
                 <Check size={16} className="text-brand-success" />
-                Cuidado compartilhado
+                Autonomia respeitada
               </span>
             </div>
           </div>
@@ -107,7 +122,9 @@ function Home() {
                   <p className="text-xs font-semibold uppercase tracking-wider text-brand-muted">
                     Cuidar+
                   </p>
-                  <h2 className="mt-1 text-xl font-semibold">Um cuidado mais próximo</h2>
+                  <h2 className="mt-1 text-xl font-semibold">
+                    Uma rotina mais organizada
+                  </h2>
                 </div>
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pink-light">
                   <HeartHandshake size={25} className="text-brand-primary" />
@@ -121,19 +138,19 @@ function Home() {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-brand-ink">
-                      Cuidado em conjunto
+                      Acompanhamento do cuidado
                     </p>
                     <p className="mt-0.5 text-xs text-brand-muted">
-                      Tudo mais organizado em um só lugar
+                      Planeje, acompanhe e registre
                     </p>
                   </div>
                 </div>
 
                 <div className="mt-5 space-y-3">
                   {[
-                    'Rotina diária',
-                    'Medicamentos e horários',
-                    'Consultas e compromissos',
+                    'Lembretes e compromissos',
+                    'Registros do que aconteceu',
+                    'Histórico de cuidados',
                   ].map((item) => (
                     <div
                       key={item}
@@ -153,19 +170,20 @@ function Home() {
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <div className="rounded-2xl bg-brand-primary p-4 text-white">
                   <Users size={21} />
-                  <p className="mt-3 text-sm font-bold">Família</p>
+                  <p className="mt-3 text-sm font-bold">Rede de apoio</p>
                   <p className="mt-1 text-xs leading-5 text-white/75">
-                    Participação no cuidado
+                    Participação autorizada
                   </p>
                 </div>
                 <div className="rounded-2xl bg-brand-pink p-4 text-white">
                   <HeartHandshake size={21} />
-                  <p className="mt-3 text-sm font-bold">Cuidadores</p>
+                  <p className="mt-3 text-sm font-bold">Pessoa acompanhada</p>
                   <p className="mt-1 text-xs leading-5 text-white/80">
-                    Apoio profissional
+                    Autonomia e participação
                   </p>
                 </div>
               </div>
+
               <p className="mt-4 text-center text-[11px] text-brand-muted">
                 Ilustração conceitual da proposta da plataforma
               </p>
@@ -181,12 +199,13 @@ function Home() {
               Por que Cuidar+?
             </span>
             <h2 className="mt-4 text-3xl font-semibold leading-tight sm:text-4xl">
-              Cuidar de alguém também exige organização.
+              O cuidado envolve muito mais do que compromissos.
             </h2>
             <p className="mt-5 text-base leading-8 text-brand-muted">
-              Quando as informações ficam espalhadas, acompanhar a rotina
-              pode se tornar difícil. O Cuidar+ reúne o que é importante
-              para facilitar a comunicação e apoiar quem participa desse cuidado.
+              Medicamentos, consultas e atividades do dia a dia fazem parte
+              de uma rotina que pode envolver diferentes pessoas. O Cuidar+
+              propõe reunir essas informações para facilitar a organização,
+              a comunicação e o acompanhamento.
             </p>
           </div>
 
@@ -215,91 +234,138 @@ function Home() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-16 sm:px-8 lg:grid-cols-2 lg:gap-20 lg:px-10 lg:py-24">
-        <div className="order-2 lg:order-1">
-          <div className="rounded-4xl border border-brand-border bg-white p-6 shadow-xl shadow-purple-100 sm:p-9">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pink-light">
-                <Search size={24} className="text-brand-primary" />
-              </div>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-brand-pink">
-                  Cuidar+ Conecta
-                </p>
-                <h3 className="text-xl font-semibold">Encontre apoio profissional</h3>
-              </div>
-            </div>
-
-            <p className="mt-6 text-sm leading-7 text-brand-muted">
-              Uma forma de aproximar famílias de cuidadores independentes,
-              facilitando a busca por profissionais de acordo com suas
-              necessidades e região.
-            </p>
-
-            <div className="mt-6 space-y-3">
-              {[
-                'Busca por região',
-                'Perfil e experiência profissional',
-                'Informações para facilitar a escolha',
-              ].map((item) => (
-                <div key={item} className="flex items-center gap-3">
-                  <Check size={17} className="shrink-0 text-brand-success" />
-                  <span className="text-sm font-semibold text-brand-ink">
-                    {item}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <Link
-              to="/cuidadores"
-              className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-primary px-5 py-3.5 text-sm font-bold text-brand-primary transition hover:bg-brand-pink-light"
-            >
-              Conhecer o Cuidar+ Conecta
-              <ArrowRight size={17} />
-            </Link>
-          </div>
-        </div>
-
-        <div className="order-1 lg:order-2">
+      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
+        <div className="mx-auto max-w-3xl text-center">
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-pink">
-            Uma rede de apoio
+            Acompanhamento integrado
           </span>
           <h2 className="mt-4 text-3xl font-semibold leading-tight sm:text-4xl">
-            Ninguém precisa organizar tudo sozinho.
+            Nove áreas para acompanhar o cuidado de forma mais completa.
           </h2>
           <p className="mt-5 text-base leading-8 text-brand-muted">
-            O cuidado pode envolver diferentes pessoas. Por isso, o Cuidar+
-            busca aproximar familiares e profissionais, respeitando as
-            autorizações e as necessidades de cada pessoa idosa.
+            Cada área reúne informações importantes da rotina. Assim, quem
+            participa do cuidado pode consultar os registros e acompanhar
+            o que foi planejado e realizado, respeitando as permissões definidas.
           </p>
+        </div>
 
-          <ul className="mt-7 space-y-4">
-            {benefits.map((benefit) => (
-              <li key={benefit} className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pink-light">
-                  <Check size={14} className="text-brand-primary" />
-                </span>
-                <span className="text-sm leading-6 text-brand-ink">
-                  {benefit}
-                </span>
-              </li>
-            ))}
-          </ul>
+        <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {careAreas.map((area, index) => (
+            <div
+              key={area}
+              className="flex items-center gap-3 rounded-xl border border-brand-border bg-white px-5 py-4"
+            >
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-pink-light text-sm font-bold text-brand-primary">
+                {index + 1}
+              </span>
+              <span className="text-sm font-semibold text-brand-ink">
+                {area}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-8 text-center">
+          <Link
+            to="/solucao"
+            className="inline-flex items-center gap-2 text-sm font-bold text-brand-primary transition hover:text-brand-dark"
+          >
+            Conhecer todas as funcionalidades
+            <ArrowRight size={17} />
+          </Link>
         </div>
       </section>
 
-      <section className="px-5 pb-16 sm:px-8 lg:px-10 lg:pb-24">
+      <section className="border-y border-brand-border bg-white">
+        <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-16 sm:px-8 lg:grid-cols-2 lg:gap-20 lg:px-10 lg:py-24">
+          <div>
+            <div className="rounded-4xl border border-brand-border bg-brand-background p-6 shadow-xl shadow-purple-100 sm:p-9">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-pink-light">
+                  <Search size={24} className="text-brand-primary" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-brand-pink">
+                    Cuidar+ Conecta
+                  </p>
+                  <h3 className="text-xl font-semibold">
+                    Encontre apoio profissional
+                  </h3>
+                </div>
+              </div>
+
+              <p className="mt-6 text-sm leading-7 text-brand-muted">
+                O Cuidar+ Conecta aproxima famílias de cuidadores
+                independentes. A busca considera região, disponibilidade,
+                experiência e serviços oferecidos.
+              </p>
+
+              <div className="mt-6 space-y-3">
+                {[
+                  'Busca por cidade ou bairro',
+                  'Perfis e informações profissionais',
+                  'Possibilidade de publicar pedidos de cuidado',
+                ].map((item) => (
+                  <div key={item} className="flex items-center gap-3">
+                    <Check size={17} className="shrink-0 text-brand-success" />
+                    <span className="text-sm font-semibold text-brand-ink">
+                      {item}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <Link
+                to="/conecta"
+                className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-primary px-5 py-3.5 text-sm font-bold text-brand-primary transition hover:bg-brand-pink-light"
+              >
+                Conhecer o Cuidar+ Conecta
+                <ArrowRight size={17} />
+              </Link>
+            </div>
+          </div>
+
+          <div>
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-pink">
+              Uma rede de apoio
+            </span>
+            <h2 className="mt-4 text-3xl font-semibold leading-tight sm:text-4xl">
+              O cuidado pode ser compartilhado, sem perder a autonomia.
+            </h2>
+            <p className="mt-5 text-base leading-8 text-brand-muted">
+              Familiares e cuidadores podem participar da rotina, mas o
+              compartilhamento deve respeitar as escolhas e as permissões
+              da pessoa acompanhada. Cada vínculo pode ter diferentes
+              possibilidades de acesso e registro.
+            </p>
+
+            <ul className="mt-7 space-y-4">
+              {benefits.map((benefit) => (
+                <li key={benefit} className="flex items-start gap-3">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-pink-light">
+                    <Check size={14} className="text-brand-primary" />
+                  </span>
+                  <span className="text-sm leading-6 text-brand-ink">
+                    {benefit}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-5 pb-16 pt-16 sm:px-8 lg:px-10 lg:pb-24">
         <div className="mx-auto max-w-7xl overflow-hidden rounded-4xl bg-brand-dark px-6 py-14 text-center sm:px-12 sm:py-16">
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-lavender">
-            Cuidar+ 
+            Cuidar+
           </span>
           <h2 className="mx-auto mt-4 max-w-2xl text-3xl font-semibold leading-tight text-white sm:text-4xl">
             Mais organização para cuidar. Mais conexão para acolher.
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-white/70 sm:text-base">
-            Conheça a proposta do Cuidar+ e descubra como uma rotina mais
-            organizada pode ajudar quem cuida e quem recebe cuidado.
+            Conheça a proposta do Cuidar+ e descubra como reunir informações,
+            organizar responsabilidades e aproximar quem participa do cuidado.
           </p>
           <Link
             to="/sobre"

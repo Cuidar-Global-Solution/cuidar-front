@@ -10,7 +10,7 @@ const navigation = [
 ]
 
 const services = [
-  { label: 'Encontrar cuidadores', to: '/cuidadores' },
+  { label: 'Encontrar cuidadores', to: '/conecta' },
   { label: 'Criar uma conta', to: '/cadastro' },
   { label: 'Entrar', to: '/login' },
   { label: 'Fale conosco', to: '/contato' },
@@ -48,7 +48,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className=" text-sm font-bold uppercase tracking-wider">
+            <h3 className="text-sm font-bold uppercase tracking-wider">
               Navegação
             </h3>
             <ul className="mt-5 space-y-4">
@@ -66,7 +66,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider ">
+            <h3 className="text-sm font-bold uppercase tracking-wider">
               Cuidar+
             </h3>
             <ul className="mt-5 space-y-4">
