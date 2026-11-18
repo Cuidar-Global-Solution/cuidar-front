@@ -1,10 +1,4 @@
-
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
-import CadastroPessoa from '../CadastroPessoa'
-import {
-  listarPessoasAcompanhadas,
-  type PessoaAcompanhada,
-} from '../../services/pessoasAcompanhadas'
+import { useMemo, useState, type FormEvent } from 'react'
 import {
   Bell,
   CalendarDays,
@@ -23,6 +17,7 @@ import {
   X,
   UserRound,
   FileText,
+  AlertTriangle,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -45,6 +40,7 @@ type CareItem = {
   title: string
   description: string
   category: string
+  date: string
   time: string
   completed: boolean
   responsible: string
@@ -61,6 +57,7 @@ type Appointment = {
 
 type RecordItem = {
   id: number
+  sourceTaskId?: number
   title: string
   description: string
   category: string
@@ -83,8 +80,7 @@ const profiles: Record<DashboardRole, ProfileConfig> = {
     title: 'Área da família',
     description: 'Organize e acompanhe os cuidados.',
     greeting: 'Como estão os cuidados hoje?',
-    overview:
-      'Acompanhe a rotina, os compromissos e os registros de quem você acompanha.',
+    overview: 'Acompanhe a rotina, os compromissos e os registros de quem você acompanha.',
     primaryAction: 'Novo lembrete',
     navigation: [
       { label: 'Início', icon: LayoutDashboard },
@@ -99,8 +95,7 @@ const profiles: Record<DashboardRole, ProfileConfig> = {
     title: 'Área do cuidador',
     description: 'Organize seus atendimentos e registros.',
     greeting: 'Sua rotina de cuidados',
-    overview:
-      'Consulte os atendimentos, acompanhe as tarefas autorizadas e registre os cuidados realizados.',
+    overview: 'Consulte os atendimentos, acompanhe as tarefas autorizadas e registre os cuidados realizados.',
     primaryAction: 'Adicionar registro',
     navigation: [
       { label: 'Início', icon: LayoutDashboard },
@@ -115,8 +110,7 @@ const profiles: Record<DashboardRole, ProfileConfig> = {
     title: 'Meu espaço',
     description: 'Sua rotina, suas escolhas.',
     greeting: 'Olá! Como você está hoje?',
-    overview:
-      'Consulte seus compromissos, acompanhe sua rotina e escolha o que deseja compartilhar.',
+    overview: 'Consulte seus compromissos, acompanhe sua rotina e escolha o que deseja compartilhar.',
     primaryAction: 'Adicionar registro',
     navigation: [
       { label: 'Início', icon: LayoutDashboard },
@@ -129,12 +123,71 @@ const profiles: Record<DashboardRole, ProfileConfig> = {
   },
 }
 
+function getToday() {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function getCurrentTime() {
+  return new Date().toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+function formatDate(date: string) {
+  if (!date) return ''
+  return new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
+function getRoleName(role: DashboardRole) {
+  if (role === 'familiar') return 'Ana Martins'
+  if (role === 'cuidador') return 'Renata Costa'
+  return 'Maria Oliveira'
+}
+
+function getTaskStatus(task: CareItem) {
+  if (task.completed) return 'Concluída'
+
+  const dueDate = new Date(`${task.date}T${task.time}:00`)
+  if (dueDate.getTime() < Date.now()) return 'Atrasada'
+
+  return task.date > getToday() ? 'Agendada' : 'Pendente'
+}
+
+function getStatusStyle(status: string) {
+  if (status === 'Concluída') return 'bg-green-50 text-brand-success'
+  if (status === 'Atrasada') return 'bg-red-50 text-brand-danger'
+  if (status === 'Agendada') return 'bg-blue-50 text-blue-700'
+  return 'bg-brand-pink-light text-brand-primary'
+}
+
+const categories = [
+  'Medicamentos',
+  'Consultas e exames',
+  'Alimentação',
+  'Hidratação',
+  'Medições de saúde',
+  'Sono',
+  'Atividades físicas e mobilidade',
+  'Alertas',
+  'Bem-estar',
+]
+
 const initialTasks: CareItem[] = [
   {
     id: 1,
     title: 'Medicamento da manhã',
     description: 'Conforme prescrição cadastrada',
     category: 'Medicamentos',
+    date: getToday(),
     time: '08:00',
     completed: true,
     responsible: 'Ana Martins',
@@ -144,6 +197,7 @@ const initialTasks: CareItem[] = [
     title: 'Café da manhã',
     description: 'Registro da refeição',
     category: 'Alimentação',
+    date: getToday(),
     time: '08:30',
     completed: true,
     responsible: 'Ana Martins',
@@ -153,6 +207,7 @@ const initialTasks: CareItem[] = [
     title: 'Hidratação',
     description: 'Registrar o consumo de água',
     category: 'Hidratação',
+    date: getToday(),
     time: '10:00',
     completed: false,
     responsible: 'João Martins',
@@ -162,6 +217,7 @@ const initialTasks: CareItem[] = [
     title: 'Caminhada leve',
     description: 'Atividade acompanhada',
     category: 'Atividades físicas e mobilidade',
+    date: getToday(),
     time: '14:00',
     completed: false,
     responsible: 'Renata Costa',
@@ -171,6 +227,7 @@ const initialTasks: CareItem[] = [
     title: 'Medicamento da noite',
     description: 'Conforme prescrição cadastrada',
     category: 'Medicamentos',
+    date: getToday(),
     time: '20:00',
     completed: false,
     responsible: 'Ana Martins',
@@ -202,7 +259,7 @@ const initialRecords: RecordItem[] = [
     title: 'Rotina da manhã concluída',
     description: 'Medicação e café da manhã registrados.',
     category: 'Rotina',
-    date: '2026-11-17',
+    date: getToday(),
     time: '09:00',
     responsible: 'Ana Martins',
   },
@@ -211,92 +268,11 @@ const initialRecords: RecordItem[] = [
     title: 'Hidratação registrada',
     description: 'Consumo de água registrado durante a manhã.',
     category: 'Hidratação',
-    date: '2026-11-16',
+    date: getToday(),
     time: '10:15',
     responsible: 'João Martins',
   },
 ]
-
-const categories = [
-  'Medicamentos',
-  'Consultas e exames',
-  'Alimentação',
-  'Hidratação',
-  'Medições de saúde',
-  'Sono',
-  'Atividades físicas e mobilidade',
-  'Alertas',
-  'Bem-estar',
-]
-
-function formatDate(date: string) {
-  if (!date) return ''
-
-  return new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  })
-}
-
-function getRoleName(role: DashboardRole) {
-  if (role === 'familiar') return 'Ana Martins'
-  if (role === 'cuidador') return 'Renata Costa'
-  return 'Maria Oliveira'
-}
-
-function PessoasAcompanhadas() {
-  const [pessoas, setPessoas] = useState<PessoaAcompanhada[]>([])
-  const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState(false)
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    listarPessoasAcompanhadas(controller.signal)
-      .then((resultado) => {
-        if (!controller.signal.aborted) setPessoas(resultado)
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) setErro(true)
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setCarregando(false)
-      })
-
-    return () => controller.abort()
-  }, [])
-
-  return (
-    <section className="rounded-2xl border border-brand-border bg-white p-5 sm:p-6">
-      <h3 className="font-bold text-brand-ink">Pessoas acompanhadas</h3>
-      <div className="mt-4" aria-live="polite" aria-busy={carregando}>
-        {carregando && (
-          <p className="text-sm text-brand-muted">Carregando pessoas acompanhadas...</p>
-        )}
-        {erro && (
-          <p role="alert" className="text-sm text-brand-danger">
-            Não foi possível carregar as pessoas acompanhadas.
-          </p>
-        )}
-        {!carregando && !erro && pessoas.length === 0 && (
-          <p className="text-sm text-brand-muted">Nenhuma pessoa acompanhada encontrada.</p>
-        )}
-        {pessoas.length > 0 && (
-          <ul className="space-y-2 text-sm font-semibold text-brand-ink">
-            {pessoas.map((pessoa) => (
-              <li key={pessoa.id} className="break-words">{pessoa.nome}</li>
-            ))}
-          </ul>
-        )}
-      </div>
-      <CadastroPessoa
-        disabled={carregando}
-        onCadastrada={(pessoa) => setPessoas((atuais) => [...atuais, pessoa])}
-      />
-    </section>
-  )
-}
 
 export default function Dashboard({ role }: DashboardProps) {
   const profile = profiles[role]
@@ -316,29 +292,51 @@ export default function Dashboard({ role }: DashboardProps) {
     title: '',
     description: '',
     category: 'Medicamentos',
-    date: '',
+    date: getToday(),
     time: '',
     location: '',
   })
 
   const pendingTasks = tasks.filter((task) => !task.completed)
   const completedTasks = tasks.filter((task) => task.completed)
+  const overdueTasks = tasks.filter((task) => getTaskStatus(task) === 'Atrasada')
 
   const completion = useMemo(() => {
     if (!tasks.length) return 0
     return Math.round((completedTasks.length / tasks.length) * 100)
   }, [tasks, completedTasks.length])
 
-  const notifications = [
-    {
-      title: 'Rotina atualizada',
-      description: 'Uma atividade foi adicionada à rotina.',
-    },
-    {
-      title: 'Próximo compromisso',
-      description: 'Você tem um compromisso agendado.',
-    },
-  ]
+  const notifications = useMemo(() => {
+    const items = tasks
+      .filter((task) => !task.completed)
+      .map((task) => {
+        const status = getTaskStatus(task)
+
+        if (status === 'Atrasada') {
+          return {
+            id: `overdue-${task.id}`,
+            title: 'Atividade atrasada',
+            description: `${task.title} — prevista para ${formatDate(task.date)} às ${task.time}.`,
+            type: 'overdue',
+          }
+        }
+
+        return null
+      })
+      .filter((item) => item !== null)
+
+    const upcoming = tasks
+      .filter((task) => !task.completed && getTaskStatus(task) !== 'Atrasada')
+      .slice(0, 2)
+      .map((task) => ({
+        id: `pending-${task.id}`,
+        title: 'Lembrete pendente',
+        description: `${task.title} — ${formatDate(task.date)} às ${task.time}.`,
+        type: 'pending',
+      }))
+
+    return [...items, ...upcoming]
+  }, [tasks])
 
   function changeSection(section: Section) {
     setActiveSection(section)
@@ -352,7 +350,7 @@ export default function Dashboard({ role }: DashboardProps) {
       title: '',
       description: '',
       category: 'Medicamentos',
-      date: '',
+      date: getToday(),
       time: '',
       location: '',
     })
@@ -366,11 +364,45 @@ export default function Dashboard({ role }: DashboardProps) {
   }
 
   function toggleTask(id: number) {
+    const task = tasks.find((item) => item.id === id)
+    if (!task) return
+
+    const willComplete = !task.completed
+
     setTasks((current) =>
-      current.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task,
+      current.map((item) =>
+        item.id === id ? { ...item, completed: willComplete } : item,
       ),
     )
+
+    if (willComplete) {
+      const completedAt = new Date()
+
+      const automaticRecord: RecordItem = {
+        id: Date.now(),
+        sourceTaskId: task.id,
+        title: task.title,
+        description: task.description || 'Atividade da rotina marcada como concluída.',
+        category: task.category,
+        date: getToday(),
+        time: completedAt.toLocaleTimeString('pt-BR', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+        responsible: task.responsible || userName,
+      }
+
+      setRecords((current) => [
+        automaticRecord,
+        ...current.filter((record) => record.sourceTaskId !== task.id),
+      ])
+    } else {
+      setRecords((current) =>
+        current.filter((record) => record.sourceTaskId !== task.id),
+      )
+    }
+
+    setReadNotifications(false)
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -381,24 +413,32 @@ export default function Dashboard({ role }: DashboardProps) {
       return
     }
 
-    if (modal === 'reminder') {
+    if (modal === 'reminder' || modal === 'appointment') {
       if (!form.date || !form.time) {
         setMessage('Informe a data e o horário.')
         return
       }
 
-      setTasks((current) => [
-        ...current,
-        {
-          id: Date.now(),
-          title: form.title.trim(),
-          description: form.description.trim(),
-          category: form.category,
-          time: form.time,
-          completed: false,
-          responsible: userName,
-        },
-      ])
+      if (new Date(`${form.date}T${form.time}:00`).getTime() < Date.now()) {
+        setMessage('Escolha uma data e horário futuros.')
+        return
+      }
+    }
+
+    if (modal === 'reminder') {
+      const newTask: CareItem = {
+        id: Date.now(),
+        title: form.title.trim(),
+        description: form.description.trim(),
+        category: form.category,
+        date: form.date,
+        time: form.time,
+        completed: false,
+        responsible: userName,
+      }
+
+      setTasks((current) => [newTask, ...current])
+      setReadNotifications(false)
     }
 
     if (modal === 'record') {
@@ -408,11 +448,8 @@ export default function Dashboard({ role }: DashboardProps) {
           title: form.title.trim(),
           description: form.description.trim(),
           category: form.category,
-          date: new Date().toISOString().slice(0, 10),
-          time: new Date().toLocaleTimeString('pt-BR', {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
+          date: getToday(),
+          time: getCurrentTime(),
           responsible: userName,
         },
         ...current,
@@ -420,11 +457,6 @@ export default function Dashboard({ role }: DashboardProps) {
     }
 
     if (modal === 'appointment') {
-      if (!form.date || !form.time) {
-        setMessage('Informe a data e o horário.')
-        return
-      }
-
       setAppointments((current) => [
         ...current,
         {
@@ -467,40 +499,52 @@ export default function Dashboard({ role }: DashboardProps) {
   function renderTasks() {
     return (
       <div className="space-y-3">
-        {tasks.map((task) => (
-          <div
-            key={task.id}
-            className="flex flex-col gap-3 rounded-2xl border border-brand-border bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
-          >
-            <div className="flex items-start gap-3">
-              <button
-                type="button"
-                onClick={() => toggleTask(task.id)}
-                aria-label={task.completed ? 'Marcar como pendente' : 'Marcar como concluída'}
-                className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${
-                  task.completed
-                    ? 'border-brand-success bg-brand-success text-white'
-                    : 'border-brand-border text-transparent'
-                }`}
-              >
-                <Check size={14} />
-              </button>
-              <div>
-                <p className={`font-bold ${task.completed ? 'text-brand-muted line-through' : 'text-brand-ink'}`}>
-                  {task.title}
-                </p>
-                <p className="mt-1 text-sm text-brand-muted">{task.description}</p>
-                <p className="mt-2 text-xs text-brand-muted">
-                  {task.category} · Responsável: {task.responsible}
-                </p>
+        {tasks.map((task) => {
+          const status = getTaskStatus(task)
+
+          return (
+            <div
+              key={task.id}
+              className={`flex flex-col gap-3 rounded-2xl border bg-white p-4 sm:flex-row sm:items-center sm:justify-between ${
+                status === 'Atrasada' ? 'border-red-200' : 'border-brand-border'
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <button
+                  type="button"
+                  onClick={() => toggleTask(task.id)}
+                  aria-label={task.completed ? 'Marcar como pendente' : 'Marcar como concluída'}
+                  className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${
+                    task.completed
+                      ? 'border-brand-success bg-brand-success text-white'
+                      : 'border-brand-border text-transparent'
+                  }`}
+                >
+                  <Check size={14} />
+                </button>
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className={`font-bold ${task.completed ? 'text-brand-muted line-through' : 'text-brand-ink'}`}>
+                      {task.title}
+                    </p>
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${getStatusStyle(status)}`}>
+                      {status}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm text-brand-muted">{task.description}</p>
+                  <p className="mt-2 text-xs text-brand-muted">
+                    {task.category} · Responsável: {task.responsible}
+                  </p>
+                  <p className="mt-1 text-xs text-brand-muted">{formatDate(task.date)}</p>
+                </div>
+              </div>
+              <div className={`flex items-center gap-2 text-sm font-semibold sm:pl-4 ${status === 'Atrasada' ? 'text-brand-danger' : 'text-brand-muted'}`}>
+                {status === 'Atrasada' ? <AlertTriangle size={16} /> : <Clock3 size={16} />}
+                {task.time}
               </div>
             </div>
-            <div className="flex items-center gap-2 text-sm font-semibold text-brand-muted sm:pl-4">
-              <Clock3 size={16} />
-              {task.time}
-            </div>
-          </div>
-        ))}
+          )
+        })}
         {!tasks.length && (
           <EmptyState title="Nenhuma atividade cadastrada" description="Adicione um lembrete para organizar a rotina." />
         )}
@@ -543,6 +587,11 @@ export default function Dashboard({ role }: DashboardProps) {
                 <span className="text-xs font-bold uppercase tracking-wide text-brand-primary">{record.category}</span>
                 <h3 className="mt-1 font-bold text-brand-ink">{record.title}</h3>
                 <p className="mt-2 text-sm text-brand-muted">{record.description}</p>
+                {record.sourceTaskId !== undefined && (
+                  <span className="mt-3 inline-flex rounded-full bg-brand-pink-light px-2.5 py-1 text-xs font-semibold text-brand-primary">
+                    Registro da rotina
+                  </span>
+                )}
               </div>
               <div className="text-sm text-brand-muted sm:text-right">
                 <p>{formatDate(record.date)}</p>
@@ -552,6 +601,9 @@ export default function Dashboard({ role }: DashboardProps) {
             </div>
           </div>
         ))}
+        {!records.length && (
+          <EmptyState title="Nenhum registro" description="Os registros realizados aparecerão aqui." />
+        )}
       </div>
     )
   }
@@ -630,13 +682,11 @@ export default function Dashboard({ role }: DashboardProps) {
     return (
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <MetricCard icon={ClipboardList} label="Atividades do dia" value={String(tasks.length)} detail="Na rotina cadastrada" />
+          <MetricCard icon={ClipboardList} label="Atividades" value={String(tasks.length)} detail="Na rotina cadastrada" />
           <MetricCard icon={Check} label="Concluídas" value={String(completedTasks.length)} detail="Atividades registradas" />
-          <MetricCard icon={Clock3} label="Pendentes" value={String(pendingTasks.length)} detail="Aguardando registro" />
+          <MetricCard icon={AlertTriangle} label="Atrasadas" value={String(overdueTasks.length)} detail="Precisam de atenção" />
           <MetricCard icon={CalendarDays} label="Compromissos" value={String(appointments.length)} detail="Na agenda demonstrativa" />
         </div>
-
-        {role === 'familiar' && <PessoasAcompanhadas />}
 
         <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
           <section className="rounded-2xl border border-brand-border bg-white p-5 sm:p-6">
@@ -814,21 +864,22 @@ export default function Dashboard({ role }: DashboardProps) {
             <div className="relative">
               <button type="button" onClick={() => { setNotificationsOpen(!notificationsOpen); setProfileOpen(false) }} className="relative rounded-xl p-2.5 text-brand-muted transition hover:bg-brand-pink-light hover:text-brand-primary" aria-label="Notificações">
                 <Bell size={20} />
-                {!readNotifications && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-brand-pink" />}
+                {!readNotifications && notifications.length > 0 && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-brand-pink" />}
               </button>
               {notificationsOpen && (
-                <div className="absolute right-0 top-14 w-80 rounded-2xl border border-brand-border bg-white p-4 shadow-xl">
-                  <div className="flex items-center justify-between">
+                <div className="absolute right-0 top-14 z-30 w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-brand-border bg-white p-4 shadow-xl">
+                  <div className="flex items-center justify-between gap-3">
                     <h3 className="font-bold text-brand-ink">Notificações</h3>
                     <button type="button" onClick={() => setReadNotifications(true)} className="text-xs font-bold text-brand-primary">Marcar como lidas</button>
                   </div>
                   <div className="mt-4 space-y-4">
                     {notifications.map((notification) => (
-                      <div key={notification.title} className="border-b border-brand-border pb-3 last:border-0">
-                        <p className="text-sm font-bold text-brand-ink">{notification.title}</p>
+                      <div key={notification.id} className="border-b border-brand-border pb-3 last:border-0">
+                        <p className={`text-sm font-bold ${notification.type === 'overdue' ? 'text-brand-danger' : 'text-brand-ink'}`}>{notification.title}</p>
                         <p className="mt-1 text-xs leading-5 text-brand-muted">{notification.description}</p>
                       </div>
                     ))}
+                    {!notifications.length && <p className="py-3 text-sm text-brand-muted">Nenhuma notificação no momento.</p>}
                   </div>
                 </div>
               )}
@@ -847,7 +898,7 @@ export default function Dashboard({ role }: DashboardProps) {
                 <ChevronDown size={16} className="hidden text-brand-muted sm:block" />
               </button>
               {profileOpen && (
-                <div className="absolute right-0 top-14 w-52 rounded-2xl border border-brand-border bg-white p-2 shadow-xl">
+                <div className="absolute right-0 top-14 z-30 w-52 rounded-2xl border border-brand-border bg-white p-2 shadow-xl">
                   <button type="button" onClick={() => { setProfileOpen(false); openModal('settings') }} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-brand-muted hover:bg-brand-background">
                     <Settings size={17} />
                     Preferências
@@ -921,7 +972,7 @@ export default function Dashboard({ role }: DashboardProps) {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="mb-2 block text-sm font-bold text-brand-ink">Título</label>
-                  <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm outline-none transition focus:border-brand-primary" placeholder="Digite um título" />
+                  <input required value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} className="w-full rounded-xl border border-brand-border px-4 py-3 text-sm outline-none transition focus:border-brand-primary" placeholder="Digite um título" />
                 </div>
 
                 <div>
@@ -940,11 +991,11 @@ export default function Dashboard({ role }: DashboardProps) {
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
                       <label className="mb-2 block text-sm font-bold text-brand-ink">Data</label>
-                      <input type="date" value={form.date} onChange={(event) => setForm({ ...form, date: event.target.value })} className="w-full rounded-xl border border-brand-border px-3 py-3 text-sm outline-none focus:border-brand-primary" />
+                      <input required type="date" min={getToday()} value={form.date} onChange={(event) => setForm({ ...form, date: event.target.value })} className="w-full rounded-xl border border-brand-border px-3 py-3 text-sm outline-none focus:border-brand-primary" />
                     </div>
                     <div>
                       <label className="mb-2 block text-sm font-bold text-brand-ink">Horário</label>
-                      <input type="time" value={form.time} onChange={(event) => setForm({ ...form, time: event.target.value })} className="w-full rounded-xl border border-brand-border px-3 py-3 text-sm outline-none focus:border-brand-primary" />
+                      <input required type="time" value={form.time} onChange={(event) => setForm({ ...form, time: event.target.value })} className="w-full rounded-xl border border-brand-border px-3 py-3 text-sm outline-none focus:border-brand-primary" />
                     </div>
                   </div>
                 )}

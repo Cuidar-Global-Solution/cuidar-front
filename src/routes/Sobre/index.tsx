@@ -5,7 +5,7 @@ import {
   ArrowUpRight,
   CalendarCheck,
   ClipboardList,
-  Clock3,
+  Clock,
   Compass,
   Eye,
   HandHeart,
@@ -107,7 +107,7 @@ export default function Sobre() {
             </article>
 
             <article className="rounded-2xl border border-brand-border p-7">
-              <Clock3 size={28} className="text-brand-primary" />
+              <Clock size={28} className="text-brand-primary" />
 
               <h3 className="mt-5 text-xl font-semibold">
                 Rotina exigente
@@ -260,7 +260,7 @@ export default function Sobre() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10">
+  <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10">
         <div className="max-w-2xl">
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-brand-pink">
             Nossos princípios
