@@ -58,6 +58,7 @@ type Appointment = {
 
 type RecordItem = {
   id: number
+  sourceTaskId?: number
   title: string
   description: string
   category: string
@@ -129,6 +130,13 @@ function getToday() {
   const month = String(now.getMonth() + 1).padStart(2, '0')
   const day = String(now.getDate()).padStart(2, '0')
   return `${year}-${month}-${day}`
+}
+
+function getCurrentTime() {
+  return new Date().toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 }
 
 function formatDate(date: string) {
@@ -357,11 +365,45 @@ export default function Dashboard({ role }: DashboardProps) {
   }
 
   function toggleTask(id: number) {
+    const task = tasks.find((item) => item.id === id)
+    if (!task) return
+
+    const willComplete = !task.completed
+
     setTasks((current) =>
-      current.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task,
+      current.map((item) =>
+        item.id === id ? { ...item, completed: willComplete } : item,
       ),
     )
+
+    if (willComplete) {
+      const completedAt = new Date()
+
+      const automaticRecord: RecordItem = {
+        id: Date.now(),
+        sourceTaskId: task.id,
+        title: task.title,
+        description: task.description || 'Atividade da rotina marcada como concluída.',
+        category: task.category,
+        date: getToday(),
+        time: completedAt.toLocaleTimeString('pt-BR', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+        responsible: task.responsible || userName,
+      }
+
+      setRecords((current) => [
+        automaticRecord,
+        ...current.filter((record) => record.sourceTaskId !== task.id),
+      ])
+    } else {
+      setRecords((current) =>
+        current.filter((record) => record.sourceTaskId !== task.id),
+      )
+    }
+
+    setReadNotifications(false)
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -408,10 +450,7 @@ export default function Dashboard({ role }: DashboardProps) {
           description: form.description.trim(),
           category: form.category,
           date: getToday(),
-          time: new Date().toLocaleTimeString('pt-BR', {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
+          time: getCurrentTime(),
           responsible: userName,
         },
         ...current,
@@ -549,6 +588,11 @@ export default function Dashboard({ role }: DashboardProps) {
                 <span className="text-xs font-bold uppercase tracking-wide text-brand-primary">{record.category}</span>
                 <h3 className="mt-1 font-bold text-brand-ink">{record.title}</h3>
                 <p className="mt-2 text-sm text-brand-muted">{record.description}</p>
+                {record.sourceTaskId !== undefined && (
+                  <span className="mt-3 inline-flex rounded-full bg-brand-pink-light px-2.5 py-1 text-xs font-semibold text-brand-primary">
+                    Registro da rotina
+                  </span>
+                )}
               </div>
               <div className="text-sm text-brand-muted sm:text-right">
                 <p>{formatDate(record.date)}</p>
