@@ -17,15 +17,15 @@ export default function Integrantes() {
               Nossa equipe
             </span>
 
-            <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+            <h1 className="mt-6 text-4xl font-bold leading-tight tracking-tight text-brand-dark sm:text-5xl lg:text-6xl">
               Pessoas por trás de uma ideia que{' '}
               <span className="text-brand-pink">conecta o cuidado.</span>
             </h1>
 
             <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-brand-muted sm:text-lg">
-              Conheça quem está desenvolvendo o Cuidar+ e as diferentes
-              perspectivas que contribuem para tornar o cuidado mais
-              organizado, acessível e próximo das pessoas.
+              Conheça a equipe responsável pelo desenvolvimento do Cuidar+,
+              uma proposta que busca tornar a organização dos cuidados mais
+              simples, acessível e compartilhada.
             </p>
           </div>
         </div>
@@ -37,12 +37,12 @@ export default function Integrantes() {
             <span className="text-sm font-bold uppercase tracking-[0.18em] text-brand-primary">
               Quem faz acontecer
             </span>
-            <h2 className="text-2xl font-bold sm:text-3xl">
+            <h2 className="text-2xl font-bold text-brand-dark sm:text-3xl">
               Conheça os integrantes
             </h2>
             <p className="text-sm leading-7 text-brand-muted sm:text-base">
-              Acesse o perfil de cada integrante para conhecer sua trajetória
-              e participação no projeto.
+              Acesse o perfil de cada integrante para conhecer sua trajetória,
+              habilidades e participação no projeto.
             </p>
           </div>
 
@@ -60,7 +60,7 @@ export default function Integrantes() {
                   />
                 </div>
 
-                <h3 className="max-w-xs text-lg font-bold leading-snug">
+                <h3 className="max-w-xs text-lg font-bold leading-snug text-brand-dark">
                   {member.name}
                 </h3>
 
@@ -87,9 +87,9 @@ export default function Integrantes() {
             Uma ideia construída em conjunto.
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/70 sm:text-base">
-            O Cuidar+ nasceu da colaboração e do compromisso de desenvolver
-            uma proposta que contribua para uma rotina de cuidados mais
-            conectada.
+            O Cuidar+ é resultado do trabalho colaborativo de uma equipe
+            dedicada a desenvolver uma solução que aproxime pessoas e
+            contribua para uma rotina de cuidados mais organizada.
           </p>
           <Link
             to="/solucao"
