@@ -18,6 +18,7 @@ import DashboardCuidador from "./routes/DashboardCuidador";
 import DashboardPessoa from "./routes/DashboardPessoa";
 import Conecta from './routes/Conecta'
 import CadastroPessoa from './routes/CadastroPessoa'
+import { ProtectedDashboard } from './auth/Session'
 
 function App() {
   const location = useLocation();
@@ -47,9 +48,15 @@ function App() {
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/cadastro/familiar" element={<CadastroFamiliar />} />
           <Route path="/cadastro/cuidador" element={<CadastroCuidador />} />
-          <Route path="/dashboard/familiar" element={<DashboardFamiliar />} />
-          <Route path="/dashboard/cuidador" element={<DashboardCuidador />} />
-          <Route path="/dashboard/pessoa" element={<DashboardPessoa />} />
+          <Route element={<ProtectedDashboard perfil="FAMILIAR" />}>
+            <Route path="/dashboard/familiar" element={<DashboardFamiliar />} />
+          </Route>
+          <Route element={<ProtectedDashboard perfil="PROFISSIONAL" />}>
+            <Route path="/dashboard/cuidador" element={<DashboardCuidador />} />
+          </Route>
+          <Route element={<ProtectedDashboard perfil="ACOMPANHADO" />}>
+            <Route path="/dashboard/pessoa" element={<DashboardPessoa />} />
+          </Route>
           <Route path="/conecta" element={<Conecta />} />
           <Route path="/cadastro/pessoa" element={<CadastroPessoa />} />
         </Routes>

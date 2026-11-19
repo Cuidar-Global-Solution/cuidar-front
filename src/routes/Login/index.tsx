@@ -1,6 +1,8 @@
 
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate, useLocation } from 'react-router-dom'
+import { SessionStatus, useSession } from '../../auth/Session'
+import { dashboards } from '../../services/auth'
 import {
   ArrowLeft,
   Eye,
@@ -16,31 +18,39 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [feedback, setFeedback] = useState('')
-  const [hasError, setHasError] = useState(false)
+  const [enviando, setEnviando] = useState(false)
+  const { state } = useLocation()
+  const { entrar, sessao, carregando, erro, aviso } = useSession()
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (enviando) return
     setFeedback('')
-    setHasError(false)
 
     const normalizedEmail = email.trim()
 
     if (!normalizedEmail || !password.trim()) {
       setFeedback('Preencha seu e-mail e sua senha.')
-      setHasError(true)
       return
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       setFeedback('Informe um endereço de e-mail válido.')
-      setHasError(true)
       return
     }
 
-    setFeedback(
-      'Validação concluída. O acesso à sua conta estará disponível após a integração com o sistema de autenticação.'
-    )
+    setEnviando(true)
+    try {
+      await entrar(normalizedEmail, password)
+    } catch (error) {
+      setFeedback((error as Error).message)
+    } finally {
+      setEnviando(false)
+    }
   }
+
+  if (carregando || erro) return <SessionStatus />
+  if (sessao) return <Navigate to={dashboards[sessao.conta.perfil]} replace />
 
   return (
     <main className="flex min-h-screen bg-brand-background lg:h-dvh lg:min-h-0 lg:overflow-hidden">
@@ -114,6 +124,9 @@ export default function Login() {
             </p>
           </div>
 
+          {state?.contaCriada && (
+            <p role="status" className="mt-4 text-sm text-brand-success">Conta criada. Entre com seu e-mail e sua senha.</p>
+          )}
           <form onSubmit={handleSubmit} className="mt-7 space-y-5">
             <div>
               <label htmlFor="email" className="mb-2 block text-sm font-bold text-brand-ink">
@@ -173,25 +186,22 @@ export default function Login() {
               </div>
             </div>
 
-            {feedback && (
+            {(feedback || aviso) && (
               <p
                 role="alert"
                 aria-live="polite"
-                className={`rounded-xl px-4 py-3 text-sm leading-6 ${
-                  hasError
-                    ? 'bg-red-50 text-brand-danger'
-                    : 'bg-brand-pink-light text-brand-primary'
-                }`}
+                className="rounded-xl bg-red-50 px-4 py-3 text-sm leading-6 text-brand-danger"
               >
-                {feedback}
+                {feedback || aviso}
               </p>
             )}
 
             <button
               type="submit"
+              disabled={enviando}
               className="w-full rounded-full bg-brand-primary py-4 text-sm font-bold text-white shadow-sm transition hover:bg-brand-dark focus:outline-none focus:ring-4 focus:ring-brand-primary/20"
             >
-              Entrar
+              {enviando ? 'Entrando...' : 'Entrar'}
             </button>
           </form>
 

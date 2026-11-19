@@ -2,7 +2,6 @@
 import { useState, type FormEvent } from 'react'
 import {
   ArrowLeft,
-  CheckCircle2,
   Eye,
   EyeOff,
   Heart,
@@ -11,7 +10,8 @@ import {
   Phone,
   UserRound,
 } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { cadastrarConta } from '../../services/auth'
 
 type FormErrors = {
   nome?: string
@@ -42,10 +42,15 @@ export default function CadastroFamiliar() {
   const [mostrarSenha, setMostrarSenha] = useState(false)
   const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false)
   const [errors, setErrors] = useState<FormErrors>({})
-  const [submitted, setSubmitted] = useState(false)
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const [erro, setErro] = useState('')
+  const [enviando, setEnviando] = useState(false)
+  const navigate = useNavigate()
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (enviando) return
+    setErro('')
 
     const newErrors: FormErrors = {}
 
@@ -53,11 +58,11 @@ export default function CadastroFamiliar() {
       newErrors.nome = 'Informe seu nome completo.'
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       newErrors.email = 'Informe um e-mail válido.'
     }
 
-    if (telefone.replace(/\D/g, '').length < 10) {
+    if (telefone && telefone.replace(/\D/g, '').length < 10) {
       newErrors.telefone = 'Informe um telefone válido.'
     }
 
@@ -70,7 +75,17 @@ export default function CadastroFamiliar() {
     }
 
     setErrors(newErrors)
-    setSubmitted(Object.keys(newErrors).length === 0)
+    if (Object.keys(newErrors).length > 0) return
+
+    setEnviando(true)
+    try {
+      await cadastrarConta({ nome: nome.trim(), email: email.trim(), senha, perfil: 'FAMILIAR' })
+      navigate('/login', { replace: true, state: { contaCriada: true } })
+    } catch (error) {
+      setErro((error as Error).message)
+    } finally {
+      setEnviando(false)
+    }
   }
 
   const inputClass = (hasError: boolean) =>
@@ -164,7 +179,7 @@ export default function CadastroFamiliar() {
                   value={nome}
                   onChange={(event) => {
                     setNome(event.target.value)
-                    setSubmitted(false)
+                    setErro('')
                   }}
                   placeholder="Digite seu nome completo"
                   aria-invalid={!!errors.nome}
@@ -188,7 +203,7 @@ export default function CadastroFamiliar() {
                   value={email}
                   onChange={(event) => {
                     setEmail(event.target.value)
-                    setSubmitted(false)
+                    setErro('')
                   }}
                   placeholder="seuemail@exemplo.com"
                   aria-invalid={!!errors.email}
@@ -200,7 +215,7 @@ export default function CadastroFamiliar() {
 
             <div>
               <label htmlFor="telefone" className="mb-2 block text-sm font-semibold text-brand-ink">
-                Telefone
+                Telefone (opcional)
               </label>
               <div className="relative">
                 <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted" />
@@ -213,7 +228,7 @@ export default function CadastroFamiliar() {
                   value={telefone}
                   onChange={(event) => {
                     setTelefone(formatPhone(event.target.value))
-                    setSubmitted(false)
+                    setErro('')
                   }}
                   placeholder="(00) 00000-0000"
                   aria-invalid={!!errors.telefone}
@@ -237,7 +252,7 @@ export default function CadastroFamiliar() {
                   value={senha}
                   onChange={(event) => {
                     setSenha(event.target.value)
-                    setSubmitted(false)
+                    setErro('')
                   }}
                   placeholder="Crie uma senha"
                   aria-invalid={!!errors.senha}
@@ -272,7 +287,7 @@ export default function CadastroFamiliar() {
                   value={confirmarSenha}
                   onChange={(event) => {
                     setConfirmarSenha(event.target.value)
-                    setSubmitted(false)
+                    setErro('')
                   }}
                   placeholder="Digite sua senha novamente"
                   aria-invalid={!!errors.confirmarSenha}
@@ -290,20 +305,15 @@ export default function CadastroFamiliar() {
               {errors.confirmarSenha && <p className="mt-1.5 text-xs text-brand-danger">{errors.confirmarSenha}</p>}
             </div>
 
-            {submitted && (
-              <div role="status" className="flex items-start gap-3 rounded-xl border border-brand-success/20 bg-brand-success/5 p-4">
-                <CheckCircle2 size={19} className="mt-0.5 shrink-0 text-brand-success" />
-                <p className="text-sm leading-6 text-brand-ink">
-                  Seus dados foram validados. O cadastro ainda precisa ser conectado à API para criar sua conta.
-                </p>
-              </div>
-            )}
+            <p className="text-xs text-brand-muted">O cadastro da conta salva nome, e-mail e perfil. O telefone não é enviado.</p>
+            {erro && <p role="alert" className="text-sm text-brand-danger">{erro}</p>}
 
             <button
               type="submit"
+              disabled={enviando}
               className="w-full rounded-xl bg-brand-primary px-5 py-3.5 text-sm font-bold text-white transition hover:bg-brand-dark focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/20"
             >
-              Criar conta
+              {enviando ? 'Criando conta...' : 'Criar conta'}
             </button>
           </form>
 

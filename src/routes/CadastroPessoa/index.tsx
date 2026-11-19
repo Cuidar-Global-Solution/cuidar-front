@@ -1,6 +1,7 @@
 
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { cadastrarConta } from '../../services/auth'
 import {
   ArrowLeft,
   ArrowRight,
@@ -37,8 +38,13 @@ export default function CadastroPessoa() {
     setErro('')
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const [enviando, setEnviando] = useState(false)
+  const navigate = useNavigate()
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (enviando) return
+    setErro('')
 
     if (form.senha.length < 8) {
       setErro('A senha deve ter pelo menos 8 caracteres.')
@@ -50,7 +56,15 @@ export default function CadastroPessoa() {
       return
     }
 
-    setErro('O cadastro ainda precisa ser conectado à API do Cuidar+.')
+    setEnviando(true)
+    try {
+      await cadastrarConta({ nome: form.nome.trim(), email: form.email.trim(), senha: form.senha, perfil: 'ACOMPANHADO' })
+      navigate('/login', { replace: true, state: { contaCriada: true } })
+    } catch (error) {
+      setErro((error as Error).message)
+    } finally {
+      setEnviando(false)
+    }
   }
 
   return (
@@ -266,9 +280,10 @@ export default function CadastroPessoa() {
 
             <button
               type="submit"
+              disabled={enviando}
               className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-primary px-6 text-sm font-bold text-white transition hover:bg-brand-dark focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/20"
             >
-              Criar minha conta
+              {enviando ? 'Criando conta...' : 'Criar minha conta'}
               <ArrowRight size={17} />
             </button>
           </form>

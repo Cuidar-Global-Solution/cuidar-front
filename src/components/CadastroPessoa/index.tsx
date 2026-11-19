@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Check, Plus, X } from 'lucide-react'
+import { useSession } from '../../auth/Session'
+import { ApiError } from '../../services/api'
 import {
   cadastrarPessoaAcompanhada,
   type PessoaAcompanhada,
@@ -11,7 +13,6 @@ const formularioVazio = {
   observacao: '',
   tamanhoFonte: '16',
   altoContraste: 'N' as 'S' | 'N',
-  usuarioId: '',
 }
 
 const campo = 'w-full rounded-xl border border-brand-border bg-brand-background px-4 py-3 text-sm text-brand-ink outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-lavender/30'
@@ -25,6 +26,7 @@ export default function CadastroPessoa({
   onCadastrada: (pessoa: PessoaAcompanhada) => void
 }) {
   const dialog = useRef<HTMLDialogElement>(null)
+  const { sessao, expirar } = useSession()
   const enviandoRef = useRef(false)
   const [aberto, setAberto] = useState(false)
   const [formulario, setFormulario] = useState(formularioVazio)
@@ -45,7 +47,7 @@ export default function CadastroPessoa({
 
   async function enviar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (enviandoRef.current) return
+    if (enviandoRef.current || !sessao) return
     setErro('')
     if (!formulario.nome.trim()) {
       setErro('Informe o nome da pessoa acompanhada.')
@@ -61,14 +63,18 @@ export default function CadastroPessoa({
         observacao: formulario.observacao.trim() || null,
         tamanhoFonte: Number(formulario.tamanhoFonte),
         altoContraste: formulario.altoContraste,
-        usuarioId: formulario.usuarioId ? Number(formulario.usuarioId) : null,
-      })
+        usuarioId: null,
+      }, sessao.token)
       onCadastrada(pessoa)
       setFormulario(formularioVazio)
       dialog.current?.close()
       setAberto(false)
     } catch (error) {
-      setErro(error instanceof Error ? error.message : 'Não foi possível cadastrar a pessoa.')
+      if (error instanceof ApiError && error.status === 401) {
+        expirar(sessao.token)
+      } else {
+        setErro(error instanceof Error ? error.message : 'Não foi possível cadastrar a pessoa.')
+      }
     } finally {
       enviandoRef.current = false
       setEnviando(false)
@@ -131,10 +137,6 @@ export default function CadastroPessoa({
                   <option value="S">Sim</option>
                 </select>
               </div>
-            </div>
-            <div>
-              <label htmlFor="pessoa-usuario" className={rotulo}>ID do usuário vinculado (opcional)</label>
-              <input id="pessoa-usuario" type="number" min={1} max={9999999999} step={1} value={formulario.usuarioId} onChange={(event) => setFormulario({ ...formulario, usuarioId: event.target.value })} className={campo} />
             </div>
           </fieldset>
           {erro && <p role="alert" className="whitespace-pre-line text-sm text-brand-danger">{erro}</p>}
