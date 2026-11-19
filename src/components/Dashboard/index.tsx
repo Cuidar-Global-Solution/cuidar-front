@@ -16,7 +16,6 @@ import {
   Heart,
   LayoutDashboard,
   LogOut,
-  Menu,
   Plus,
   Settings,
   ShieldAlert,
@@ -213,7 +212,6 @@ export default function Dashboard({ role }: DashboardProps) {
   const records = registrosDaConta?.registros ?? []
   const resumoDisponivel = registrosDaConta !== null && !registrosDaConta.erro
   const [modal, setModal] = useState<'appointment' | 'settings' | null>(null)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [readNotifications, setReadNotifications] = useState(false)
@@ -272,7 +270,6 @@ export default function Dashboard({ role }: DashboardProps) {
 
   function changeSection(section: Section) {
     setActiveSection(section)
-    setMobileMenuOpen(false)
     setNotificationsOpen(false)
     setProfileOpen(false)
   }
@@ -545,15 +542,12 @@ export default function Dashboard({ role }: DashboardProps) {
 
   return (
     <div className="min-h-screen bg-brand-background text-brand-ink">
-      <aside className={`fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-brand-border bg-white transition-transform lg:translate-x-0 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-brand-border bg-white lg:flex">
         <div className="flex h-20 items-center justify-between border-b border-brand-border px-6">
           <div>
             <span className="text-2xl font-extrabold text-brand-dark">Cuidar<span className="text-brand-pink">+</span></span>
             <p className="mt-0.5 text-xs text-brand-muted">{profile.title}</p>
           </div>
-          <button type="button" onClick={() => setMobileMenuOpen(false)} className="rounded-lg p-2 text-brand-muted hover:bg-brand-pink-light lg:hidden" aria-label="Fechar menu">
-            <X size={20} />
-          </button>
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-4 py-6">
@@ -595,16 +589,9 @@ export default function Dashboard({ role }: DashboardProps) {
         </div>
       </aside>
 
-      {mobileMenuOpen && (
-        <button type="button" aria-label="Fechar menu" onClick={() => setMobileMenuOpen(false)} className="fixed inset-0 z-30 bg-black/30 lg:hidden" />
-      )}
-
       <div className="min-h-screen lg:pl-72">
         <header className="sticky top-0 z-20 flex h-20 items-center justify-between border-b border-brand-border bg-white/95 px-4 backdrop-blur sm:px-8">
           <div className="flex items-center gap-3">
-            <button type="button" onClick={() => setMobileMenuOpen(true)} className="rounded-xl p-2 text-brand-muted hover:bg-brand-pink-light lg:hidden" aria-label="Abrir menu">
-              <Menu size={22} />
-            </button>
             <div>
               <p className="text-sm font-bold text-brand-ink">{profile.title}</p>
               <p className="hidden text-xs text-brand-muted sm:block">{profile.description}</p>
@@ -667,7 +654,7 @@ export default function Dashboard({ role }: DashboardProps) {
           </div>
         </header>
 
-        <main className="mx-auto max-w-7xl px-4 py-7 sm:px-8 sm:py-9">
+        <main className="mx-auto max-w-7xl px-4 py-7 pb-32 sm:px-8 sm:py-9 sm:pb-32 lg:pb-9">
           <div className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <p className="mb-2 text-sm font-bold text-brand-primary">Olá, {userName.split(' ')[0]}!</p>
@@ -683,6 +670,42 @@ export default function Dashboard({ role }: DashboardProps) {
           </p>
         </main>
       </div>
+
+      <nav
+        aria-label="Navegação principal"
+        className="fixed bottom-4 left-1/2 z-40 grid w-[calc(100%-1.5rem)] max-w-lg -translate-x-1/2 grid-cols-6 gap-1 rounded-full border border-brand-border bg-white/95 p-2 shadow-xl backdrop-blur lg:hidden"
+      >
+        {profile.navigation.map((item) => {
+          const Icon = item.icon
+          const active = activeSection === item.label
+          const label =
+            item.label === 'Rede de apoio'
+              ? 'Rede'
+              : item.label === 'Emergência'
+                ? 'Ajuda'
+                : item.label
+
+          return (
+            <button
+              key={item.label}
+              type="button"
+              onClick={() => changeSection(item.label)}
+              aria-label={item.label}
+              aria-current={active ? 'page' : undefined}
+              className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-full px-0.5 py-2 transition ${
+                active
+                  ? 'bg-brand-pink-light text-brand-primary'
+                  : 'text-brand-muted hover:bg-brand-background hover:text-brand-primary'
+              }`}
+            >
+              <Icon size={19} />
+              <span className="w-full truncate text-center text-[9px] font-semibold sm:text-[10px]">
+                {label}
+              </span>
+            </button>
+          )
+        })}
+      </nav>
 
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/40 p-4">
