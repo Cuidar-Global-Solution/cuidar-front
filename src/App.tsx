@@ -31,9 +31,6 @@ function App() {
   const isDashboardPage = location.pathname.startsWith("/dashboard");
 
   const showPublicLayout = !isAuthPage && !isDashboardPage;
-
-  return (
-    <>
       
 return (
   <SessionProvider>
@@ -79,8 +76,7 @@ return (
 
 
       {showPublicLayout && <Footer />}
-    </>
-  );
+
 }
 
 export default App;
