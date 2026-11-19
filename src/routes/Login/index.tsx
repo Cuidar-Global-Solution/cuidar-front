@@ -149,18 +149,7 @@ export default function Login() {
             </div>
 
             <div>
-              <div className="mb-2 flex items-center justify-between gap-3">
-                <label htmlFor="password" className="text-sm font-bold text-brand-ink">
-                  Senha
-                </label>
-
-                <Link
-                  to="/recuperar-senha"
-                  className="text-xs font-bold text-brand-primary transition hover:text-brand-pink sm:text-sm"
-                >
-                  Esqueceu a senha?
-                </Link>
-              </div>
+             
 
               <div className="flex items-center gap-3 rounded-xl border border-brand-border bg-white px-4 transition focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary/10">
                 <LockKeyhole size={18} className="shrink-0 text-brand-muted" />
