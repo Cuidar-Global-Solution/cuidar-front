@@ -256,7 +256,8 @@ Os serviços estão separados na pasta `src/services`, incluindo arquivos destin
 
 O vídeo apresenta a proposta do Cuidar+, suas principais funcionalidades, os perfis de acesso e a demonstração da aplicação.
 
-**YouTube:** [Adicionar link do vídeo]
+**YouTube:** https://youtu.be/rtLToGb0z1k  
+
 
 ## Integrantes
 
