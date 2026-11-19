@@ -3,7 +3,6 @@ import { useState, type FormEvent } from 'react'
 import {
   ArrowLeft,
   BriefcaseBusiness,
-  CheckCircle2,
   Eye,
   EyeOff,
   Heart,
@@ -14,14 +13,14 @@ import {
   UserRound,
   CalendarDays,
 } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { cadastrarConta } from '../../services/auth'
 
 type FormErrors = {
   nome?: string
   email?: string
   telefone?: string
   regiao?: string
-  experiencia?: string
   servicos?: string
   disponibilidade?: string
   senha?: string
@@ -54,25 +53,39 @@ export default function CadastroCuidador() {
   const [mostrarSenha, setMostrarSenha] = useState(false)
   const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false)
   const [errors, setErrors] = useState<FormErrors>({})
-  const [submitted, setSubmitted] = useState(false)
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const [erro, setErro] = useState('')
+  const [enviando, setEnviando] = useState(false)
+  const navigate = useNavigate()
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (enviando) return
+    setErro('')
 
     const newErrors: FormErrors = {}
 
     if (nome.trim().length < 3) newErrors.nome = 'Informe seu nome completo.'
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) newErrors.email = 'Informe um e-mail válido.'
-    if (telefone.replace(/\D/g, '').length < 10) newErrors.telefone = 'Informe um telefone válido.'
-    if (regiao.trim().length < 2) newErrors.regiao = 'Informe sua região de atendimento.'
-    if (!experiencia) newErrors.experiencia = 'Selecione seu tempo de experiência.'
-    if (servicos.trim().length < 3) newErrors.servicos = 'Descreva os serviços que você oferece.'
-    if (disponibilidade.trim().length < 3) newErrors.disponibilidade = 'Informe sua disponibilidade.'
+    if (telefone && telefone.replace(/\D/g, '').length < 10) newErrors.telefone = 'Informe um telefone válido.'
+    if (regiao && regiao.trim().length < 2) newErrors.regiao = 'Informe sua região de atendimento.'
+    if (servicos && servicos.trim().length < 3) newErrors.servicos = 'Descreva os serviços que você oferece.'
+    if (disponibilidade && disponibilidade.trim().length < 3) newErrors.disponibilidade = 'Informe sua disponibilidade.'
     if (senha.length < 8) newErrors.senha = 'A senha deve ter pelo menos 8 caracteres.'
     if (confirmarSenha !== senha || !confirmarSenha) newErrors.confirmarSenha = 'As senhas precisam ser iguais.'
 
     setErrors(newErrors)
-    setSubmitted(Object.keys(newErrors).length === 0)
+    if (Object.keys(newErrors).length > 0) return
+
+    setEnviando(true)
+    try {
+      await cadastrarConta({ nome: nome.trim(), email: email.trim(), senha, perfil: 'PROFISSIONAL' })
+      navigate('/login', { replace: true, state: { contaCriada: true } })
+    } catch (error) {
+      setErro((error as Error).message)
+    } finally {
+      setEnviando(false)
+    }
   }
 
   const inputClass = (hasError: boolean) =>
@@ -142,11 +155,11 @@ export default function CadastroCuidador() {
             </span>
 
             <h2 className="mt-3 text-2xl font-bold leading-tight sm:text-3xl lg:text-4xl">
-              Crie seu perfil profissional
+              Crie sua conta profissional
             </h2>
 
             <p className="mt-3 text-sm leading-6 text-brand-muted sm:leading-7">
-              Informe seus dados, sua experiência e as condições de atendimento.
+              Informe nome, e-mail e senha. Os campos de contato e atendimento são opcionais e ficam fora do cadastro da conta.
             </p>
           </div>
 
@@ -163,7 +176,7 @@ export default function CadastroCuidador() {
                   value={nome}
                   onChange={(event) => {
                     setNome(event.target.value)
-                    setSubmitted(false)
+                    setErro('')
                   }}
                   placeholder="Digite seu nome completo"
                   aria-invalid={!!errors.nome}
@@ -185,7 +198,7 @@ export default function CadastroCuidador() {
                   value={email}
                   onChange={(event) => {
                     setEmail(event.target.value)
-                    setSubmitted(false)
+                    setErro('')
                   }}
                   placeholder="seuemail@exemplo.com"
                   aria-invalid={!!errors.email}
@@ -208,7 +221,7 @@ export default function CadastroCuidador() {
                   value={telefone}
                   onChange={(event) => {
                     setTelefone(formatPhone(event.target.value))
-                    setSubmitted(false)
+                    setErro('')
                   }}
                   placeholder="(00) 00000-0000"
                   aria-invalid={!!errors.telefone}
@@ -230,7 +243,7 @@ export default function CadastroCuidador() {
                   value={regiao}
                   onChange={(event) => {
                     setRegiao(event.target.value)
-                    setSubmitted(false)
+                    setErro('')
                   }}
                   placeholder="Informe cidade ou bairro"
                   aria-invalid={!!errors.regiao}
@@ -250,14 +263,11 @@ export default function CadastroCuidador() {
                   value={experiencia}
                   onChange={(event) => {
                     setExperiencia(event.target.value)
-                    setSubmitted(false)
+                    setErro('')
                   }}
-                  aria-invalid={!!errors.experiencia}
-                  className={`w-full appearance-none rounded-xl border bg-white py-3.5 pl-11 pr-4 text-sm text-brand-ink outline-none transition focus:ring-4 focus:ring-brand-primary/10 ${
-                    errors.experiencia ? 'border-brand-danger' : 'border-brand-border focus:border-brand-primary'
-                  }`}
+                  className="w-full appearance-none rounded-xl border border-brand-border bg-white py-3.5 pl-11 pr-4 text-sm text-brand-ink outline-none transition focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10"
                 >
-                  <option value="" disabled>Selecione seu tempo de experiência</option>
+                  <option value="">Selecione seu tempo de experiência</option>
                   <option value="sem-experiencia">Ainda não tenho experiência</option>
                   <option value="menos-1-ano">Menos de 1 ano</option>
                   <option value="1-3-anos">De 1 a 3 anos</option>
@@ -265,7 +275,6 @@ export default function CadastroCuidador() {
                   <option value="mais-5-anos">Mais de 5 anos</option>
                 </select>
               </div>
-              {errors.experiencia && <p className="mt-1.5 text-xs text-brand-danger">{errors.experiencia}</p>}
             </div>
 
             <div>
@@ -279,7 +288,7 @@ export default function CadastroCuidador() {
                 value={formacao}
                 onChange={(event) => {
                   setFormacao(event.target.value)
-                  setSubmitted(false)
+                  setErro('')
                 }}
                 placeholder="Informe cursos, capacitações ou formação na área."
                 className={textareaClass(false)}
@@ -295,7 +304,7 @@ export default function CadastroCuidador() {
                 value={servicos}
                 onChange={(event) => {
                   setServicos(event.target.value)
-                  setSubmitted(false)
+                  setErro('')
                 }}
                 placeholder="Descreva os serviços de cuidado que você oferece."
                 aria-invalid={!!errors.servicos}
@@ -315,7 +324,7 @@ export default function CadastroCuidador() {
                   value={disponibilidade}
                   onChange={(event) => {
                     setDisponibilidade(event.target.value)
-                    setSubmitted(false)
+                    setErro('')
                   }}
                   placeholder="Informe os dias e horários em que pode atender."
                   aria-invalid={!!errors.disponibilidade}
@@ -337,7 +346,7 @@ export default function CadastroCuidador() {
                   value={senha}
                   onChange={(event) => {
                     setSenha(event.target.value)
-                    setSubmitted(false)
+                    setErro('')
                   }}
                   placeholder="Crie uma senha"
                   aria-invalid={!!errors.senha}
@@ -368,7 +377,7 @@ export default function CadastroCuidador() {
                   value={confirmarSenha}
                   onChange={(event) => {
                     setConfirmarSenha(event.target.value)
-                    setSubmitted(false)
+                    setErro('')
                   }}
                   placeholder="Digite sua senha novamente"
                   aria-invalid={!!errors.confirmarSenha}
@@ -392,20 +401,14 @@ export default function CadastroCuidador() {
               </p>
             </div>
 
-            {submitted && (
-              <div role="status" className="flex items-start gap-3 rounded-xl border border-brand-success/20 bg-brand-success/5 p-4">
-                <CheckCircle2 size={19} className="mt-0.5 shrink-0 text-brand-success" />
-                <p className="text-sm leading-6 text-brand-ink">
-                  Seus dados foram validados. A criação da conta e a publicação do perfil ainda dependem da integração com a API.
-                </p>
-              </div>
-            )}
+            {erro && <p role="alert" className="text-sm text-brand-danger">{erro}</p>}
 
             <button
               type="submit"
+              disabled={enviando}
               className="w-full rounded-xl bg-brand-primary px-5 py-3.5 text-sm font-bold text-white transition hover:bg-brand-dark focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-primary/20"
             >
-              Criar perfil profissional
+              {enviando ? 'Criando conta...' : 'Criar conta profissional'}
             </button>
           </form>
 

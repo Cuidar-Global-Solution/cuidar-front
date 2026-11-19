@@ -1,16 +1,18 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import RedeApoio from './RedeApoio'
+import RotinaCuidados from './RotinaCuidados'
+import { useEffect, useState, type FormEvent } from 'react'
 import CadastroPessoa from '../CadastroPessoa'
-import {
-  listarPessoasAcompanhadas,
-  type PessoaAcompanhada,
-} from '../../services/pessoasAcompanhadas'
+import { useSession } from '../../auth/Session'
+import { ApiError } from '../../services/api'
+import { listarRegistrosDaConta, statusLabels, type RegistroCuidado } from '../../services/registrosCuidado'
+import PreferenciasPessoa from './PreferenciasPessoa'
+import { usePessoasAcompanhadas } from './usePessoasAcompanhadas'
 import {
   Bell,
   CalendarDays,
   Check,
   ChevronDown,
   ClipboardList,
-  Clock3,
   Heart,
   LayoutDashboard,
   LogOut,
@@ -20,7 +22,6 @@ import {
   ShieldAlert,
   UsersRound,
   X,
-  UserRound,
   FileText,
   AlertTriangle,
   type LucideIcon,
@@ -40,17 +41,6 @@ type Section =
   | 'Rede de apoio'
   | 'Emergência'
 
-type CareItem = {
-  id: number
-  title: string
-  description: string
-  category: string
-  date: string
-  time: string
-  completed: boolean
-  responsible: string
-}
-
 type Appointment = {
   id: number
   title: string
@@ -60,24 +50,12 @@ type Appointment = {
   location: string
 }
 
-type RecordItem = {
-  id: number
-  sourceTaskId?: number
-  title: string
-  description: string
-  category: string
-  date: string
-  time: string
-  responsible: string
-}
-
 type ProfileConfig = {
   title: string
   description: string
   navigation: { label: Section; icon: LucideIcon }[]
   greeting: string
   overview: string
-  primaryAction: string
 }
 
 const profiles: Record<DashboardRole, ProfileConfig> = {
@@ -86,7 +64,6 @@ const profiles: Record<DashboardRole, ProfileConfig> = {
     description: 'Organize e acompanhe os cuidados.',
     greeting: 'Como estão os cuidados hoje?',
     overview: 'Acompanhe a rotina, os compromissos e os registros de quem você acompanha.',
-    primaryAction: 'Novo lembrete',
     navigation: [
       { label: 'Início', icon: LayoutDashboard },
       { label: 'Rotina', icon: ClipboardList },
@@ -101,7 +78,6 @@ const profiles: Record<DashboardRole, ProfileConfig> = {
     description: 'Organize seus atendimentos e registros.',
     greeting: 'Sua rotina de cuidados',
     overview: 'Consulte os atendimentos, acompanhe as tarefas autorizadas e registre os cuidados realizados.',
-    primaryAction: 'Adicionar registro',
     navigation: [
       { label: 'Início', icon: LayoutDashboard },
       { label: 'Rotina', icon: ClipboardList },
@@ -116,7 +92,6 @@ const profiles: Record<DashboardRole, ProfileConfig> = {
     description: 'Sua rotina, suas escolhas.',
     greeting: 'Olá! Como você está hoje?',
     overview: 'Consulte seus compromissos, acompanhe sua rotina e escolha o que deseja compartilhar.',
-    primaryAction: 'Adicionar registro',
     navigation: [
       { label: 'Início', icon: LayoutDashboard },
       { label: 'Rotina', icon: ClipboardList },
@@ -136,13 +111,6 @@ function getToday() {
   return `${year}-${month}-${day}`
 }
 
-function getCurrentTime() {
-  return new Date().toLocaleTimeString('pt-BR', {
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
 function formatDate(date: string) {
   if (!date) return ''
   return new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', {
@@ -150,28 +118,6 @@ function formatDate(date: string) {
     month: 'long',
     year: 'numeric',
   })
-}
-
-function getRoleName(role: DashboardRole) {
-  if (role === 'familiar') return 'Ana Martins'
-  if (role === 'cuidador') return 'Renata Costa'
-  return 'Maria Oliveira'
-}
-
-function getTaskStatus(task: CareItem) {
-  if (task.completed) return 'Concluída'
-
-  const dueDate = new Date(`${task.date}T${task.time}:00`)
-  if (dueDate.getTime() < Date.now()) return 'Atrasada'
-
-  return task.date > getToday() ? 'Agendada' : 'Pendente'
-}
-
-function getStatusStyle(status: string) {
-  if (status === 'Concluída') return 'bg-green-50 text-brand-success'
-  if (status === 'Atrasada') return 'bg-red-50 text-brand-danger'
-  if (status === 'Agendada') return 'bg-blue-50 text-blue-700'
-  return 'bg-brand-pink-light text-brand-primary'
 }
 
 const categories = [
@@ -184,59 +130,6 @@ const categories = [
   'Atividades físicas e mobilidade',
   'Alertas',
   'Bem-estar',
-]
-
-const initialTasks: CareItem[] = [
-  {
-    id: 1,
-    title: 'Medicamento da manhã',
-    description: 'Conforme prescrição cadastrada',
-    category: 'Medicamentos',
-    date: getToday(),
-    time: '08:00',
-    completed: true,
-    responsible: 'Ana Martins',
-  },
-  {
-    id: 2,
-    title: 'Café da manhã',
-    description: 'Registro da refeição',
-    category: 'Alimentação',
-    date: getToday(),
-    time: '08:30',
-    completed: true,
-    responsible: 'Ana Martins',
-  },
-  {
-    id: 3,
-    title: 'Hidratação',
-    description: 'Registrar o consumo de água',
-    category: 'Hidratação',
-    date: getToday(),
-    time: '10:00',
-    completed: false,
-    responsible: 'João Martins',
-  },
-  {
-    id: 4,
-    title: 'Caminhada leve',
-    description: 'Atividade acompanhada',
-    category: 'Atividades físicas e mobilidade',
-    date: getToday(),
-    time: '14:00',
-    completed: false,
-    responsible: 'Renata Costa',
-  },
-  {
-    id: 5,
-    title: 'Medicamento da noite',
-    description: 'Conforme prescrição cadastrada',
-    category: 'Medicamentos',
-    date: getToday(),
-    time: '20:00',
-    completed: false,
-    responsible: 'Ana Martins',
-  },
 ]
 
 const initialAppointments: Appointment[] = [
@@ -258,48 +151,8 @@ const initialAppointments: Appointment[] = [
   },
 ]
 
-const initialRecords: RecordItem[] = [
-  {
-    id: 1,
-    title: 'Rotina da manhã concluída',
-    description: 'Medicação e café da manhã registrados.',
-    category: 'Rotina',
-    date: getToday(),
-    time: '09:00',
-    responsible: 'Ana Martins',
-  },
-  {
-    id: 2,
-    title: 'Hidratação registrada',
-    description: 'Consumo de água registrado durante a manhã.',
-    category: 'Hidratação',
-    date: getToday(),
-    time: '10:15',
-    responsible: 'João Martins',
-  },
-]
-
-function PessoasAcompanhadas() {
-  const [pessoas, setPessoas] = useState<PessoaAcompanhada[]>([])
-  const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState(false)
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    listarPessoasAcompanhadas(controller.signal)
-      .then((resultado) => {
-        if (!controller.signal.aborted) setPessoas(resultado)
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) setErro(true)
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setCarregando(false)
-      })
-
-    return () => controller.abort()
-  }, [])
+function PessoasAcompanhadas({ token }: { token: string }) {
+  const { pessoas, setPessoas, carregando, erro } = usePessoasAcompanhadas(token)
 
   return (
     <section className="rounded-2xl border border-brand-border bg-white p-5 sm:p-6">
@@ -310,7 +163,7 @@ function PessoasAcompanhadas() {
         )}
         {erro && (
           <p role="alert" className="text-sm text-brand-danger">
-            Não foi possível carregar as pessoas acompanhadas.
+            {erro}
           </p>
         )}
         {!carregando && !erro && pessoas.length === 0 && (
@@ -334,13 +187,32 @@ function PessoasAcompanhadas() {
 
 export default function Dashboard({ role }: DashboardProps) {
   const profile = profiles[role]
-  const userName = getRoleName(role)
+  const { sessao, sair, expirar } = useSession()
+  const userName = sessao?.conta.nome ?? ''
+  const [saindo, setSaindo] = useState(false)
+  const [erroLogout, setErroLogout] = useState('')
+
+  async function encerrarSessao() {
+    if (saindo) return
+    setSaindo(true)
+    setErroLogout('')
+    try {
+      await sair()
+    } catch (error) {
+      setErroLogout(`Não foi possível revogar a sessão. ${(error as Error).message}`)
+    } finally {
+      setSaindo(false)
+    }
+  }
 
   const [activeSection, setActiveSection] = useState<Section>('Início')
-  const [tasks, setTasks] = useState(initialTasks)
   const [appointments, setAppointments] = useState(initialAppointments)
-  const [records, setRecords] = useState(initialRecords)
-  const [modal, setModal] = useState<'reminder' | 'record' | 'appointment' | 'settings' | null>(null)
+  const token = sessao?.token
+  const [resumo, setResumo] = useState<{ token: string; registros: RegistroCuidado[]; erro?: string } | null>(null)
+  const registrosDaConta = resumo?.token === token ? resumo : null
+  const records = registrosDaConta?.registros ?? []
+  const resumoDisponivel = registrosDaConta !== null && !registrosDaConta.erro
+  const [modal, setModal] = useState<'appointment' | 'settings' | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
@@ -355,46 +227,48 @@ export default function Dashboard({ role }: DashboardProps) {
     location: '',
   })
 
-  const pendingTasks = tasks.filter((task) => !task.completed)
-  const completedTasks = tasks.filter((task) => task.completed)
-  const overdueTasks = tasks.filter((task) => getTaskStatus(task) === 'Atrasada')
+  useEffect(() => {
+    if (!token || (activeSection !== 'Início' && activeSection !== 'Histórico' && !notificationsOpen)) return
+    let controller: AbortController | undefined
+    function atualizar() {
+      const atual = new AbortController()
+      controller?.abort()
+      controller = atual
+      if (!token) return
+      listarRegistrosDaConta(token, atual.signal)
+        .then((registros) => {
+          if (!atual.signal.aborted) setResumo({ token, registros })
+        })
+        .catch((error: unknown) => {
+          if (atual.signal.aborted) return
+          if (error instanceof ApiError && error.status === 401) expirar(token)
+          else setResumo({ token, registros: [], erro: error instanceof Error ? error.message : 'Falha ao carregar registros.' })
+        })
+    }
+    atualizar()
+    window.addEventListener('focus', atualizar)
+    const intervalo = window.setInterval(atualizar, 10000)
+    return () => {
+      controller?.abort()
+      window.removeEventListener('focus', atualizar)
+      window.clearInterval(intervalo)
+    }
+  }, [token, expirar, activeSection, notificationsOpen])
 
-  const completion = useMemo(() => {
-    if (!tasks.length) return 0
-    return Math.round((completedTasks.length / tasks.length) * 100)
-  }, [tasks, completedTasks.length])
-
-  const notifications = useMemo(() => {
-    const items = tasks
-      .filter((task) => !task.completed)
-      .map((task) => {
-        const status = getTaskStatus(task)
-
-        if (status === 'Atrasada') {
-          return {
-            id: `overdue-${task.id}`,
-            title: 'Atividade atrasada',
-            description: `${task.title} — prevista para ${formatDate(task.date)} às ${task.time}.`,
-            type: 'overdue',
-          }
-        }
-
-        return null
-      })
-      .filter((item) => item !== null)
-
-    const upcoming = tasks
-      .filter((task) => !task.completed && getTaskStatus(task) !== 'Atrasada')
-      .slice(0, 2)
-      .map((task) => ({
-        id: `pending-${task.id}`,
-        title: 'Lembrete pendente',
-        description: `${task.title} — ${formatDate(task.date)} às ${task.time}.`,
-        type: 'pending',
-      }))
-
-    return [...items, ...upcoming]
-  }, [tasks])
+  const pendingTasks = records.filter(({ status }) => status === 'PENDENTE')
+  const completedTasks = records.filter(({ status }) => status === 'CONCLUIDO' || status === 'TOMADA')
+  const overdueTasks = pendingTasks.filter(({ dataPrevista }) => dataPrevista && new Date(dataPrevista).getTime() < Date.now())
+  const completion = records.length ? Math.round((completedTasks.length / records.length) * 100) : 0
+  const notifications = pendingTasks.filter(({ dataPrevista }) => dataPrevista).map((registro) => {
+    const data = new Date(registro.dataPrevista as string)
+    const atrasado = data.getTime() < Date.now()
+    return {
+      id: registro.id,
+      title: atrasado ? 'Atividade atrasada' : 'Lembrete pendente',
+      description: registro.titulo + ' · ' + data.toLocaleString('pt-BR'),
+      type: atrasado ? 'overdue' : 'pending',
+    }
+  })
 
   function changeSection(section: Section) {
     setActiveSection(section)
@@ -403,7 +277,7 @@ export default function Dashboard({ role }: DashboardProps) {
     setProfileOpen(false)
   }
 
-  function openModal(type: 'reminder' | 'record' | 'appointment' | 'settings') {
+  function openModal(type: 'appointment' | 'settings') {
     setForm({
       title: '',
       description: '',
@@ -421,48 +295,6 @@ export default function Dashboard({ role }: DashboardProps) {
     setMessage('')
   }
 
-  function toggleTask(id: number) {
-    const task = tasks.find((item) => item.id === id)
-    if (!task) return
-
-    const willComplete = !task.completed
-
-    setTasks((current) =>
-      current.map((item) =>
-        item.id === id ? { ...item, completed: willComplete } : item,
-      ),
-    )
-
-    if (willComplete) {
-      const completedAt = new Date()
-
-      const automaticRecord: RecordItem = {
-        id: Date.now(),
-        sourceTaskId: task.id,
-        title: task.title,
-        description: task.description || 'Atividade da rotina marcada como concluída.',
-        category: task.category,
-        date: getToday(),
-        time: completedAt.toLocaleTimeString('pt-BR', {
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
-        responsible: task.responsible || userName,
-      }
-
-      setRecords((current) => [
-        automaticRecord,
-        ...current.filter((record) => record.sourceTaskId !== task.id),
-      ])
-    } else {
-      setRecords((current) =>
-        current.filter((record) => record.sourceTaskId !== task.id),
-      )
-    }
-
-    setReadNotifications(false)
-  }
-
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
@@ -471,7 +303,7 @@ export default function Dashboard({ role }: DashboardProps) {
       return
     }
 
-    if (modal === 'reminder' || modal === 'appointment') {
+    if (modal === 'appointment') {
       if (!form.date || !form.time) {
         setMessage('Informe a data e o horário.')
         return
@@ -481,37 +313,6 @@ export default function Dashboard({ role }: DashboardProps) {
         setMessage('Escolha uma data e horário futuros.')
         return
       }
-    }
-
-    if (modal === 'reminder') {
-      const newTask: CareItem = {
-        id: Date.now(),
-        title: form.title.trim(),
-        description: form.description.trim(),
-        category: form.category,
-        date: form.date,
-        time: form.time,
-        completed: false,
-        responsible: userName,
-      }
-
-      setTasks((current) => [newTask, ...current])
-      setReadNotifications(false)
-    }
-
-    if (modal === 'record') {
-      setRecords((current) => [
-        {
-          id: Date.now(),
-          title: form.title.trim(),
-          description: form.description.trim(),
-          category: form.category,
-          date: getToday(),
-          time: getCurrentTime(),
-          responsible: userName,
-        },
-        ...current,
-      ])
     }
 
     if (modal === 'appointment') {
@@ -528,7 +329,7 @@ export default function Dashboard({ role }: DashboardProps) {
       ])
     }
 
-    setMessage('Informação adicionada nesta demonstração.')
+    setMessage('Compromisso adicionado apenas a esta demonstração.')
     window.setTimeout(() => {
       setModal(null)
       setMessage('')
@@ -547,67 +348,11 @@ export default function Dashboard({ role }: DashboardProps) {
       Rotina: 'Consulte atividades, organize lembretes e registre o que aconteceu.',
       Agenda: 'Visualize consultas, exames e outros compromissos.',
       Histórico: 'Consulte os registros realizados e quem os adicionou.',
-      'Rede de apoio': 'Veja as pessoas envolvidas no cuidado e as informações compartilhadas.',
+      'Rede de apoio': role === 'cuidador' ? 'Consulte seus convites e vínculos profissionais.' : 'Consulte o acesso profissional ao cuidado.',
       Emergência: 'Consulte os contatos de confiança e as orientações para pedir ajuda.',
     }
 
     return descriptions[activeSection]
-  }
-
-  function renderTasks() {
-    return (
-      <div className="space-y-3">
-        {tasks.map((task) => {
-          const status = getTaskStatus(task)
-
-          return (
-            <div
-              key={task.id}
-              className={`flex flex-col gap-3 rounded-2xl border bg-white p-4 sm:flex-row sm:items-center sm:justify-between ${
-                status === 'Atrasada' ? 'border-red-200' : 'border-brand-border'
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                <button
-                  type="button"
-                  onClick={() => toggleTask(task.id)}
-                  aria-label={task.completed ? 'Marcar como pendente' : 'Marcar como concluída'}
-                  className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${
-                    task.completed
-                      ? 'border-brand-success bg-brand-success text-white'
-                      : 'border-brand-border text-transparent'
-                  }`}
-                >
-                  <Check size={14} />
-                </button>
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className={`font-bold ${task.completed ? 'text-brand-muted line-through' : 'text-brand-ink'}`}>
-                      {task.title}
-                    </p>
-                    <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${getStatusStyle(status)}`}>
-                      {status}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-sm text-brand-muted">{task.description}</p>
-                  <p className="mt-2 text-xs text-brand-muted">
-                    {task.category} · Responsável: {task.responsible}
-                  </p>
-                  <p className="mt-1 text-xs text-brand-muted">{formatDate(task.date)}</p>
-                </div>
-              </div>
-              <div className={`flex items-center gap-2 text-sm font-semibold sm:pl-4 ${status === 'Atrasada' ? 'text-brand-danger' : 'text-brand-muted'}`}>
-                {status === 'Atrasada' ? <AlertTriangle size={16} /> : <Clock3 size={16} />}
-                {task.time}
-              </div>
-            </div>
-          )
-        })}
-        {!tasks.length && (
-          <EmptyState title="Nenhuma atividade cadastrada" description="Adicione um lembrete para organizar a rotina." />
-        )}
-      </div>
-    )
   }
 
   function renderAppointments() {
@@ -635,64 +380,29 @@ export default function Dashboard({ role }: DashboardProps) {
     )
   }
 
-  function renderRecords() {
+  function renderRecords(itens = records) {
+    if (!registrosDaConta) return <p role="status" className="text-sm text-brand-muted">Carregando registros...</p>
+    if (registrosDaConta.erro) return <p role="alert" className="text-sm text-brand-danger">{registrosDaConta.erro}</p>
+    if (!itens.length) return <EmptyState title="Nenhum registro" description="Os registros autorizados aparecerão aqui." />
     return (
       <div className="space-y-3">
-        {records.map((record) => (
-          <div key={record.id} className="rounded-2xl border border-brand-border bg-white p-5">
-            <div className="flex flex-col justify-between gap-2 sm:flex-row">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wide text-brand-primary">{record.category}</span>
-                <h3 className="mt-1 font-bold text-brand-ink">{record.title}</h3>
-                <p className="mt-2 text-sm text-brand-muted">{record.description}</p>
-                {record.sourceTaskId !== undefined && (
-                  <span className="mt-3 inline-flex rounded-full bg-brand-pink-light px-2.5 py-1 text-xs font-semibold text-brand-primary">
-                    Registro da rotina
+        {itens.map((record) => {
+          const data = record.dataRealizado ?? record.dataPrevista
+          return (
+            <div key={record.id} className="rounded-2xl border border-brand-border bg-white p-5">
+              <div className="flex flex-col justify-between gap-2 sm:flex-row">
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wide text-brand-primary">
+                    {statusLabels[record.status] ?? record.status}
                   </span>
-                )}
-              </div>
-              <div className="text-sm text-brand-muted sm:text-right">
-                <p>{formatDate(record.date)}</p>
-                <p className="mt-1">{record.time}</p>
-                <p className="mt-1">Por {record.responsible}</p>
+                  <h3 className="mt-1 font-bold text-brand-ink">{record.titulo}</h3>
+                  {record.detalhe && <p className="mt-2 text-sm text-brand-muted">{record.detalhe}</p>}
+                </div>
+                {data && <time dateTime={data} className="text-sm text-brand-muted">{new Date(data).toLocaleString('pt-BR')}</time>}
               </div>
             </div>
-          </div>
-        ))}
-        {!records.length && (
-          <EmptyState title="Nenhum registro" description="Os registros realizados aparecerão aqui." />
-        )}
-      </div>
-    )
-  }
-
-  function renderSupport() {
-    const members = [
-      { name: 'Ana Martins', role: 'Familiar', status: 'Acesso ativo' },
-      { name: 'João Martins', role: 'Familiar', status: 'Acesso ativo' },
-      { name: 'Renata Costa', role: 'Cuidadora profissional', status: 'Acesso autorizado' },
-    ]
-
-    return (
-      <div className="grid gap-3 md:grid-cols-2">
-        {members.map((member) => (
-          <div key={member.name} className="flex items-center gap-4 rounded-2xl border border-brand-border bg-white p-5">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-pink-light text-brand-primary">
-              <UserRound size={22} />
-            </div>
-            <div>
-              <h3 className="font-bold text-brand-ink">{member.name}</h3>
-              <p className="mt-1 text-sm text-brand-muted">{member.role}</p>
-              <p className="mt-1 text-xs font-semibold text-brand-success">{member.status}</p>
-            </div>
-          </div>
-        ))}
-        <div className="rounded-2xl border border-dashed border-brand-border bg-white p-5 md:col-span-2">
-          <p className="font-bold text-brand-ink">Compartilhamento de informações</p>
-          <p className="mt-2 text-sm leading-6 text-brand-muted">
-            As permissões de visualização e registro devem ser definidas pela pessoa acompanhada ou por quem possui autorização para gerenciar o vínculo.
-          </p>
-        </div>
+          )
+        })}
       </div>
     )
   }
@@ -740,13 +450,13 @@ export default function Dashboard({ role }: DashboardProps) {
     return (
       <div className="space-y-6">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <MetricCard icon={ClipboardList} label="Atividades" value={String(tasks.length)} detail="Na rotina cadastrada" />
-          <MetricCard icon={Check} label="Concluídas" value={String(completedTasks.length)} detail="Atividades registradas" />
-          <MetricCard icon={AlertTriangle} label="Atrasadas" value={String(overdueTasks.length)} detail="Precisam de atenção" />
+          <MetricCard icon={ClipboardList} label="Atividades" value={resumoDisponivel ? String(records.length) : '—'} detail="Na rotina cadastrada" />
+          <MetricCard icon={Check} label="Concluídas" value={resumoDisponivel ? String(completedTasks.length) : '—'} detail="Atividades registradas" />
+          <MetricCard icon={AlertTriangle} label="Atrasadas" value={resumoDisponivel ? String(overdueTasks.length) : '—'} detail="Precisam de atenção" />
           <MetricCard icon={CalendarDays} label="Compromissos" value={String(appointments.length)} detail="Na agenda demonstrativa" />
         </div>
 
-        {role === 'familiar' && <PessoasAcompanhadas />}
+        {role === 'familiar' && sessao && <PessoasAcompanhadas key={sessao.token} token={sessao.token} />}
 
         <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
           <section className="rounded-2xl border border-brand-border bg-white p-5 sm:p-6">
@@ -755,19 +465,19 @@ export default function Dashboard({ role }: DashboardProps) {
                 <h3 className="font-bold text-brand-ink">Progresso da rotina</h3>
                 <p className="mt-1 text-sm text-brand-muted">Atividades marcadas como concluídas</p>
               </div>
-              <span className="text-xl font-bold text-brand-primary">{completion}%</span>
+              <span className="text-xl font-bold text-brand-primary">{resumoDisponivel ? `${completion}%` : '—'}</span>
             </div>
             <div className="mt-5 h-3 overflow-hidden rounded-full bg-brand-pink-light">
               <div className="h-full rounded-full bg-brand-primary transition-all" style={{ width: `${completion}%` }} />
             </div>
             <div className="mt-6 flex items-center justify-between text-sm">
-              <span className="text-brand-muted">{completedTasks.length} concluídas</span>
-              <span className="font-semibold text-brand-ink">{pendingTasks.length} pendentes</span>
+              <span className="text-brand-muted">{resumoDisponivel ? completedTasks.length : '—'} concluídas</span>
+              <span className="font-semibold text-brand-ink">{resumoDisponivel ? pendingTasks.length : '—'} pendentes</span>
             </div>
           </section>
 
           <section className="rounded-2xl border border-brand-border bg-white p-5 sm:p-6">
-            <h3 className="font-bold text-brand-ink">Próximos compromissos</h3>
+            <h3 className="font-bold text-brand-ink">Próximos compromissos · demonstração</h3>
             <div className="mt-4 space-y-4">
               {appointments.slice(0, 3).map((appointment) => (
                 <div key={appointment.id} className="flex gap-3">
@@ -800,7 +510,7 @@ export default function Dashboard({ role }: DashboardProps) {
               Ver rotina
             </button>
           </div>
-          {renderTasks()}
+          {renderRecords(records.slice(0, 5))}
         </section>
       </div>
     )
@@ -810,32 +520,13 @@ export default function Dashboard({ role }: DashboardProps) {
     if (activeSection === 'Início') return renderOverview()
 
     if (activeSection === 'Rotina') {
-      return (
-        <div className="space-y-5">
-          <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={() => openModal('reminder')} className="rounded-xl bg-brand-primary px-4 py-3 text-sm font-bold text-white hover:bg-brand-dark">
-              <Plus className="mr-2 inline" size={17} />
-              Novo lembrete
-            </button>
-            <button type="button" onClick={() => openModal('record')} className="rounded-xl border border-brand-border bg-white px-4 py-3 text-sm font-bold text-brand-primary hover:bg-brand-pink-light">
-              <Plus className="mr-2 inline" size={17} />
-              Adicionar registro
-            </button>
-          </div>
-          <div className="rounded-2xl border border-brand-border bg-white p-5 sm:p-6">
-            <div className="mb-5">
-              <h3 className="font-bold text-brand-ink">Atividades cadastradas</h3>
-              <p className="mt-1 text-sm text-brand-muted">Marque quando uma atividade estiver concluída ou registrada.</p>
-            </div>
-            {renderTasks()}
-          </div>
-        </div>
-      )
+      return sessao && <RotinaCuidados key={sessao.token} token={sessao.token} perfil={role} />
     }
 
     if (activeSection === 'Agenda') {
       return (
         <div className="space-y-5">
+          <p className="text-sm text-brand-muted">Agenda demonstrativa. Os compromissos adicionados ficam nesta página até a recarga.</p>
           <button type="button" onClick={() => openModal('appointment')} className="rounded-xl bg-brand-primary px-4 py-3 text-sm font-bold text-white hover:bg-brand-dark">
             <Plus className="mr-2 inline" size={17} />
             Novo compromisso
@@ -846,7 +537,7 @@ export default function Dashboard({ role }: DashboardProps) {
     }
 
     if (activeSection === 'Histórico') return renderRecords()
-    if (activeSection === 'Rede de apoio') return renderSupport()
+    if (activeSection === 'Rede de apoio') return sessao && <RedeApoio key={sessao.token} token={sessao.token} perfil={role} />
     if (activeSection === 'Emergência') return renderEmergency()
 
     return null
@@ -930,7 +621,7 @@ export default function Dashboard({ role }: DashboardProps) {
                 <div className="absolute right-0 top-14 z-30 w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-brand-border bg-white p-4 shadow-xl">
                   <div className="flex items-center justify-between gap-3">
                     <h3 className="font-bold text-brand-ink">Notificações</h3>
-                    <button type="button" onClick={() => setReadNotifications(true)} className="text-xs font-bold text-brand-primary">Marcar como lidas</button>
+                    <button type="button" onClick={() => setReadNotifications(true)} className="text-xs font-bold text-brand-primary">Marcar como lidas nesta página</button>
                   </div>
                   <div className="mt-4 space-y-4">
                     {notifications.map((notification) => (
@@ -939,7 +630,9 @@ export default function Dashboard({ role }: DashboardProps) {
                         <p className="mt-1 text-xs leading-5 text-brand-muted">{notification.description}</p>
                       </div>
                     ))}
-                    {!notifications.length && <p className="py-3 text-sm text-brand-muted">Nenhuma notificação no momento.</p>}
+                    {!registrosDaConta && <p role="status" className="py-3 text-sm text-brand-muted">Carregando notificações...</p>}
+                    {registrosDaConta?.erro && <p role="alert" className="py-3 text-sm text-brand-danger">{registrosDaConta.erro}</p>}
+                    {resumoDisponivel && !notifications.length && <p className="py-3 text-sm text-brand-muted">Nenhuma notificação no momento.</p>}
                   </div>
                 </div>
               )}
@@ -963,10 +656,11 @@ export default function Dashboard({ role }: DashboardProps) {
                     <Settings size={17} />
                     Preferências
                   </button>
-                  <button type="button" onClick={() => window.location.href = '/login'} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-brand-danger hover:bg-red-50">
+                  <button type="button" onClick={encerrarSessao} disabled={saindo} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-brand-danger hover:bg-red-50">
                     <LogOut size={17} />
-                    Sair da conta
+                    {saindo ? 'Saindo...' : 'Sair da conta'}
                   </button>
+                  {erroLogout && <p role="alert" className="px-3 pb-2 text-sm text-brand-danger">{erroLogout}</p>}
                 </div>
               )}
             </div>
@@ -980,18 +674,12 @@ export default function Dashboard({ role }: DashboardProps) {
               <h1 className="text-2xl font-extrabold text-brand-dark sm:text-3xl">{getSectionTitle()}</h1>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-brand-muted">{getSectionDescription()}</p>
             </div>
-            {activeSection === 'Rotina' && (
-              <button type="button" onClick={() => openModal(role === 'familiar' ? 'reminder' : 'record')} className="rounded-xl bg-brand-primary px-4 py-3 text-sm font-bold text-white hover:bg-brand-dark">
-                <Plus className="mr-2 inline" size={17} />
-                {profile.primaryAction}
-              </button>
-            )}
           </div>
 
           {renderSection()}
 
           <p className="mt-8 text-center text-xs text-brand-muted">
-            Cuidar+ · Dados demonstrativos para visualização da interface.
+            Cuidar+
           </p>
         </main>
       </div>
@@ -1002,13 +690,11 @@ export default function Dashboard({ role }: DashboardProps) {
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-xl font-extrabold text-brand-dark">
-                  {modal === 'reminder' && 'Novo lembrete'}
-                  {modal === 'record' && 'Adicionar registro'}
                   {modal === 'appointment' && 'Novo compromisso'}
                   {modal === 'settings' && 'Configurações'}
                 </h2>
                 <p className="mt-1 text-sm text-brand-muted">
-                  {modal === 'settings' ? 'Preferências de demonstração.' : 'Preencha as informações abaixo.'}
+                  {modal === 'settings' ? 'Preferências de acessibilidade por pessoa.' : 'Preencha as informações abaixo.'}
                 </p>
               </div>
               <button type="button" onClick={closeModal} className="rounded-xl p-2 text-brand-muted hover:bg-brand-background" aria-label="Fechar">
@@ -1017,17 +703,7 @@ export default function Dashboard({ role }: DashboardProps) {
             </div>
 
             {modal === 'settings' ? (
-              <div className="space-y-4">
-                <div className="rounded-xl bg-brand-background p-4">
-                  <p className="font-bold text-brand-ink">Acessibilidade</p>
-                  <p className="mt-1 text-sm text-brand-muted">As preferências avançadas de contraste e tamanho de texto ainda precisam ser integradas.</p>
-                </div>
-                <div className="rounded-xl bg-brand-background p-4">
-                  <p className="font-bold text-brand-ink">Privacidade e compartilhamento</p>
-                  <p className="mt-1 text-sm text-brand-muted">O gerenciamento real de permissões depende da integração com a API.</p>
-                </div>
-                <button type="button" onClick={closeModal} className="w-full rounded-xl bg-brand-primary px-5 py-3 font-bold text-white">Fechar</button>
-              </div>
+              sessao && <PreferenciasPessoa key={sessao.token} token={sessao.token} familiar={role === 'familiar'} />
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -1047,7 +723,7 @@ export default function Dashboard({ role }: DashboardProps) {
                   <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} rows={3} className="w-full resize-none rounded-xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary" placeholder="Adicione detalhes, se necessário." />
                 </div>
 
-                {modal !== 'record' && (
+                {modal === 'appointment' && (
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
                       <label className="mb-2 block text-sm font-bold text-brand-ink">Data</label>
