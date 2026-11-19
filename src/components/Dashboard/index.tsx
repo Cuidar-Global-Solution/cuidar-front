@@ -172,7 +172,7 @@ function PessoasAcompanhadas({ token }: { token: string }) {
         {pessoas.length > 0 && (
           <ul className="space-y-2 text-sm font-semibold text-brand-ink">
             {pessoas.map((pessoa) => (
-              <li key={pessoa.id} className="break-words">{pessoa.nome}</li>
+              <li key={pessoa.id} className="wrap-break-word">{pessoa.nome}</li>
             ))}
           </ul>
         )}
