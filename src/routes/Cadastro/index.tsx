@@ -95,7 +95,7 @@ export default function Cadastro() {
         <div className="pointer-events-none absolute -bottom-24 -left-16 h-64 w-64 rounded-full border border-white/10" />
       </section>
 
-      <section className="flex min-h-screen w-full items-center justify-center px-4 py-8 sm:px-8 sm:py-10 lg:h-full lg:min-h-0 lg:w-1/2 lg:overflow-y-auto lg:px-10 lg:py-8 xl:px-16">
+      <section className="flex min-h-screen w-full items-start justify-center px-4 py-8 sm:px-8 sm:py-10 lg:h-full lg:min-h-0 lg:w-1/2 lg:overflow-y-auto lg:px-10 lg:py-8 xl:px-16">
         <div className="w-full max-w-lg">
           <Link
             to="/"
