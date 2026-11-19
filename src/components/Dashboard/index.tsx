@@ -1,4 +1,9 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import CadastroPessoa from '../CadastroPessoa'
+import {
+  listarPessoasAcompanhadas,
+  type PessoaAcompanhada,
+} from '../../services/pessoasAcompanhadas'
 import {
   Bell,
   CalendarDays,
@@ -273,6 +278,59 @@ const initialRecords: RecordItem[] = [
     responsible: 'João Martins',
   },
 ]
+
+function PessoasAcompanhadas() {
+  const [pessoas, setPessoas] = useState<PessoaAcompanhada[]>([])
+  const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState(false)
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    listarPessoasAcompanhadas(controller.signal)
+      .then((resultado) => {
+        if (!controller.signal.aborted) setPessoas(resultado)
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setErro(true)
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setCarregando(false)
+      })
+
+    return () => controller.abort()
+  }, [])
+
+  return (
+    <section className="rounded-2xl border border-brand-border bg-white p-5 sm:p-6">
+      <h3 className="font-bold text-brand-ink">Pessoas acompanhadas</h3>
+      <div className="mt-4" aria-live="polite" aria-busy={carregando}>
+        {carregando && (
+          <p className="text-sm text-brand-muted">Carregando pessoas acompanhadas...</p>
+        )}
+        {erro && (
+          <p role="alert" className="text-sm text-brand-danger">
+            Não foi possível carregar as pessoas acompanhadas.
+          </p>
+        )}
+        {!carregando && !erro && pessoas.length === 0 && (
+          <p className="text-sm text-brand-muted">Nenhuma pessoa acompanhada encontrada.</p>
+        )}
+        {pessoas.length > 0 && (
+          <ul className="space-y-2 text-sm font-semibold text-brand-ink">
+            {pessoas.map((pessoa) => (
+              <li key={pessoa.id} className="break-words">{pessoa.nome}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <CadastroPessoa
+        disabled={carregando}
+        onCadastrada={(pessoa) => setPessoas((atuais) => [...atuais, pessoa])}
+      />
+    </section>
+  )
+}
 
 export default function Dashboard({ role }: DashboardProps) {
   const profile = profiles[role]
@@ -687,6 +745,8 @@ export default function Dashboard({ role }: DashboardProps) {
           <MetricCard icon={AlertTriangle} label="Atrasadas" value={String(overdueTasks.length)} detail="Precisam de atenção" />
           <MetricCard icon={CalendarDays} label="Compromissos" value={String(appointments.length)} detail="Na agenda demonstrativa" />
         </div>
+
+        {role === 'familiar' && <PessoasAcompanhadas />}
 
         <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
           <section className="rounded-2xl border border-brand-border bg-white p-5 sm:p-6">
